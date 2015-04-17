@@ -1,0 +1,758 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"_curre",
+				"_currentSceneKey"
+			],
+			[
+				"start",
+				"startNextScene"
+			],
+			[
+				"transition",
+				"transitionFinished"
+			],
+			[
+				"final",
+				"finalPosition"
+			],
+			[
+				"fina",
+				"finalPosition"
+			],
+			[
+				"_overlay",
+				"_overlaySceneKey"
+			],
+			[
+				"_overl",
+				"_overlaySceneKey"
+			],
+			[
+				"_current",
+				"_currentSceneKey"
+			],
+			[
+				"EX",
+				"EXPAND_DURATION"
+			],
+			[
+				"_over",
+				"_overlaySceneKey"
+			],
+			[
+				"_scene",
+				"_sceneComponents"
+			],
+			[
+				"_curren",
+				"_currentSceneKey"
+			],
+			[
+				"top",
+				"topLeft"
+			],
+			[
+				"primary",
+				"primaryComponent"
+			],
+			[
+				"_sca",
+				"_scaleCoords"
+			],
+			[
+				"cl",
+				"clientX"
+			],
+			[
+				"_sc",
+				"_sceneInput"
+			],
+			[
+				"next",
+				"nextScene"
+			],
+			[
+				"scene",
+				"scenes"
+			],
+			[
+				"_c",
+				"_currentLocation"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "www/js/app/scenes/scene.js",
+			"settings":
+			{
+				"buffer_size": 346,
+				"line_ending": "Windows",
+				"name": "define(function() {"
+			}
+		},
+		{
+			"settings":
+			{
+				"buffer_size": 0,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "www/js/app/theme-store.js",
+			"settings":
+			{
+				"buffer_size": 347,
+				"line_ending": "Windows",
+				"name": "define(function() {"
+			}
+		},
+		{
+			"file": "www/js/app/scenes/main-menu.js",
+			"settings":
+			{
+				"buffer_size": 406,
+				"line_ending": "Windows",
+				"name": "define(['app/scenes/scene', 'app/graphics'], funct"
+			}
+		},
+		{
+			"file": "www/js/app/graphics.js",
+			"settings":
+			{
+				"buffer_size": 3697,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "www/css/main.css",
+			"settings":
+			{
+				"buffer_size": 185,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "www/js/app/scenes/game-board.js",
+			"settings":
+			{
+				"buffer_size": 285,
+				"line_ending": "Windows",
+				"name": "define(['app/util', 'app/scene/scene', 'app/graphi"
+			}
+		},
+		{
+			"file": "www/js/app/main.js",
+			"settings":
+			{
+				"buffer_size": 811,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "www/js/app/util.js",
+			"settings":
+			{
+				"buffer_size": 500,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+		],
+		"width": 392.0
+	},
+	"console":
+	{
+		"height": 0.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/E/workspace/radum/www/js/app/util.js",
+		"/E/Users/Michael!/Documents/index.html",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/component/factory.js",
+		"/E/Users/Michael!/Documents/adventure-engine/build/index.html",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/transition/fadeout.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/component/video.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/component/image.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/component/video-frame.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/transition/factory.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/transition/expand.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/component/base-component.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/component/alpha-video.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/world-engine.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/core/input.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/demo/config.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/core/graphics.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/adventure-engine.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/index.html",
+		"/E/Users/Michael!/Documents/adventure-engine/.gitignore",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/demo/scenes.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/demo/world.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/demo/stage.js",
+		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/room-transitions/slide-3d.js"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"butler-liv",
+			"startS",
+			"_startScene",
+			"butler-liv",
+			"_startScene",
+			"_getNextScene",
+			".timer",
+			"timer",
+			"timer:",
+			".targets",
+			"targets",
+			"getNextScene",
+			"isActive",
+			"condition",
+			"isAc",
+			"isAv",
+			"_sceneStates",
+			"|| _current",
+			"|| _over",
+			"end",
+			"'\n",
+			".waitingOn",
+			"scene",
+			"video-c",
+			"waiti",
+			"waitign",
+			"_waiting",
+			"scene.wait",
+			"_waiting",
+			"onTra",
+			"_opacity",
+			"setOpa",
+			"opacity",
+			"_startStartT",
+			"_endScs",
+			"drawFrame",
+			"_scale",
+			".scale",
+			"startScene",
+			"normalize",
+			"shiftSc",
+			"drawLoca",
+			"draw:pcatopm",
+			"_canvas.save",
+			"scale",
+			"position",
+			"finalPosition",
+			"queue",
+			"'END",
+			"vestibule.mp4",
+			"vesitbule.mp4",
+			"vestbule.mp4",
+			"_getNextScene",
+			"_getNextSc",
+			"oosetX",
+			"offsetX",
+			"handleCoor",
+			"console.log",
+			"loadScene",
+			"loadSceneMedia",
+			"_start",
+			"_lastFrame",
+			"_loadSceneM",
+			"_loadVideo",
+			"_load",
+			"_media[path] = media",
+			"_loadVideo",
+			"loadSceneM",
+			"loadMed",
+			"_loadMedia",
+			"loadVideo",
+			"_images",
+			"_videos",
+			"stopV",
+			"sceneKey",
+			"primaryCom",
+			"_start",
+			"_currentScene =",
+			"image",
+			"video",
+			"drawImage",
+			"playVide",
+			"loadM",
+			"adventure",
+			"loadVide",
+			"TopLeft",
+			"_canvas",
+			"getVideoTime",
+			"_loadVideo",
+			"_scalecoord",
+			"inputSpan",
+			"inputScane",
+			"_getNextS",
+			"canvasEl",
+			"_scale",
+			"setZoom",
+			"minScale",
+			"_options.screenHeight",
+			"_options.screenWidth",
+			"_trans",
+			"move",
+			"gameCon",
+			"game",
+			".adventure"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"_media",
+			"_options.adventure.config.screenHeight",
+			"_options.adventure.config.screenWidth"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 8,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "www/js/app/scenes/scene.js",
+					"settings":
+					{
+						"buffer_size": 346,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								261,
+								261
+							]
+						],
+						"settings":
+						{
+							"auto_name": "define(function() {",
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"settings":
+					{
+						"buffer_size": 0,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"default_dir": "E:\\workspace\\radum\\www\\js\\app\\themes",
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "www/js/app/theme-store.js",
+					"settings":
+					{
+						"buffer_size": 347,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								339,
+								339
+							]
+						],
+						"settings":
+						{
+							"auto_name": "define(function() {",
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "www/js/app/scenes/main-menu.js",
+					"settings":
+					{
+						"buffer_size": 406,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								406,
+								406
+							]
+						],
+						"settings":
+						{
+							"auto_name": "define(['app/scenes/scene', 'app/graphics'], funct",
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "www/js/app/graphics.js",
+					"settings":
+					{
+						"buffer_size": 3697,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3689,
+								3689
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1118.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "www/css/main.css",
+					"settings":
+					{
+						"buffer_size": 185,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								182,
+								182
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CSS/CSS.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "www/js/app/scenes/game-board.js",
+					"settings":
+					{
+						"buffer_size": 285,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								31,
+								31
+							]
+						],
+						"settings":
+						{
+							"auto_name": "define(['app/util', 'app/scene/scene', 'app/graphi",
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "www/js/app/main.js",
+					"settings":
+					{
+						"buffer_size": 811,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								445,
+								445
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "www/js/app/util.js",
+					"settings":
+					{
+						"buffer_size": 500,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								441,
+								441
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"util",
+				"www/js/app/util.js"
+			],
+			[
+				"inpu",
+				"www/scripts/app/core/input.js"
+			],
+			[
+				"fac",
+				"www/scripts/app/transition/factory.js"
+			],
+			[
+				"vide",
+				"www/scripts/app/component/video.js"
+			],
+			[
+				"video.",
+				"www/scripts/app/component/video.js"
+			],
+			[
+				"immage",
+				"www/scripts/app/component/image.js"
+			],
+			[
+				"index",
+				"build/index.html"
+			],
+			[
+				"exp",
+				"www/scripts/app/transition/expand.js"
+			],
+			[
+				"video-f",
+				"www/scripts/app/component/video-frame.js"
+			],
+			[
+				"video",
+				"www/scripts/app/component/video.js"
+			],
+			[
+				"al",
+				"www/scripts/app/component/alpha-video.js"
+			],
+			[
+				"con",
+				"www/scripts/demo/config.js"
+			],
+			[
+				"fa",
+				"www/scripts/app/component/factory.js"
+			],
+			[
+				"im",
+				"www/scripts/app/component/image.js"
+			],
+			[
+				"grap",
+				"www/scripts/app/core/graphics.js"
+			],
+			[
+				"input",
+				"www/scripts/app/core/input.js"
+			],
+			[
+				"world-e",
+				"www/scripts/app/world-engine.js"
+			],
+			[
+				"ad",
+				"www/scripts/app/adventure-engine.js"
+			],
+			[
+				"wor",
+				"www/scripts/app/world-engine.js"
+			],
+			[
+				"scene",
+				"www/scripts/demo/scenes.js"
+			],
+			[
+				"config",
+				"www/scripts/demo/config.js"
+			],
+			[
+				"scenes",
+				"www/scripts/demo/scenes.js"
+			],
+			[
+				"graphics",
+				"www/scripts/app/core/graphics.js"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+			[
+				"",
+				"/E/workspace/adventure-engine.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 198.0,
+	"status_bar_visible": true
+}

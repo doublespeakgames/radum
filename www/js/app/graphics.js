@@ -3,7 +3,7 @@
  *	simple canvas-based graphics library
  *	(c) doublespeak games 2015	
  **/
-define(['app/util'], function(Util) {
+define(['app/util', 'app/theme-store'], function(Util, ThemeStore) {
 	
 	var _viewScale = 1
 	, _scaleSheet
@@ -14,6 +14,7 @@ define(['app/util'], function(Util) {
 		height: 1280,
 		scaling: true
 	}
+	, _theme = ThemeStore.getTheme()
 	;
 
 	function _init(options) {
@@ -102,7 +103,72 @@ define(['app/util'], function(Util) {
 		);
 	}
 
+	function _scaleCoords(x, y) {
+		// Translate origin to horizontal-middle
+		x -= window.innerWidth / 2;
+
+		// Scale
+		x /= _viewScale;
+		y /= _viewScale;
+
+		// Translate origin to top-left of canvas
+		x += _options.width / 2;
+
+		return {x: x, y: y};
+	}
+
+	function _clear() {
+		_canvas.clearRect(0, 0, _options.width, _options.height);
+	}
+
+	function _getWidth() {
+		return _options.width;
+	}
+
+	function _getHeight() {
+		return _options.height;
+	}
+
+	function _drawText(text, x, y, fontSize, colour) {
+		colour = colour || '#FFFFFF';
+		_canvas.font = fontSize + 'px Arial, Helvetica, sans-serif';
+		_canvas.fillStyle = colour;
+		_canvas.fillText(text, x, y);
+	}
+
+	function _setBackground(colour) {
+		document.body.style.background = colour ? _theme[colour] : 'transparent';
+	}
+
+	function _drawCircle(x, y, radius, colour, borderColour) {		
+		_canvas.arc(x, y, radius, 0, 2 * Math.PI, false);
+		_canvas.fillStyle = _theme[colour];
+		_canvas.fill();
+		if (borderColour) {
+			_canvas.lineWidth = 5;
+			_canvas.strokeStyle = _theme[borderColour];
+			_canvas.stroke();
+		}
+	}
+
+	function _drawRect(x, y, width, height, colour) {
+		_canvas.beginPath();
+		_canvas.fillStyle = null;
+		_canvas.strokeStyle = colour ? _theme[colour] : '#FFFFFF';
+		_canvas.lineWidth = 2;
+		_canvas.rect(x, y, width, height);
+		_canvas.stroke();
+	}
+
 	return {
-		init: _init
+		init: _init,
+		scaleCoords: _scaleCoords,
+		clear: _clear,
+		width: _getWidth,
+		height: _getHeight,
+		setBackground: _setBackground,
+		text: _drawText,
+		circle: _drawCircle,
+		rect: _drawRect
 	};
 });

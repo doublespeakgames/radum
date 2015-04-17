@@ -2,8 +2,8 @@
  *	Radum
  *	(c) doublespeak games 2015	
  **/
-require(['app/event-manager', 'app/graphics'], function(EM, Graphics) {
+require(['app/engine'], 
+		function(Engine) {
 	
-	// Start everything
-	Graphics.init();
+	Engine.init();
 });
