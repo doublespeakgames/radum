@@ -36,12 +36,10 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 
 		 onInputStart: function(coords) {
 		 	if (_stateMachine.can('CLICKPIECE') && _activePiece && _activePiece.contains(coords)) {
-		 		console.log('clicked piece');
 		 		_stateMachine.go('CLICKPIECE');
 		 	}
 		 	else if (_stateMachine.can('PLAYPIECE')) {
 		 		if (!_activePiece) {
-		 			console.log('new piece');
 		 			_activePiece = new Piece(coords, 1);	
 		 		} else {
 		 			_activePiece.move(coords)
@@ -53,11 +51,9 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 		 onInputStop: function()  {
 		 	if (_stateMachine.can('SUBMIT')) {
 		 		// TODO
-		 		console.log('submitted');
 		 		_stateMachine.go('SUBMIT');
 		 	}
 		 	else if (_stateMachine.can('STOP')) {
-		 		console.log('stopped moving');
 		 		_stateMachine.go('STOP');
 		 	}
 		 },
