@@ -21,6 +21,8 @@
  **/
 define([], function() {
 
+	var DEBUG = false;
+
 	function _canTransitionVia(transitionName) {
 		var stateTransitions = this._transitions[this._currentState];
 		return !!(stateTransitions && stateTransitions[transitionName]);
@@ -32,14 +34,14 @@ define([], function() {
 			return;
 		}
 		this._currentState = stateTransitions[transitionName];
-		console.debug('STATEMACHINE: Transitioned to ' + this._currentState + ' via ' + transitionName);
+		DEBUG && console.debug('STATEMACHINE: Transitioned to ' + this._currentState + ' via ' + transitionName);
 		return this._currentState;
 	}
 
 	function StateMachine(transitions, initialState) {
 		this._transitions = transitions;
 		this._currentState = initialState;
-		console.debug('STATEMACHINE: Started in state ' + initialState);
+		DEBUG && console.debug('STATEMACHINE: Started in state ' + initialState);
 	}
 	StateMachine.prototype = {
 		can: _canTransitionVia,
