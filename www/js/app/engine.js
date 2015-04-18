@@ -25,11 +25,30 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 		_activeScene.onInputStart(Graphics.scaleCoords(e.pageX, e.pageY));
 	}
 
+	function _handleInputStop(e) {
+		_activeScene.onInputStop();
+	}
+
+	function _handleInputMove(e) {
+		e = e || window.event;
+		e.preventDefault();
+		// Handle touch events
+		if(e.changedTouches) {
+			e = e.changedTouches[0];
+		}
+
+		_activeScene.onInputMove(Graphics.scaleCoords(e.clientX, e.clientY));
+	}
+
 	function _init() {
 		// Start everything
 		Graphics.init();
 		document.body.addEventListener('touchstart', _handleInputStart);
 		document.body.addEventListener('mousedown', _handleInputStart);
+		document.body.addEventListener('touchstop', _handleInputStop);
+		document.body.addEventListener('mouseup', _handleInputStop);
+		document.body.addEventListener('touchmove', _handleInputMove);
+		document.body.addEventListener('mousemove', _handleInputMove);
 
 		// Start the main menu
 		_changeScene('main-menu');

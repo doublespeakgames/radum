@@ -140,7 +140,8 @@ define(['app/util', 'app/theme-store'], function(Util, ThemeStore) {
 		document.body.style.background = colour ? _theme[colour] : 'transparent';
 	}
 
-	function _drawCircle(x, y, radius, colour, borderColour) {		
+	function _drawCircle(x, y, radius, colour, borderColour) {
+		_canvas.beginPath();
 		_canvas.arc(x, y, radius, 0, 2 * Math.PI, false);
 		_canvas.fillStyle = _theme[colour];
 		_canvas.fill();

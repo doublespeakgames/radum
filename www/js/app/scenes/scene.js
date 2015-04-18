@@ -18,7 +18,9 @@ define(['app/util', 'app/graphics'],
 		},
 		drawFrame: function(delta) {},
 
-		onInputStart: function(coords) {}
+		onInputStart: function(coords) {},
+		onInputStop: function() {},
+		onInputMove: function(coords) {}
 	};
 
 	return Scene;

@@ -91,23 +91,25 @@
 			"file": "www/js/app/scenes/scene.js",
 			"settings":
 			{
-				"buffer_size": 346,
+				"buffer_size": 479,
 				"line_ending": "Windows",
 				"name": "define(function() {"
 			}
 		},
 		{
+			"file": "www/js/app/scene-store.js",
 			"settings":
 			{
-				"buffer_size": 0,
-				"line_ending": "Windows"
+				"buffer_size": 268,
+				"line_ending": "Windows",
+				"name": "define(['app/scenes/game-board', 'app/scenes/main-"
 			}
 		},
 		{
 			"file": "www/js/app/theme-store.js",
 			"settings":
 			{
-				"buffer_size": 347,
+				"buffer_size": 440,
 				"line_ending": "Windows",
 				"name": "define(function() {"
 			}
@@ -116,7 +118,7 @@
 			"file": "www/js/app/scenes/main-menu.js",
 			"settings":
 			{
-				"buffer_size": 406,
+				"buffer_size": 1189,
 				"line_ending": "Windows",
 				"name": "define(['app/scenes/scene', 'app/graphics'], funct"
 			}
@@ -125,15 +127,7 @@
 			"file": "www/js/app/graphics.js",
 			"settings":
 			{
-				"buffer_size": 3697,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "www/css/main.css",
-			"settings":
-			{
-				"buffer_size": 185,
+				"buffer_size": 4248,
 				"line_ending": "Windows"
 			}
 		},
@@ -141,7 +135,7 @@
 			"file": "www/js/app/scenes/game-board.js",
 			"settings":
 			{
-				"buffer_size": 285,
+				"buffer_size": 373,
 				"line_ending": "Windows",
 				"name": "define(['app/util', 'app/scene/scene', 'app/graphi"
 			}
@@ -150,7 +144,7 @@
 			"file": "www/js/app/main.js",
 			"settings":
 			{
-				"buffer_size": 811,
+				"buffer_size": 116,
 				"line_ending": "Windows"
 			}
 		},
@@ -158,8 +152,17 @@
 			"file": "www/js/app/util.js",
 			"settings":
 			{
-				"buffer_size": 500,
+				"buffer_size": 576,
 				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "www/js/app/engine.js",
+			"settings":
+			{
+				"buffer_size": 1047,
+				"line_ending": "Windows",
+				"name": "define(['app/util', 'app/event-manager', 'app/grap"
 			}
 		}
 	],
@@ -187,6 +190,7 @@
 	},
 	"file_history":
 	[
+		"/E/workspace/radum/www/css/main.css",
 		"/E/workspace/radum/www/js/app/util.js",
 		"/E/Users/Michael!/Documents/index.html",
 		"/E/Users/Michael!/Documents/adventure-engine/www/scripts/app/component/factory.js",
@@ -352,7 +356,7 @@
 	"groups":
 	[
 		{
-			"selected": 8,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -360,15 +364,15 @@
 					"file": "www/js/app/scenes/scene.js",
 					"settings":
 					{
-						"buffer_size": 346,
+						"buffer_size": 479,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								261,
-								261
+								55,
+								55
 							]
 						],
 						"settings":
@@ -385,23 +389,24 @@
 				},
 				{
 					"buffer": 1,
+					"file": "www/js/app/scene-store.js",
 					"settings":
 					{
-						"buffer_size": 0,
+						"buffer_size": 268,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								81,
+								81
 							]
 						],
 						"settings":
 						{
-							"default_dir": "E:\\workspace\\radum\\www\\js\\app\\themes",
-							"syntax": "Packages/Text/Plain text.tmLanguage"
+							"auto_name": "define(['app/scenes/game-board', 'app/scenes/main-",
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -414,15 +419,15 @@
 					"file": "www/js/app/theme-store.js",
 					"settings":
 					{
-						"buffer_size": 347,
+						"buffer_size": 440,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								339,
-								339
+								56,
+								56
 							]
 						],
 						"settings":
@@ -442,15 +447,15 @@
 					"file": "www/js/app/scenes/main-menu.js",
 					"settings":
 					{
-						"buffer_size": 406,
+						"buffer_size": 1189,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								406,
-								406
+								43,
+								43
 							]
 						],
 						"settings":
@@ -469,15 +474,15 @@
 					"file": "www/js/app/graphics.js",
 					"settings":
 					{
-						"buffer_size": 3697,
+						"buffer_size": 4248,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3689,
-								3689
+								91,
+								0
 							]
 						],
 						"settings":
@@ -486,51 +491,25 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1118.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "www/css/main.css",
-					"settings":
-					{
-						"buffer_size": 185,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								182,
-								182
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/CSS/CSS.tmLanguage"
-						},
-						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 6,
+					"buffer": 5,
 					"file": "www/js/app/scenes/game-board.js",
 					"settings":
 					{
-						"buffer_size": 285,
+						"buffer_size": 373,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								31,
-								31
+								41,
+								41
 							]
 						],
 						"settings":
@@ -545,19 +524,46 @@
 					"type": "text"
 				},
 				{
-					"buffer": 7,
+					"buffer": 6,
 					"file": "www/js/app/main.js",
 					"settings":
 					{
-						"buffer_size": 811,
+						"buffer_size": 116,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								445,
-								445
+								112,
+								112
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "www/js/app/util.js",
+					"settings":
+					{
+						"buffer_size": 576,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								39,
+								39
 							]
 						],
 						"settings":
@@ -573,24 +579,24 @@
 				},
 				{
 					"buffer": 8,
-					"file": "www/js/app/util.js",
+					"file": "www/js/app/engine.js",
 					"settings":
 					{
-						"buffer_size": 500,
+						"buffer_size": 1047,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								441,
-								441
+								44,
+								44
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"translate_tabs_to_spaces": false
+							"auto_name": "define(['app/util', 'app/event-manager', 'app/grap",
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
