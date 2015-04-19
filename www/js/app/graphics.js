@@ -54,7 +54,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 
 	function _scaleCoords(coords) {
 		_scaler.scaleCoords(coords);
-		console.log(coords);
+		// console.log(coords);
 		return coords;
 	}
 
