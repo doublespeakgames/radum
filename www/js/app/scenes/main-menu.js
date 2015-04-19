@@ -9,13 +9,13 @@ define(['app/scenes/scene', 'app/graphics'], function(Scene, Graphics) {
 
 	var _hitBoxes = [{
 		x: 0, //160,
-		y: 320,//645,
+		y: 295,//645,
 		width: 360, //400,
 		height: 100,
 		onTrigger: _startGame
 	},{
 		x: 0, //160,
-		y: 470,//790,
+		y: 440,//790,
 		width: 360, //400,
 		height: 100,
 		onTrigger: _showRules
@@ -34,9 +34,9 @@ define(['app/scenes/scene', 'app/graphics'], function(Scene, Graphics) {
 		background: 'background',
 
 		drawFrame: function(delta) {
-			Graphics.text('Radüm', Graphics.width() / 2, Graphics.height() / 3, 100);
-			Graphics.text('play', Graphics.width() / 2, Graphics.height() / 2 + 50, 50);
-			Graphics.text('rules', Graphics.width() / 2, Graphics.height() / 2 + 200, 50);
+			Graphics.text('Radüm', Graphics.width() / 2, Graphics.height() / 3 - 30, 100);
+			Graphics.text('play', Graphics.width() / 2, Graphics.height() / 2 + 20, 50);
+			Graphics.text('rules', Graphics.width() / 2, Graphics.height() / 2 + 170, 50);
 
 			if (DEBUG) {
 				_hitBoxes.forEach(function(box) {
