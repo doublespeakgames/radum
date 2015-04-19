@@ -15,21 +15,22 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 		_activeScene.activate();
 	}
 
-	function _handleInputStart(e) {
+	
+	var _handleInputStart = Util.timeGate(function(e) {
 		e = e || window.event;
 		// Handle wacky touch event objects
 		if(e.changedTouches) {
 			e = e.changedTouches[0];
 		}
 
-		_activeScene.onInputStart(Graphics.scaleCoords(e.pageX, e.pageY));
-	}
+		_activeScene.onInputStart(Graphics.scaleCoords({x: e.pageX, y: e.pageY}));
+	}, 10);
 
-	function _handleInputStop(e) {
+	var _handleInputStop = Util.timeGate(function(e) {
 		_activeScene.onInputStop();
-	}
+	}, 10);
 
-	function _handleInputMove(e) {
+	var _handleInputMove = Util.timeGate(function(e) {
 		e = e || window.event;
 		e.preventDefault();
 		// Handle touch events
@@ -37,8 +38,8 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 			e = e.changedTouches[0];
 		}
 
-		_activeScene.onInputMove(Graphics.scaleCoords(e.clientX, e.clientY));
-	}
+		_activeScene.onInputMove(Graphics.scaleCoords({x: e.clientX, y: e.clientY}));
+	}, 10);
 
 	function _init() {
 		// Start everything

@@ -9,5 +9,5 @@ define(['app/scenes/game-board', 'app/scenes/main-menu'], function(GameBoard, Ma
 		get: function(sceneName) {
 			return require('app/scenes/' + sceneName);
 		}
-	}
+	};
 });

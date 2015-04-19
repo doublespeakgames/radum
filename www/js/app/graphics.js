@@ -3,34 +3,26 @@
  *	simple canvas-based graphics library
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/theme-store'], function(Util, ThemeStore) {
+define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, ThemeStore, ScalerStore) {
 	
 	var _viewScale = 1
 	, _scaleSheet
 	, _canvas
 	, _canvasEl
 	, _options = {
-		width: 720,
-		height: 1280,
-		scaling: true
+		width: 360,
+		height: 640,
+		scalingMode: 'css'
 	}
+	, _scaler = null
 	, _theme = ThemeStore.getTheme()
 	;
 
 	function _init(options) {
 		_options = Util.merge(_options, options);
+		_scaler = ScalerStore.get(_options.scalingMode || 'native');
 		_initCanvas();
 		window.addEventListener('resize', _initCanvas);
-	}
-
-	function _addStyleRule(sheet, selector, rules) {
-		if (sheet.addRule) {
-			// Non-standard IE
-			sheet.addRule(selector, rules);
-		} else {
-			// Everyone else
-			sheet.insertRule(selector + '{' + rules + '}', sheet.cssRules.length);
-		}
 	}
 
 	function _newCanvas(width, height, className) {
@@ -60,65 +52,28 @@ define(['app/util', 'app/theme-store'], function(Util, ThemeStore) {
 
 			_canvas.save();
 		}
-		if (!_scaleSheet) {
 
-			// Create stylesheet
-			_scaleSheet = document.createElement('style');
-			_scaleSheet.id = 'radum-scalesheet';
-			_scaleSheet.appendChild(document.createTextNode('')); // Stupid Webkit
-			document.head.appendChild(_scaleSheet);
-			_scaleSheet = _scaleSheet.sheet;
-
-			// Add canvas size to sheet
-			_addStyleRule(_scaleSheet, '.radum-canvas', 
-				'width:' + _options.width + 'px;' + 
-				'height:' + _options.height + 'px;' +
-				'position: absolute;' +
-				'top: 50%;' +
-				'left: 50%;' +
-				'margin-top: -' + _options.height / 2 + 'px;' +
-				'margin-left: -' + _options.width / 2 + 'px;');
-
-		} else {
-			// Delete old scale
-			_scaleSheet.deleteRule(1);
-		}
-
-		if (!_options.scaling) {
-			_viewScale = 1;
-		} else {
-			_viewScale = widthScale < heightScale ? widthScale : heightScale;
-		}
-		_addStyleRule(_scaleSheet, '.radum-canvas',
-			'transform-origin: 50% 50% 0;' +
-			'-webkit-transform-origin: 50% 50% 0;' +
-			'-moz-transform-origin: 50% 50% 0;' +
-			'-ms-transform-origin: 50% 50% 0;' +
-			'-o-transform-origin: 50% 50% 0;' +
-			'transform: scale(' + _viewScale +');' +
-			'-webkit-transform: scale(' + _viewScale +');' +
-			'-moz-transform: scale(' + _viewScale +');' +
-			'-ms-transform: scale(' + _viewScale +');' +
-			'-o-transform: scale(' + _viewScale +');'
-		);
+		// Apply proper scale
+		_scaler.setScale(widthScale < heightScale ? widthScale : heightScale);
+		_scaler.scaleCanvas(_canvas);
 	}
 
-	function _scaleCoords(x, y) {
-		// Translate origin to horizontal-middle
-		x -= window.innerWidth / 2;
-
-		// Scale
-		x /= _viewScale;
-		y /= _viewScale;
-
-		// Translate origin to top-left of canvas
-		x += _options.width / 2;
-
-		return {x: x, y: y};
+	function _scaleCoords(coords) {
+		_scaler.scaleCoords(coords);
+		console.log(coords);
+		return coords;
 	}
 
 	function _clear() {
 		_canvas.clearRect(0, 0, _options.width, _options.height);
+	}
+
+	function _getWindowWidth() {
+		return window.innerWidth;
+	}
+
+	function _getWindowHeight() {
+		return window.innerHeight;
 	}
 
 	function _getWidth() {
@@ -167,6 +122,8 @@ define(['app/util', 'app/theme-store'], function(Util, ThemeStore) {
 		clear: _clear,
 		width: _getWidth,
 		height: _getHeight,
+		realWidth: _getWindowWidth,
+		realHeight: _getWindowHeight,
 		setBackground: _setBackground,
 		text: _drawText,
 		circle: _drawCircle,

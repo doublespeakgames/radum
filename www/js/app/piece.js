@@ -5,7 +5,7 @@
  **/
 define(['app/graphics'], function(Graphics) {
 
-	var RADIUS = 50;
+	var RADIUS = 25;
 
 	function Piece(coords, player) {
 		this._coords = coords;
