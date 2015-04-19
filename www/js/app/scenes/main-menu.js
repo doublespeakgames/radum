@@ -5,7 +5,7 @@
  **/
 define(['app/scenes/scene', 'app/graphics'], function(Scene, Graphics) {
 	
-	var DEBUG = true;
+	var DEBUG = false;
 
 	var _hitBoxes = [{
 		x: 0, //160,
@@ -34,9 +34,9 @@ define(['app/scenes/scene', 'app/graphics'], function(Scene, Graphics) {
 		background: 'background',
 
 		drawFrame: function(delta) {
-			Graphics.text('Radüm', Graphics.width() / 2, Graphics.height() / 3, 160);
-			Graphics.text('play', Graphics.width() / 2, Graphics.height() / 2 + 50, 64);
-			Graphics.text('rules', Graphics.width() / 2, Graphics.height() / 2 + 200, 64);
+			Graphics.text('Radüm', Graphics.width() / 2, Graphics.height() / 3, 100);
+			Graphics.text('play', Graphics.width() / 2, Graphics.height() / 2 + 50, 50);
+			Graphics.text('rules', Graphics.width() / 2, Graphics.height() / 2 + 200, 50);
 
 			if (DEBUG) {
 				_hitBoxes.forEach(function(box) {

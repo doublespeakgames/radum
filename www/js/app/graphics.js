@@ -5,9 +5,7 @@
  **/
 define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, ThemeStore, ScalerStore) {
 	
-	var _viewScale = 1
-	, _scaleSheet
-	, _canvas
+	var _canvas
 	, _canvasEl
 	, _options = {
 		width: 360,
@@ -60,7 +58,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 
 	function _scaleCoords(coords) {
 		_scaler.scaleCoords(coords);
-		console.log(coords);
+		// console.log(coords);
 		return coords;
 	}
 
