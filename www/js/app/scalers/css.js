@@ -23,6 +23,7 @@ define(['app/scalers/scaler'], function(Scaler){
 
 			// Translate origin to horizontal-middle
 			coords.x -= G.realWidth() / 2;
+			coords.y -= G.realHeight() / 2;
 
 			// Scale
 			coords.x /= this._scale;
@@ -30,6 +31,7 @@ define(['app/scalers/scaler'], function(Scaler){
 
 			// Translate origin to top-left of canvas
 			coords.x += G.width() / 2;
+			coords.y += G.height() / 2;
 		},
 		scaleCanvas: function(canvas) {
 			var G = require('app/graphics');

@@ -8,15 +8,15 @@ define(['app/scenes/scene', 'app/graphics'], function(Scene, Graphics) {
 	var DEBUG = false;
 
 	var _hitBoxes = [{
-		x: 0, //160,
-		y: 295,//645,
-		width: 360, //400,
+		x: 0,
+		y: 295,
+		width: 360,
 		height: 100,
 		onTrigger: _startGame
 	},{
-		x: 0, //160,
-		y: 440,//790,
-		width: 360, //400,
+		x: 0,
+		y: 440,
+		width: 360,
 		height: 100,
 		onTrigger: _showRules
 	}];
