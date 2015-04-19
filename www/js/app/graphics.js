@@ -10,7 +10,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 	, _options = {
 		width: 360,
 		height: 640,
-		scalingMode: 'css'
+		scalingMode: 'javascript'
 	}
 	, _scaler = null
 	, _theme = ThemeStore.getTheme()
@@ -44,16 +44,12 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 			document.body.appendChild(_canvasEl);
 			_canvas = _canvasEl.getContext('2d');
 
-			// General text rules
-			_canvas.textAlign = 'center';
-			_canvas.textBaseline = 'middle';
-
 			_canvas.save();
 		}
 
 		// Apply proper scale
 		_scaler.setScale(widthScale < heightScale ? widthScale : heightScale);
-		_scaler.scaleCanvas(_canvas);
+		_scaler.scaleCanvas(_canvasEl);
 	}
 
 	function _scaleCoords(coords) {
@@ -63,7 +59,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 	}
 
 	function _clear() {
-		_canvas.clearRect(0, 0, _options.width, _options.height);
+		_canvas.clearRect(0, 0, _scaler.scaleValue(_options.width), _scaler.scaleValue(_options.height));
 	}
 
 	function _getWindowWidth() {
@@ -84,9 +80,12 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 
 	function _drawText(text, x, y, fontSize, colour) {
 		colour = colour || '#FFFFFF';
-		_canvas.font = fontSize + 'px Arial, Helvetica, sans-serif';
+		// General text rules
+		_canvas.textAlign = 'center';
+		_canvas.textBaseline = 'middle';
+		_canvas.font = _scaler.scaleValue(fontSize) + 'px Arial, Helvetica, sans-serif';
 		_canvas.fillStyle = colour;
-		_canvas.fillText(text, x, y);
+		_canvas.fillText(text, _scaler.scaleValue(x), _scaler.scaleValue(y));
 	}
 
 	function _setBackground(colour) {
@@ -95,11 +94,11 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 
 	function _drawCircle(x, y, radius, colour, borderColour) {
 		_canvas.beginPath();
-		_canvas.arc(x, y, radius, 0, 2 * Math.PI, false);
+		_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(radius), 0, 2 * Math.PI, false);
 		_canvas.fillStyle = _theme[colour];
 		_canvas.fill();
 		if (borderColour) {
-			_canvas.lineWidth = 5;
+			_canvas.lineWidth = _scaler.scaleValue(5);
 			_canvas.strokeStyle = _theme[borderColour];
 			_canvas.stroke();
 		}
@@ -109,8 +108,8 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		_canvas.beginPath();
 		_canvas.fillStyle = null;
 		_canvas.strokeStyle = colour ? _theme[colour] : '#FFFFFF';
-		_canvas.lineWidth = 2;
-		_canvas.rect(x, y, width, height);
+		_canvas.lineWidth = _scaler.scaleValue(2);
+		_canvas.rect(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(width), _scaler.scaleValue(height));
 		_canvas.stroke();
 	}
 

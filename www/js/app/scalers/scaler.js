@@ -9,13 +9,12 @@ define(['app/util'], function(Util) {
 		Util.merge(this, options);
 		this._scale = 1;
 	}
-	
+
 	Scaler.prototype = {
 		setScale: function(scale) {
 			this._scale = scale;
 		},
-		scaleFont: function(font) { return font; },
-		scaleSize: function(size) { return size; },
+		scaleValue: function(value) { return value; },
 		scaleCoords: function(coords) { return coords; },
 		scaleCanvas: function(canvas) {}
 	};
