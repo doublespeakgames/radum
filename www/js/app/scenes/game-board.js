@@ -26,24 +26,56 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 		}
 	}, 'IDLE');
 
-	var _activePiece = null;
+	var _activePiece = null,
+	_playedPieces = [new Piece({x: 180, y: 320}, 2), new Piece({x: 130, y: 320}, 2), new Piece({x: 250, y: 320}, 2), new Piece({x: 30, y: 320}, 2)]
+	;
 
-	function _distance(p1, p2) {
-		return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
-	}
-
-	function _getValidCoords(coords) {
-		var distance = _distance(coords, BOARD_CENTER)
+	function _getBoundaryVector(coords) {
+		var distance = Util.distance(coords, BOARD_CENTER)
 		, scale = 1
 		;
 		
 		// Make sure the piece is on the board
 		if (distance > BOARD_RADIUS) {
 			scale = BOARD_RADIUS / distance;
-			coords.x = (scale * coords.x) + (1 - scale) * BOARD_CENTER.x;
-			coords.y = (scale * coords.y) + (1 - scale) * BOARD_CENTER.y;
+
+			return {
+				x: (scale * coords.x) + (1 - scale) * BOARD_CENTER.x - coords.x,
+				y: (scale * coords.y) + (1 - scale) * BOARD_CENTER.y - coords.y
+			};
 		}
-		return coords;
+
+		return {x: 0, y: 0};
+	}
+
+	function _doCollisions(coords, tries) {
+		var totalRebound = _getBoundaryVector(coords);
+
+		tries = tries || 0;
+
+		_playedPieces.forEach(function(staticPiece) {
+			var rebound = staticPiece.getReboundVector(coords);
+			totalRebound.x += rebound.x;
+			totalRebound.y += rebound.y;
+		});
+
+		totalRebound.x = totalRebound.x < 0 ? Math.floor(totalRebound.x) : Math.ceil(totalRebound.x);
+		totalRebound.y = totalRebound.y < 0 ? Math.floor(totalRebound.y) : Math.ceil(totalRebound.y);
+
+		coords.x += totalRebound.x;
+		coords.y += totalRebound.y;
+
+		if (totalRebound.x != 0 || totalRebound.y != 0) {
+			// Make sure there are no collisions caused by this adjustment
+			console.log(tries);
+			if (tries >= 5) {
+				// Give up if we've tried too much
+				return false;
+			}
+			return _doCollisions(coords, tries + 1);
+		}
+
+		return true;
 	}
 	
 	return new Scene({
@@ -51,6 +83,9 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 
 		 drawFrame: function(delta) {
 		 	Graphics.circle(BOARD_CENTER.x, BOARD_CENTER.y, BOARD_RADIUS, 'background');
+		 	_playedPieces.forEach(function(piece) {
+		 		piece.draw();
+		 	});
 		 	if (_activePiece) {
 		 		_activePiece.draw();
 		 	}
@@ -61,10 +96,14 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 		 		_stateMachine.go('CLICKPIECE');
 		 	}
 		 	else if (_stateMachine.can('PLAYPIECE')) {
+		 		if (!_doCollisions(coords)) {
+		 			// Couldn't find a valid place
+		 			return;
+		 		}
 		 		if (!_activePiece) {
-		 			_activePiece = new Piece(_getValidCoords(coords), 1);	
+		 			_activePiece = new Piece(coords, 1);
 		 		} else {
-		 			_activePiece.move(_getValidCoords(coords));
+		 			_activePiece.move(coords);
 		 		}
 		 		_stateMachine.go('PLAYPIECE');
 		 	}
@@ -82,7 +121,11 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 
 		 onInputMove: function(coords) {
 		 	if (_stateMachine.can('MOVE') && _activePiece) {
-		 		_activePiece.move(_getValidCoords(coords));
+		 		if (!_doCollisions(coords)) {
+		 			// Couldn't find a valid place
+		 			return;
+		 		}
+		 		_activePiece.move(coords);
 		 		_stateMachine.go('MOVE');
 		 	}
 		 }

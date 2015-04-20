@@ -32,12 +32,18 @@ define([], function() {
 		}
 	}
 
+	/* Calculates the distance between two points */
+	function _distance(p1, p2) {
+		return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+	}
+
 	return {
 		merge: _merge,
 		time: _time,
 		timeGate: _timeGate,
 		requestFrame: window.requestAnimationFrame ?
 			window.requestAnimationFrame.bind(window) : 
-			function(callback) { return setTimeout(callback, 30); }
+			function(callback) { return setTimeout(callback, 30); },
+		distance: _distance
 	};
 });

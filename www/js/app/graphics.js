@@ -96,7 +96,9 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		_canvas.fillStyle = _theme[colour];
 		_canvas.fill();
 		if (borderColour) {
-			_canvas.lineWidth = _scaler.scaleValue(5);
+			_canvas.beginPath();
+			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(radius - 2), 0, 2 * Math.PI, false);
+			_canvas.lineWidth = _scaler.scaleValue(4);
 			_canvas.strokeStyle = _theme[borderColour];
 			_canvas.stroke();
 		}
