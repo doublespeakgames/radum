@@ -32,6 +32,8 @@ define(['app/scalers/scaler'], function(Scaler){
 			// Translate origin to top-left of canvas
 			coords.x += G.width() / 2;
 			coords.y += G.height() / 2;
+
+			return coords;
 		},
 
 		scaleCanvas: function(canvas) {

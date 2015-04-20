@@ -52,10 +52,8 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		_scaler.scaleCanvas(_canvasEl);
 	}
 
-	function _scaleCoords(coords) {
-		_scaler.scaleCoords(coords);
-		// console.log(coords);
-		return coords;
+	function _getScaler() {
+		return _scaler;
 	}
 
 	function _clear() {
@@ -115,7 +113,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 
 	return {
 		init: _init,
-		scaleCoords: _scaleCoords,
+		getScaler: _getScaler,
 		clear: _clear,
 		width: _getWidth,
 		height: _getHeight,

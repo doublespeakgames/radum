@@ -7,6 +7,10 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 		function(Util, Scene, Graphics, StateMachine, Piece) {
 
 
+	var BOARD_CENTER = {x: Math.round(Graphics.width() / 2), y: Math.round(Graphics.height() / 2)}
+	, BOARD_RADIUS = Math.floor(Graphics.width() / 2) - 30;
+	;
+
 	var _stateMachine = new StateMachine({
 		IDLE: {
 			PLAYPIECE: 'MOVED',
@@ -23,12 +27,30 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 	}, 'IDLE');
 
 	var _activePiece = null;
+
+	function _distance(p1, p2) {
+		return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+	}
+
+	function _getValidCoords(coords) {
+		var distance = _distance(coords, BOARD_CENTER)
+		, scale = 1
+		;
+		
+		// Make sure the piece is on the board
+		if (distance > BOARD_RADIUS) {
+			scale = BOARD_RADIUS / distance;
+			coords.x = (scale * coords.x) + (1 - scale) * BOARD_CENTER.x;
+			coords.y = (scale * coords.y) + (1 - scale) * BOARD_CENTER.y;
+		}
+		return coords;
+	}
 	
 	return new Scene({
 		 background: null,
 
 		 drawFrame: function(delta) {
-		 	Graphics.circle(Graphics.width() / 2, Graphics.height() / 2, Graphics.width() / 2, 'background');
+		 	Graphics.circle(BOARD_CENTER.x, BOARD_CENTER.y, BOARD_RADIUS, 'background');
 		 	if (_activePiece) {
 		 		_activePiece.draw();
 		 	}
@@ -40,9 +62,9 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 		 	}
 		 	else if (_stateMachine.can('PLAYPIECE')) {
 		 		if (!_activePiece) {
-		 			_activePiece = new Piece(coords, 1);	
+		 			_activePiece = new Piece(_getValidCoords(coords), 1);	
 		 		} else {
-		 			_activePiece.move(coords)
+		 			_activePiece.move(_getValidCoords(coords));
 		 		}
 		 		_stateMachine.go('PLAYPIECE');
 		 	}
@@ -60,7 +82,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 
 		 onInputMove: function(coords) {
 		 	if (_stateMachine.can('MOVE') && _activePiece) {
-		 		_activePiece.move(coords);
+		 		_activePiece.move(_getValidCoords(coords));
 		 		_stateMachine.go('MOVE');
 		 	}
 		 }

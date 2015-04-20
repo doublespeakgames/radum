@@ -5,16 +5,22 @@
  **/
 define(['app/graphics'], function(Graphics) {
 
-	var RADIUS = 25;
+	var RADIUS = 25
+	, CREATE_SPEED = 0.2;
+	;
 
 	function Piece(coords, player) {
 		this._coords = coords;
 		this._player = player;
+		this._transitionScale = 0.4;
 	}
 
 	Piece.prototype = {
 		draw: function() {
-			Graphics.circle(this._coords.x, this._coords.y, RADIUS, 'primary' + this._player, 'secondary' + this._player);
+			Graphics.circle(this._coords.x, this._coords.y, RADIUS * this._transitionScale, 'primary' + this._player, 'secondary' + this._player);
+			if (this._transitionScale < 1) {
+				this._transitionScale += CREATE_SPEED;
+			}
 		},
 		move: function(coords) {
 			this._coords = coords;

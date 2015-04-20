@@ -23,7 +23,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 			e = e.changedTouches[0];
 		}
 
-		_activeScene.onInputStart(Graphics.scaleCoords({x: e.pageX, y: e.pageY}));
+		_activeScene.onInputStart(Graphics.getScaler().scaleCoords({x: e.pageX, y: e.pageY}));
 	}, 10);
 
 	var _handleInputStop = Util.timeGate(function(e) {
@@ -38,7 +38,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 			e = e.changedTouches[0];
 		}
 
-		_activeScene.onInputMove(Graphics.scaleCoords({x: e.clientX, y: e.clientY}));
+		_activeScene.onInputMove(Graphics.getScaler().scaleCoords({x: e.clientX, y: e.clientY}));
 	}, 10);
 
 	function _init() {
