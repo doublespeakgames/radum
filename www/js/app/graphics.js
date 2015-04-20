@@ -77,6 +77,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 	}
 
 	function _drawText(text, x, y, fontSize, colour) {
+		_canvas.globalAlpha = 1;
 		colour = colour || '#FFFFFF';
 		// General text rules
 		_canvas.textAlign = 'center';
@@ -90,21 +91,27 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		document.body.style.background = colour ? _theme[colour] : 'transparent';
 	}
 
-	function _drawCircle(x, y, radius, colour, borderColour) {
-		_canvas.beginPath();
-		_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(radius), 0, 2 * Math.PI, false);
-		_canvas.fillStyle = _theme[colour];
-		_canvas.fill();
+	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha) {
+		alpha = alpha == null ? 1 : alpha;
+		borderWidth = borderWidth == null ? 4 : borderWidth;
+		_canvas.globalAlpha = alpha;
+		if (colour) {
+			_canvas.beginPath();
+			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(radius), 0, 2 * Math.PI, false);
+			_canvas.fillStyle = _theme[colour];
+			_canvas.fill();
+		}
 		if (borderColour) {
 			_canvas.beginPath();
-			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(radius - 2), 0, 2 * Math.PI, false);
-			_canvas.lineWidth = _scaler.scaleValue(4);
+			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(radius - borderWidth / 2), 0, 2 * Math.PI, false);
+			_canvas.lineWidth = _scaler.scaleValue(borderWidth);
 			_canvas.strokeStyle = _theme[borderColour];
 			_canvas.stroke();
 		}
 	}
 
 	function _drawRect(x, y, width, height, colour) {
+		_canvas.globalAlpha = 1;
 		_canvas.beginPath();
 		_canvas.fillStyle = null;
 		_canvas.strokeStyle = colour ? _theme[colour] : '#FFFFFF';

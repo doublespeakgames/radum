@@ -7,7 +7,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 		function(Util, EM, Graphics, SceneStore) {
 	
 	var _activeScene
-	, lastFrame = Util.time()
+	, _lastFrame = Util.time()
 	;	
 
 	function _changeScene(sceneName) {
@@ -24,12 +24,10 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 		if(e.changedTouches) {
 			e = e.changedTouches[0];
 		}
-		console.log('inputstart', e);
 		_activeScene.onInputStart(Graphics.getScaler().scaleCoords({x: e.pageX, y: e.pageY}));
 	}, 200);
 
 	var _handleInputStop = Util.timeGate(function(e) {
-		console.log('inputstop', e);
 		_activeScene.onInputStop();
 	}, 10);
 
@@ -40,7 +38,6 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 		if(e.changedTouches) {
 			e = e.changedTouches[0];
 		}
-		console.log('inputmove', e);
 		_activeScene.onInputMove(Graphics.getScaler().scaleCoords({x: e.clientX, y: e.clientY}));
 	}, 10);
 
@@ -59,9 +56,11 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 
 		// Start the gameloop
 		(function gameLoop() {
+			var time = Util.time();
 			Util.requestFrame(gameLoop);
 			Graphics.clear();
-			_activeScene.drawFrame();
+			_activeScene.drawFrame(time - _lastFrame);
+			_lastFrame = time;
 		})();
 	}
 

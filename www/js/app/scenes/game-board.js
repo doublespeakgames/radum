@@ -3,8 +3,8 @@
  *  scene for the main game board
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'app/piece'], 
-		function(Util, Scene, Graphics, StateMachine, Piece) {
+define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'app/piece', 'app/touch-prompt'], 
+		function(Util, Scene, Graphics, StateMachine, Piece, TouchPrompt) {
 
 
 	var BOARD_CENTER = {x: Math.round(Graphics.width() / 2), y: Math.round(Graphics.height() / 2)}
@@ -26,8 +26,9 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 		}
 	}, 'IDLE');
 
-	var _activePiece = null,
-	_playedPieces = [new Piece({x: 180, y: 320}, 2), new Piece({x: 130, y: 320}, 2), new Piece({x: 250, y: 320}, 2), new Piece({x: 30, y: 320}, 2)]
+	var _activePiece = null
+	, _playedPieces = [new Piece({x: 180, y: 320}, 2), new Piece({x: 130, y: 320}, 2), new Piece({x: 250, y: 320}, 2), new Piece({x: 30, y: 320}, 2)]
+	, _prompt = new TouchPrompt({x: 180, y: 600}, 'background');
 	;
 
 	function _getBoundaryVector(coords) {
@@ -59,15 +60,11 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 			totalRebound.y += rebound.y;
 		});
 
-		totalRebound.x = totalRebound.x < 0 ? Math.floor(totalRebound.x) : Math.ceil(totalRebound.x);
-		totalRebound.y = totalRebound.y < 0 ? Math.floor(totalRebound.y) : Math.ceil(totalRebound.y);
-
 		coords.x += totalRebound.x;
 		coords.y += totalRebound.y;
 
 		if (totalRebound.x != 0 || totalRebound.y != 0) {
 			// Make sure there are no collisions caused by this adjustment
-			console.log(tries);
 			if (tries >= 5) {
 				// Give up if we've tried too much
 				return false;
@@ -89,6 +86,9 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 		 	if (_activePiece) {
 		 		_activePiece.draw();
 		 	}
+		 	if (_stateMachine.getState() === 'PAUSED') {
+			 	_prompt.draw(delta);
+			 }
 		 },
 
 		 onInputStart: function(coords) {

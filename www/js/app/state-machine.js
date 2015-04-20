@@ -38,6 +38,10 @@ define([], function() {
 		return this._currentState;
 	}
 
+	function _getState() {
+		return this._currentState;
+	}
+
 	function StateMachine(transitions, initialState) {
 		this._transitions = transitions;
 		this._currentState = initialState;
@@ -45,7 +49,8 @@ define([], function() {
 	}
 	StateMachine.prototype = {
 		can: _canTransitionVia,
-		go: _makeTransitionVia
+		go: _makeTransitionVia,
+		getState: _getState
 	}
 
 	return StateMachine;
