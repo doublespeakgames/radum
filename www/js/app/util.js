@@ -17,7 +17,7 @@ define([], function() {
 
 	/* Gets time at as high a resolution as possible */
 	function _time() {
-		return performance ? performance.now() : Date.now();
+		return typeof performance === 'object' ? performance.now() : Date.now();
 	}
 
 	/* Prevents a function from being called more than once every [delay] milliseconds */

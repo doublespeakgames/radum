@@ -18,15 +18,18 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 	
 	var _handleInputStart = Util.timeGate(function(e) {
 		e = e || window.event;
+		e.stopPropagation(); 
+		e.preventDefault();
 		// Handle wacky touch event objects
 		if(e.changedTouches) {
 			e = e.changedTouches[0];
 		}
-
+		console.log('inputstart', e);
 		_activeScene.onInputStart(Graphics.getScaler().scaleCoords({x: e.pageX, y: e.pageY}));
-	}, 10);
+	}, 200);
 
 	var _handleInputStop = Util.timeGate(function(e) {
+		console.log('inputstop', e);
 		_activeScene.onInputStop();
 	}, 10);
 
@@ -37,7 +40,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 		if(e.changedTouches) {
 			e = e.changedTouches[0];
 		}
-
+		console.log('inputmove', e);
 		_activeScene.onInputMove(Graphics.getScaler().scaleCoords({x: e.clientX, y: e.clientY}));
 	}, 10);
 
@@ -46,7 +49,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 		Graphics.init();
 		document.body.addEventListener('touchstart', _handleInputStart);
 		document.body.addEventListener('mousedown', _handleInputStart);
-		document.body.addEventListener('touchstop', _handleInputStop);
+		document.body.addEventListener('touchend', _handleInputStop);
 		document.body.addEventListener('mouseup', _handleInputStop);
 		document.body.addEventListener('touchmove', _handleInputMove);
 		document.body.addEventListener('mousemove', _handleInputMove);
