@@ -1,3 +1,8 @@
+/**
+ *	Touch Prompt
+ *	little pulsing animation prompting a touch/click
+ *	(c) doublespeak games 2015	
+ **/
 define(['app/graphics', 'app/util'], function(Graphics, Util) {
 	
 	var RADIUS = 20
@@ -13,7 +18,7 @@ define(['app/graphics', 'app/util'], function(Graphics, Util) {
 	TouchPrompt.prototype.draw = function(delta) {
 		this._aPos += delta / DURATION;
 		if (this._aPos > 1) {
-			this._aPos -= 1;
+			this._aPos %= 1;
 		}
 		Graphics.circle(
 			this._coords.x, 

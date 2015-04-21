@@ -14,6 +14,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 	}
 	, _scaler = null
 	, _theme = ThemeStore.getTheme()
+	, _globalAlpha = 1
 	;
 
 	function _init(options) {
@@ -78,12 +79,12 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 
 	function _drawText(text, x, y, fontSize, colour) {
 		_canvas.globalAlpha = 1;
-		colour = colour || '#FFFFFF';
+		colour = colour || 'negative';
 		// General text rules
 		_canvas.textAlign = 'center';
 		_canvas.textBaseline = 'middle';
 		_canvas.font = _scaler.scaleValue(fontSize) + 'px Arial, Helvetica, sans-serif';
-		_canvas.fillStyle = colour;
+		_canvas.fillStyle = _theme[colour];
 		_canvas.fillText(text, _scaler.scaleValue(x), _scaler.scaleValue(y));
 	}
 
@@ -94,7 +95,11 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha) {
 		alpha = alpha == null ? 1 : alpha;
 		borderWidth = borderWidth == null ? 4 : borderWidth;
-		_canvas.globalAlpha = alpha;
+
+		var borderRadius = radius - borderWidth / 2;
+		borderRadius = borderRadius < 0 ? 0 : borderRadius;
+
+		_canvas.globalAlpha = alpha * this._globalAlpha;
 		if (colour) {
 			_canvas.beginPath();
 			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(radius), 0, 2 * Math.PI, false);
@@ -103,25 +108,33 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		}
 		if (borderColour) {
 			_canvas.beginPath();
-			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(radius - borderWidth / 2), 0, 2 * Math.PI, false);
+			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(borderRadius), 0, 2 * Math.PI, false);
 			_canvas.lineWidth = _scaler.scaleValue(borderWidth);
 			_canvas.strokeStyle = _theme[borderColour];
 			_canvas.stroke();
 		}
+		_canvas.globalAlpha = this._globalAlpha;
 	}
 
 	function _drawRect(x, y, width, height, colour) {
+		colour = colour || 'negative';
 		_canvas.globalAlpha = 1;
 		_canvas.beginPath();
 		_canvas.fillStyle = null;
-		_canvas.strokeStyle = colour ? _theme[colour] : '#FFFFFF';
+		_canvas.strokeStyle = _theme[colour];
 		_canvas.lineWidth = _scaler.scaleValue(2);
 		_canvas.rect(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(width), _scaler.scaleValue(height));
 		_canvas.stroke();
 	}
 
+	function _setAlpha(alpha) {
+		this._globalAlpha = alpha;
+		_canvas.globalAlpha = alpha;
+	}
+
 	return {
 		init: _init,
+		setAlpha: _setAlpha,
 		getScaler: _getScaler,
 		clear: _clear,
 		width: _getWidth,

@@ -13,8 +13,8 @@ define(['app/util', 'app/graphics'],
 		background: null,
 		onActivate: function() {},
 		activate: function() {
-			Graphics.setBackground(this.background);
 			this.onActivate();
+			Graphics.setBackground(this.background);
 		},
 		drawFrame: function(delta) {},
 

@@ -10,9 +10,9 @@ define(function() {
 		secondary1: '#7FC7AF',
 		primary2: '#FF3D7F',
 		secondary2: '#FF9E9D',
-		background:  '#DAD8A7'
+		background:  '#DAD8A7',
+		negative: '#FFFFFF'
 	}];
-
 
 	return {
 		getTheme: function(themeIndex) {

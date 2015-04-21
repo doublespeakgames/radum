@@ -8,7 +8,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 
 
 	var BOARD_CENTER = {x: Math.round(Graphics.width() / 2), y: Math.round(Graphics.height() / 2)}
-	, BOARD_RADIUS = Math.floor(Graphics.width() / 2) - 30;
+	, BOARD_RADIUS = Math.floor(Graphics.width() / 2) - 30
+	, SUBMIT_DELAY = 400
 	;
 
 	var _stateMachine = new StateMachine({
@@ -22,13 +23,24 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 		},
 		PRIMED: {
 			MOVE: 'MOVED',
-			SUBMIT: 'IDLE' // TODO
+			SUBMIT: 'SUBMITTED'
+		},
+		SUBMITTED: {
+			NEXTPLAYER: 'IDLE',
+			SCORE: 'SCORING'
+		},
+		SCORING: {
+			DONESCORING: 'PAUSED'
+		},
+		PAUSED: {
+			UNPAUSE: 'IDLE'
 		}
 	}, 'IDLE');
 
 	var _activePiece = null
-	, _playedPieces = [new Piece({x: 180, y: 320}, 2), new Piece({x: 130, y: 320}, 2), new Piece({x: 250, y: 320}, 2), new Piece({x: 30, y: 320}, 2)]
-	, _prompt = new TouchPrompt({x: 180, y: 600}, 'background');
+	, _playedPieces = []
+	, _prompt = new TouchPrompt({x: 180, y: 550}, 'background')
+	, _activePlayer = 1
 	;
 
 	function _getBoundaryVector(coords) {
@@ -55,6 +67,10 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 		tries = tries || 0;
 
 		_playedPieces.forEach(function(staticPiece) {
+			if (!staticPiece.isReal()) {
+				// Spoooooky ghost piece
+				return;
+			}
 			var rebound = staticPiece.getReboundVector(coords);
 			totalRebound.x += rebound.x;
 			totalRebound.y += rebound.y;
@@ -81,18 +97,44 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 		 drawFrame: function(delta) {
 		 	Graphics.circle(BOARD_CENTER.x, BOARD_CENTER.y, BOARD_RADIUS, 'background');
 		 	_playedPieces.forEach(function(piece) {
-		 		piece.draw();
+		 		piece.draw(delta);
 		 	});
 		 	if (_activePiece) {
-		 		_activePiece.draw();
+		 		_activePiece.draw(delta);
 		 	}
-		 	if (_stateMachine.getState() === 'PAUSED') {
+		 	if (_stateMachine.is('PAUSED')) {
 			 	_prompt.draw(delta);
 			 }
 		 },
 
+		 onActivate: function() {
+		 	if (_activePlayer === 1 && _stateMachine.can('NEXTPLAYER')) {
+		 		_activePlayer = 2;
+		 		_stateMachine.go('NEXTPLAYER');
+		 	} else if (_activePlayer === 2 && _stateMachine.can('SCORE')) {
+		 		_activePlayer = 1;
+
+		 		// Make the footprints real
+		 		_playedPieces.forEach(function(piece) {
+		 			if (piece.isa(Piece.Type.FOOTPRINT)) {
+		 				piece.setType(Piece.Type.SENTRY);
+		 				piece.setReal(true);
+		 			}
+		 		});
+		 		// Score the board
+		 		// TODO
+
+		 		_stateMachine.go('SCORE');
+		 		_stateMachine.go('DONESCORING'); // TODO: This happens after all the scoring animations are
+		 	}
+		 },
+
 		 onInputStart: function(coords) {
-		 	if (_stateMachine.can('CLICKPIECE') && _activePiece && _activePiece.contains(coords)) {
+		 	if (_stateMachine.can('UNPAUSE')) {
+		 		require('app/engine').changeScene('stage-screen');
+		 		_stateMachine.go('UNPAUSE');
+		 	}
+		 	else if (_stateMachine.can('CLICKPIECE') && _activePiece && _activePiece.contains(coords)) {
 		 		_stateMachine.go('CLICKPIECE');
 		 	}
 		 	else if (_stateMachine.can('PLAYPIECE')) {
@@ -101,7 +143,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 		 			return;
 		 		}
 		 		if (!_activePiece) {
-		 			_activePiece = new Piece(coords, 1);
+		 			_activePiece = new Piece(coords, Piece.Type.FOOTPRINT, _activePlayer);
 		 		} else {
 		 			_activePiece.move(coords);
 		 		}
@@ -111,7 +153,15 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 
 		 onInputStop: function()  {
 		 	if (_stateMachine.can('SUBMIT')) {
-		 		// TODO
+		 		// Submit the active piece
+		 		_activePiece.setReal(false);
+
+		 		setTimeout(function() {
+		 			require('app/engine').changeScene('stage-screen');
+		 		}, SUBMIT_DELAY);
+
+		 		_playedPieces.push(_activePiece);
+		 		_activePiece = null;
 		 		_stateMachine.go('SUBMIT');
 		 	}
 		 	else if (_stateMachine.can('STOP')) {

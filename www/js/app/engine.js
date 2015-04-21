@@ -6,15 +6,28 @@
 define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'], 
 		function(Util, EM, Graphics, SceneStore) {
 	
+	var CROSSFADE_TIME = 400;
+
 	var _activeScene
 	, _lastFrame = Util.time()
+	, _sceneCrossfade = 1
+	, _lastScene
 	;	
 
 	function _changeScene(sceneName) {
+
+		if (_activeScene) {
+			_lastScene = _activeScene;
+		}
+
+		_sceneCrossfade = 0;
 		_activeScene = SceneStore.get(sceneName);
 		_activeScene.activate();
 	}
 
+	function _inputLocked() {
+		return _sceneCrossfade < 1;
+	}
 	
 	var _handleInputStart = Util.timeGate(function(e) {
 		e = e || window.event;
@@ -24,10 +37,16 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 		if(e.changedTouches) {
 			e = e.changedTouches[0];
 		}
+		if (_inputLocked()) {
+			return;
+		}
 		_activeScene.onInputStart(Graphics.getScaler().scaleCoords({x: e.pageX, y: e.pageY}));
 	}, 200);
 
 	var _handleInputStop = Util.timeGate(function(e) {
+		if (_inputLocked()) {
+			return;
+		}
 		_activeScene.onInputStop();
 	}, 10);
 
@@ -37,6 +56,9 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 		// Handle touch events
 		if(e.changedTouches) {
 			e = e.changedTouches[0];
+		}
+		if (_inputLocked()) {
+			return;
 		}
 		_activeScene.onInputMove(Graphics.getScaler().scaleCoords({x: e.clientX, y: e.clientY}));
 	}, 10);
@@ -52,14 +74,32 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 		document.body.addEventListener('mousemove', _handleInputMove);
 
 		// Start the main menu
-		_changeScene('main-menu');
+		// _changeScene('main-menu');
+		_changeScene('stage-screen');
 
 		// Start the gameloop
 		(function gameLoop() {
-			var time = Util.time();
+			var time = Util.time()
+			, delta = time - _lastFrame;
+			;
+
 			Util.requestFrame(gameLoop);
 			Graphics.clear();
-			_activeScene.drawFrame(time - _lastFrame);
+			if (_lastScene) {
+				Graphics.setAlpha(1 - _sceneCrossfade);
+				_lastScene.drawFrame(delta);
+			}
+			Graphics.setAlpha(_sceneCrossfade);
+			_activeScene.drawFrame(delta);
+
+			if (_sceneCrossfade < 1) {
+				_sceneCrossfade += delta / CROSSFADE_TIME;
+				if (_sceneCrossfade >= 1) {
+					_sceneCrossfade = 1;
+					_lastScene = null;
+				}
+			}
+
 			_lastFrame = time;
 		})();
 	}
