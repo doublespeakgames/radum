@@ -17,6 +17,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		this._real = true;
 		this._transitionScale = 0.4;
 		this._prompt = new TouchPrompt(coords, 'primary' + player);
+		this._active = type === Piece.Type.FOOTPRINT;
 	}
 
 	Piece.Type = {
@@ -71,7 +72,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 					this._realCallback();
 					this._realCallback = null;
 				}
-			} else if (this._real && this._type === Piece.Type.FOOTPRINT) {
+			} else if (this._real && this._type === Piece.Type.FOOTPRINT && this._active) {
 				this._prompt.draw(delta);
 			}
 		},
@@ -106,6 +107,9 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		isa: function(type) {
 			return this._type === type;
 		},
+		ownerNumber: function() {
+			return this._player;
+		},
 		setType: function(type) {
 			this._type = type;
 		},
@@ -115,6 +119,9 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 				this._realCallback(true);
 			}
 			this._realCallback = callback
+		},
+		setActive: function(active) {
+			this._active = this._type === Piece.Type.FOOTPRINT && active;
 		}
 	};
 

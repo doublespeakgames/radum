@@ -3,8 +3,9 @@
  *  scene for the main game board
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'app/piece', 'app/touch-prompt'], 
-		function(Util, Scene, Graphics, StateMachine, Piece, TouchPrompt) {
+define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 
+		'app/piece', 'app/touch-prompt', 'app/score-horizon'], 
+		function(Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, ScoreHorizon) {
 
 
 	var BOARD_CENTER = {x: Math.round(Graphics.width() / 2), y: Math.round(Graphics.height() / 2)}
@@ -33,7 +34,10 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 			DONESCORING: 'PAUSED'
 		},
 		PAUSED: {
-			UNPAUSE: 'IDLE'
+			UNPAUSE: 'UPKEEP'
+		},
+		UPKEEP: {
+			NEXTTURN: 'IDLE'
 		}
 	}, 'IDLE');
 
@@ -41,6 +45,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 	, _playedPieces = []
 	, _prompt = new TouchPrompt({x: 180, y: 550}, 'background')
 	, _activePlayer = 1
+	, _scoreHorizons = []
 	;
 
 	function _getBoundaryVector(coords) {
@@ -90,6 +95,26 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 
 		return true;
 	}
+
+	function _score() {
+		_stateMachine.go('SCORE');
+
+		// Make the footprints real
+		_playedPieces.forEach(function(piece) {
+			if (piece.isa(Piece.Type.FOOTPRINT)) {				
+				piece.setReal(true);
+				piece.setActive(false);
+				_scoreHorizons.push(new ScoreHorizon(piece.ownerNumber(), piece.getCoords()));
+			}
+		});
+
+		// Score the board
+		// TODO
+
+		setTimeout(function() {
+			_stateMachine.go('DONESCORING');
+		}, ScoreHorizon.DURATION);
+	}
 	
 	return new Scene({
 		 background: null,
@@ -104,7 +129,12 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 		 	}
 		 	if (_stateMachine.is('PAUSED')) {
 			 	_prompt.draw(delta);
-			 }
+			}
+			
+			// draw the score horizons
+			_scoreHorizons.forEach(function(horizon) { 
+				horizon.draw(delta);
+			});
 		 },
 
 		 onActivate: function() {
@@ -113,19 +143,17 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 'ap
 		 		_stateMachine.go('NEXTPLAYER');
 		 	} else if (_activePlayer === 2 && _stateMachine.can('SCORE')) {
 		 		_activePlayer = 1;
-
-		 		// Make the footprints real
+	 			_score()
+		 	} else if (_stateMachine.can('NEXTTURN')) {
+		 		// Remove score horizons
+		 		_scoreHorizons.length = 0;
+		 		// Make any old footprints into sentreis
 		 		_playedPieces.forEach(function(piece) {
 		 			if (piece.isa(Piece.Type.FOOTPRINT)) {
 		 				piece.setType(Piece.Type.SENTRY);
-		 				piece.setReal(true);
 		 			}
 		 		});
-		 		// Score the board
-		 		// TODO
-
-		 		_stateMachine.go('SCORE');
-		 		_stateMachine.go('DONESCORING'); // TODO: This happens after all the scoring animations are
+		 		_stateMachine.go('NEXTTURN');
 		 	}
 		 },
 
