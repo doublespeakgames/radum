@@ -7,6 +7,8 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 
 	var RADIUS = 25
 	, CREATE_TIME = 200
+	, PULSE_TIME = 400
+	, PULSE_MAX = 1.5
 	, BORDER_WIDTH = 4
 	;
 
@@ -18,6 +20,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		this._transitionScale = 0.4;
 		this._prompt = new TouchPrompt(coords, 'primary' + player);
 		this._active = type === Piece.Type.FOOTPRINT;
+		this._pulsing = 0;
 	}
 
 	Piece.Type = {
@@ -26,6 +29,8 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		TARGET_FORECAST: 2,
 		SENTRY: 3
 	};
+
+	Piece.RADIUS = RADIUS;
 
 	Piece.prototype = {
 		draw: function(delta) {
@@ -58,21 +63,37 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 					BORDER_WIDTH * this._transitionScale,
 					alpha);
 			}
-			if (this._transitionScale < 1 && this._real) {
+			if (this._pulsing > 0 && this._transitionScale < PULSE_MAX) {
+				this._transitionScale += delta / PULSE_TIME;
+				if (this._transitionScale >= PULSE_MAX) {
+					this._transitionScale = PULSE_MAX;
+					this._pulsing = -1;
+				}
+			}
+			else if(this._pulsing < 0 && this._transitionScale > 1 ) {
+				this._transitionScale -= delta / PULSE_TIME;
+				if (this._transitionScale <= 1) {
+					this._transitionScale = 1;
+					this._pulsing = 0;
+				}
+			}
+			else if (this._transitionScale < 1 && this._real) {
 				this._transitionScale += delta / CREATE_TIME;
 				this._transitionScale = this._transitionScale > 1 ? 1 : this._transitionScale;
 				if (this._transitionScale === 1 && this._realCallback) {
 					this._realCallback();
 					this._realCallback = null;
 				}
-			} else if (this._transitionScale > 0 && !this._real) {
+			} 
+			else if (this._transitionScale > 0 && !this._real) {
 				this._transitionScale -= delta / CREATE_TIME;
 				this._transitionScale = this._transitionScale < 0 ? 0 : this._transitionScale;
 				if (this._transitionScale === 0 && this._realCallback) {
 					this._realCallback();
 					this._realCallback = null;
 				}
-			} else if (this._real && this._type === Piece.Type.FOOTPRINT && this._active) {
+			} 
+			else if (this._real && this._type === Piece.Type.FOOTPRINT && this._active) {
 				this._prompt.draw(delta);
 			}
 		},
@@ -95,7 +116,6 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 					y: delta * ((coords.y - this._coords.y) / distance)
 				};
 			}
-
 			return {x: 0, y: 0};
 		},
 		getCoords: function() {
@@ -122,6 +142,10 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		},
 		setActive: function(active) {
 			this._active = this._type === Piece.Type.FOOTPRINT && active;
+		},
+		pulse: function() {
+			this._pulsing = 1;
+
 		}
 	};
 

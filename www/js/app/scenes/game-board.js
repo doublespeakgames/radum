@@ -97,6 +97,10 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	}
 
 	function _score() {
+		var players = []
+		, scoring
+		;
+
 		_stateMachine.go('SCORE');
 
 		// Make the footprints real
@@ -104,16 +108,60 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 			if (piece.isa(Piece.Type.FOOTPRINT)) {				
 				piece.setReal(true);
 				piece.setActive(false);
-				_scoreHorizons.push(new ScoreHorizon(piece.ownerNumber(), piece.getCoords()));
+				players.push(piece);
 			}
 		});
 
 		// Score the board
-		// TODO
-
-		setTimeout(function() {
+		scoring = _getRoundScores(players);
+		if (scoring.length == 0) {
 			_stateMachine.go('DONESCORING');
-		}, ScoreHorizon.DURATION);
+			return;
+		} else {
+			players.forEach(function(p) {
+				_scoreHorizons.push(new ScoreHorizon(p.ownerNumber(), p.getCoords()));
+			});
+		}
+
+		setTimeout(function scorePiece() {
+			var score = scoring.shift();
+			score.piece.pulse();
+			if (scoring.length > 0) {
+				setTimeout(scorePiece, (scoring[0].distance - score.distance) * ScoreHorizon.RATE);
+			} else {
+				_scoreHorizons.forEach(function(horizon) {
+					horizon.stop();
+				});
+				_stateMachine.go('DONESCORING');
+			}
+		}, (scoring[0].distance) * ScoreHorizon.RATE);
+	}
+
+	function _getRoundScores(players) {
+		var pieceScores = [];
+		_playedPieces.forEach(function(piece) {
+			if (!piece.isa(Piece.Type.SENTRY)) {
+				// Only score Sentries, for now
+				return;
+			}
+			var distances = [
+				Util.distance(piece.getCoords(), players[0].getCoords()) - Piece.RADIUS,
+				Util.distance(piece.getCoords(), players[1].getCoords()) - Piece.RADIUS
+			]
+			, closest = Math.min.apply(Math, distances)
+			, winner = distances[0] === closest ? distances[1] === closest ? null : 1 : 2
+			;
+
+			pieceScores.push({
+				distance: closest,
+				player: winner,
+				piece: piece
+			});
+		});
+
+		return pieceScores.sort(function(a, b) {
+			return a.distance - b.distance;
+		});
 	}
 	
 	return new Scene({
@@ -130,7 +178,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 	if (_stateMachine.is('PAUSED')) {
 			 	_prompt.draw(delta);
 			}
-			
+
 			// draw the score horizons
 			_scoreHorizons.forEach(function(horizon) { 
 				horizon.draw(delta);
