@@ -8,8 +8,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		function(Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, ScoreHorizon) {
 
 
-	var BOARD_CENTER = {x: Math.round(Graphics.width() / 2), y: Math.round(Graphics.height() / 2)}
-	, BOARD_RADIUS = Math.floor(Graphics.width() / 2) - 30
+	var BOARD_CENTER = {x: 180, y: 320}
+	, BOARD_RADIUS = 150
 	, SUBMIT_DELAY = 400
 	;
 
@@ -46,6 +46,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	, _prompt = new TouchPrompt({x: 180, y: 550}, 'background')
 	, _activePlayer = 1
 	, _scoreHorizons = []
+	, _target
 	;
 
 	function _getBoundaryVector(coords) {
@@ -96,21 +97,110 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		return true;
 	}
 
+	function _getSliceHeight(x) {
+		return 2 * Math.sqrt(Math.pow(BOARD_RADIUS, 2) - Math.pow(x, 2));
+	}
+
+	function _generateSpot() {
+		var pos = {
+			x: Math.floor(Math.random() * BOARD_RADIUS * 2)
+		}
+		, translatedX = pos.x - BOARD_RADIUS
+		, ySpace = _getSliceHeight(translatedX)
+		;
+
+		console.log(translatedX, ySpace);
+
+		pos.y = Math.floor((Math.random() * ySpace) + (BOARD_RADIUS - ySpace / 2));
+
+		// translate to canvas coords
+		pos.x += 30;
+		pos.y += 170;
+
+		return pos;
+	}
+
+	function _generateGoodSpot() {
+		var spot = null
+		, counter = 0
+		;
+
+		while(spot === null && counter++ < 100) {
+			spot = _generateSpot();
+			spot = _goodSpot(spot) ? spot : null;
+		}
+
+		return spot;
+	}
+
+	function _getNewTarget() {
+		var spot = _generateGoodSpot();
+
+		if (!spot) {
+			// Couldn't find a spot. No target for you.
+			console.debug("Couldn't find a free space for the target. Write better code.");
+			return null;
+		}
+
+		return new Piece(
+			spot,
+			Piece.Type.TARGET_FORECAST,
+			0
+		);
+	}
+
+	function _goodSpot(coords) {
+		var good = true;
+		_playedPieces.forEach(function(piece) {
+			if (Util.distance(piece.getCoords(), coords) < Piece.RADIUS * 2) {
+				good = false;
+			}
+		});
+
+		return good;
+	}
+
 	function _score() {
 		var players = []
 		, scoring
+		, targetBlocked = false
+		, newSpot
 		;
 
 		_stateMachine.go('SCORE');
 
 		// Make the footprints real
 		_playedPieces.forEach(function(piece) {
-			if (piece.isa(Piece.Type.FOOTPRINT)) {				
+			if (piece.isa(Piece.Type.FOOTPRINT)) {			
 				piece.setReal(true);
 				piece.setActive(false);
 				players.push(piece);
+
+				// Did the player block the target?
+				if (_target && Util.distance(_target.getCoords(), piece.getCoords()) < Piece.RADIUS * 2) {
+					targetBlocked = true;
+				}
 			}
 		});
+
+		// Solidify the target forecast
+		if (_target) {
+			// If someone has played on the forecast, move it
+			if (targetBlocked) {
+				newSpot = _generateGoodSpot();
+				if (newSpot) {
+					_target.move(newSpot);
+				} else {
+					// No legal place found
+					_target = null;
+				}
+			}
+
+			if (_target) {
+				_target.setType(Piece.Type.TARGET);
+				_target.appear();
+			}
+		}
 
 		// Score the board
 		scoring = _getRoundScores(players);
@@ -139,9 +229,9 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 
 	function _getRoundScores(players) {
 		var pieceScores = [];
-		_playedPieces.forEach(function(piece) {
-			if (!piece.isa(Piece.Type.SENTRY)) {
-				// Only score Sentries, for now
+
+		function scorePiece(piece) {
+			if (!piece.isa(Piece.Type.SENTRY) && !piece.isa(Piece.Type.TARGET)) {
 				return;
 			}
 			var distances = [
@@ -157,7 +247,12 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 				player: winner,
 				piece: piece
 			});
-		});
+		}
+
+		if (_target) {
+			scorePiece(_target);
+		}
+		_playedPieces.forEach(scorePiece);
 
 		return pieceScores.sort(function(a, b) {
 			return a.distance - b.distance;
@@ -186,6 +281,11 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 					horizon.draw(delta);
 				});
 				Graphics.restore();
+			}
+
+			// Draw the target
+			if (_target) {
+				_target.draw(delta);
 			}
 
 			// Draw all the pieces
@@ -220,6 +320,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 				piece.setType(Piece.Type.SENTRY);
 		 			}
 		 		});
+		 		// Get a new target
+		 		_target = _getNewTarget();
 		 		_stateMachine.go('NEXTTURN');
 		 	}
 		 },

@@ -6,7 +6,7 @@
 define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'], 
 		function(Util, EM, Graphics, SceneStore) {
 	
-	var CROSSFADE_TIME = 400;
+	var CROSSFADE_TIME = 300;
 
 	var _activeScene
 	, _lastFrame = Util.time()

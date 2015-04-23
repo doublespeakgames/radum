@@ -35,7 +35,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 	Piece.prototype = {
 		draw: function(delta) {
 			if (this._real || (!this._real && this._transitionScale > 0)) {
-				var colour, border, alpha = 1;
+				var colour, border, alpha = 1, radius = RADIUS;
 				switch(this._type) {
 					case Piece.Type.FOOTPRINT:
 						colour = null;
@@ -48,8 +48,10 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 						break;
 					case Piece.Type.TARGET:
 						colour = 'negative';
+						border = 'background';
+						// radius = RADIUS + BORDER_WIDTH;
 						break;
-					case Piece.Type.TARGET_FORCAST:
+					case Piece.Type.TARGET_FORECAST:
 						colour = 'negative';
 						alpha = 0.5;
 						break
@@ -57,11 +59,12 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 				Graphics.circle(
 					this._coords.x, 
 					this._coords.y, 
-					RADIUS * this._transitionScale, 
+					radius * this._transitionScale, 
 					colour, 
 					border,
 					BORDER_WIDTH * this._transitionScale,
-					alpha);
+					alpha,
+					this._type === Piece.Type.TARGET);
 			}
 			if (this._pulsing > 0 && this._transitionScale < PULSE_MAX) {
 				this._transitionScale += delta / PULSE_TIME;
@@ -142,6 +145,9 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		},
 		setActive: function(active) {
 			this._active = this._type === Piece.Type.FOOTPRINT && active;
+		},
+		appear: function() {
+			this._transitionScale = 0;
 		},
 		pulse: function() {
 			this._pulsing = 1;

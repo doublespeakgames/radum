@@ -92,7 +92,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		document.body.style.background = colour ? _theme[colour] : 'transparent';
 	}
 
-	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha) {
+	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder) {
 		alpha = alpha == null ? 1 : alpha;
 		borderWidth = borderWidth == null ? 4 : borderWidth;
 
@@ -106,12 +106,20 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 			_canvas.fillStyle = _theme[colour];
 			_canvas.fill();
 		}
+
 		if (borderColour) {
+			if (specialBorder) {
+				_canvas.globalCompositeOperation = 'destination-over';
+				borderRadius += borderWidth;
+			}
 			_canvas.beginPath();
 			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(borderRadius), 0, 2 * Math.PI, false);
 			_canvas.lineWidth = _scaler.scaleValue(borderWidth);
 			_canvas.strokeStyle = _theme[borderColour];
 			_canvas.stroke();
+			if (specialBorder) {
+				_canvas.globalCompositeOperation = 'source-over';
+			}
 		}
 		_canvas.globalAlpha = this._globalAlpha;
 	}

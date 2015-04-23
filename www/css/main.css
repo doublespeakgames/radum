@@ -6,7 +6,7 @@ body {
 	height: 100%;
 	margin: 0;
 	overflow: hidden;
-	transition: background 400ms linear;
+	transition: background 300ms linear;
 }
 
 canvas {
