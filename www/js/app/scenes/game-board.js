@@ -166,23 +166,42 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	
 	return new Scene({
 		 background: null,
+		 
+		 getCenter: function() {
+		 	return BOARD_CENTER;
+		 },
+
+		 getRadius: function() {
+		 	return BOARD_RADIUS;
+		 },
 
 		 drawFrame: function(delta) {
 		 	Graphics.circle(BOARD_CENTER.x, BOARD_CENTER.y, BOARD_RADIUS, 'background');
+
+			// draw the score horizons
+			if (_scoreHorizons.length > 0) {
+				Graphics.save();
+				Graphics.clipToBoard();
+				_scoreHorizons.forEach(function(horizon) { 
+					horizon.draw(delta);
+				});
+				Graphics.restore();
+			}
+
+			// Draw all the pieces
 		 	_playedPieces.forEach(function(piece) {
 		 		piece.draw(delta);
 		 	});
+
+		 	// Draw the current footprint
 		 	if (_activePiece) {
 		 		_activePiece.draw(delta);
 		 	}
+
+		 	// Draw the touch prompt
 		 	if (_stateMachine.is('PAUSED')) {
 			 	_prompt.draw(delta);
 			}
-
-			// draw the score horizons
-			_scoreHorizons.forEach(function(horizon) { 
-				horizon.draw(delta);
-			});
 		 },
 
 		 onActivate: function() {

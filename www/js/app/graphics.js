@@ -132,16 +132,42 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		_canvas.globalAlpha = alpha;
 	}
 
+	function _clipToBoard() {
+		var boardCenter = require('app/scenes/game-board').getCenter()
+		, boardRadius = require('app/scenes/game-board').getRadius()
+		;
+
+		_canvas.beginPath();
+		_canvas.arc(
+			_scaler.scaleValue(boardCenter.x), 
+			_scaler.scaleValue(boardCenter.y),
+			_scaler.scaleValue(boardRadius),
+			0, 2 * Math.PI, false
+		);
+		_canvas.clip();
+	}
+
+	function _save() {
+		_canvas.save();
+	}
+
+	function _restore() {
+		_canvas.restore();
+	}
+
 	return {
 		init: _init,
 		setAlpha: _setAlpha,
 		getScaler: _getScaler,
 		clear: _clear,
+		save: _save,
+		restore: _restore,
 		width: _getWidth,
 		height: _getHeight,
 		realWidth: _getWindowWidth,
 		realHeight: _getWindowHeight,
 		setBackground: _setBackground,
+		clipToBoard: _clipToBoard,
 		text: _drawText,
 		circle: _drawCircle,
 		rect: _drawRect
