@@ -18,7 +18,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine', 'app/touch-prom
 	}, 'SCORE');
 
 	var _frameText
-	, _prompt = new TouchPrompt({x: 180, y: 550}, 'negative');
+	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: Graphics.height() - 60}, 'negative');
 
 	return new Scene({
 

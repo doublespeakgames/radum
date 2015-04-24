@@ -8,10 +8,11 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		function(Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, ScoreHorizon) {
 
 
-	var BOARD_CENTER = {x: 180, y: 320}
-	, BOARD_RADIUS = 150
+	var BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
+	, BOARD_RADIUS = 200
 	, SUBMIT_DELAY = 400
 	, MOVES = 6
+	, MOVE_TRANSITION_DURATION = 200
 	;
 
 	var _stateMachine = new StateMachine({
@@ -48,7 +49,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 
 	var _activePiece = null
 	, _playedPieces = []
-	, _prompt = new TouchPrompt({x: 180, y: 550}, 'background')
+	, _moveTransition = 0
+	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: Graphics.height() - 60}, 'background')
 	, _activePlayer = 1
 	, _scoreHorizons = []
 	, _target
@@ -119,8 +121,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		pos.y = Math.floor((Math.random() * ySpace) + (BOARD_RADIUS - ySpace / 2));
 
 		// translate to canvas coords
-		pos.x += 30;
-		pos.y += 170;
+		pos.x += Graphics.width() / 2 - BOARD_RADIUS;
+		pos.y += Graphics.height() / 2 - BOARD_RADIUS;
 
 		return pos;
 	}
@@ -232,7 +234,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 
 				score.piece.setLabel({
 					text: points,
-					colour: 'primary' + score.player
+					colour: 'secondary' + score.player
 				});
 			}
 
@@ -279,13 +281,20 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		});
 	}
 
-	function _drawMoveCounter(player, x) {
+	function _drawMoveCounter(player, x, delta) {
 		for (var i = 0; i < _movesLeft[player - 1]; i++) {
 			if (_stateMachine.is(['IDLE', 'MOVED', 'PRIMED']) && _activePlayer === player && i + 1 === _movesLeft[player - 1]) {
 				Graphics.circle(x, 30 + (i * 18), 8, null, 'primary' + player);
 			} else {
 				Graphics.circle(x, 30 + (i * 18), 8, 'primary' + player);
 			}
+		}
+
+		if (_moveTransition > 0 && player === _activePlayer)
+		{
+			_moveTransition -= delta / MOVE_TRANSITION_DURATION;
+			_moveTransition = _moveTransition < 0 ? 0 : _moveTransition;
+			Graphics.circle(x, 30 + (_movesLeft[player - 1] * 18), 8 * (_moveTransition), null, 'primary' + player);
 		}
 	}
 
@@ -342,11 +351,11 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 
 		 	// Draw the scores
 	 		Graphics.text(_scores[0], 60, 38, 40, 'primary1');
-	 		Graphics.text(_scores[1], 300, 38, 40, 'primary2');
+	 		Graphics.text(_scores[1], 420, 38, 40, 'primary2');
 
 	 		// Draw the move counters
-	 		_drawMoveCounter(1, 30);
-	 		_drawMoveCounter(2, 330);
+	 		_drawMoveCounter(1, 30, delta);
+	 		_drawMoveCounter(2, 450, delta);
 
 		 	// Draw the touch prompt
 		 	if (_stateMachine.is('PAUSED')) {
@@ -411,6 +420,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 	if (_stateMachine.can('SUBMIT')) {
 		 		// Submit the active piece
 		 		_activePiece.setReal(false);
+		 		_moveTransition = 1;
 
 		 		setTimeout(function() {
 		 			require('app/engine').changeScene('stage-screen');

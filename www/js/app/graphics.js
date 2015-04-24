@@ -8,7 +8,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 	var _canvas
 	, _canvasEl
 	, _options = {
-		width: 360,
+		width: 480,
 		height: 640,
 		scalingMode: 'javascript'
 	}
