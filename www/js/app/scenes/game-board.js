@@ -297,12 +297,19 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 			if (score.piece.ownerNumber() !== score.player) {
 				points = score.piece.ownerNumber() === 0 ? 2 : -1;
 
+				if (score.piece._charged) {
+					points *= 2;
+				}
+
 				_scores[score.player - 1] += points;
 
 				score.piece.setLabel({
 					text: points,
 					colour: 'secondary' + score.player
 				});
+				score.piece.setCharged(false);
+			} else {
+				score.piece.setCharged(true);
 			}
 
 			if (scoring.length > 0) {
@@ -444,7 +451,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 	} else if (_stateMachine.can('NEXTTURN')) {
 		 		// Remove score horizons
 		 		_scoreHorizons.length = 0;
-		 		// Make any old footprints into sentries
+		 		// Reset pieces for the next turn
 		 		_playedPieces.forEach(function(piece) {
 		 			if (piece.isa(Piece.Type.FOOTPRINT)) {
 		 				piece.setType(Piece.Type.SENTRY);

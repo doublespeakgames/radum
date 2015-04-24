@@ -26,6 +26,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		this._pulsing = 0;
 		this._label = null;
 		this._savedPos = null;
+		this._charged = false;
 	}
 
 	Piece.Type = {
@@ -93,6 +94,16 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 
 				if (this._label) {
 					Graphics.text(this._label.text, this._coords.x, this._coords.y, FONT_SIZE * this._transitionScale, this._label.colour);
+				}
+
+				if (this._charged) {
+					Graphics.circle(
+						drawX,
+						drawY,
+						(radius / 2) * this._transitionScale,
+						null,
+						'secondary' + this._player
+					);
 				}
 			}
 			if (this._pulsing > 0 && this._transitionScale < PULSE_MAX) {
@@ -204,6 +215,9 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		},
 		savePos: function() {
 			this._savedPos = { x: this._coords.x, y: this._coords.y };
+		},
+		setCharged: function(c) {
+			this._charged = c;
 		}
 	};
 
