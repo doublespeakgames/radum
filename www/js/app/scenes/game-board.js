@@ -13,6 +13,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	, SUBMIT_DELAY = 400
 	, MOVES = 6
 	, MOVE_TRANSITION_DURATION = 200
+	, MAX_COLLISION_TRIES = 5
 	;
 
 	var _stateMachine = new StateMachine({
@@ -96,11 +97,67 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 
 		if (totalRebound.x != 0 || totalRebound.y != 0) {
 			// Make sure there are no collisions caused by this adjustment
-			if (tries >= 5) {
+			if (tries >= MAX_COLLISION_TRIES) {
 				// Give up if we've tried too much
 				return false;
 			}
 			return _doCollisions(coords, tries + 1);
+		}
+
+		return true;
+	}
+
+	function _doFootprintCollisions(footprint1, footprint2, tries) {
+		var total1 = _getBoundaryVector(footprint1.getCoords())
+		, total2 = _getBoundaryVector(footprint2.getCoords())
+		;
+
+		tries = tries || 0;
+
+		_playedPieces.forEach(function(staticPiece) {
+			var rebound1
+			, rebound2
+			;
+
+			if (!staticPiece.isReal()) {
+				// Spoooooky ghost piece
+				return;
+			}
+
+			if (staticPiece !== footprint1) {
+				rebound1 = staticPiece.getReboundVector(footprint1.getCoords());
+				if (staticPiece === footprint2) {
+					// Halve the rebound vector, because footprints repel each other
+					rebound1.x /= 2;
+					rebound1.y /= 2;
+				}
+				total1.x += rebound1.x;
+				total1.y += rebound1.y;
+			}
+
+			if (staticPiece !== footprint2) {
+				rebound2 = staticPiece.getReboundVector(footprint2.getCoords());
+				if (staticPiece === footprint1) {
+					// Halve the rebound vector, because footprints repel each other
+					rebound2.x /= 2;
+					rebound2.y /= 2;
+				}
+				total2.x += rebound2.x;
+				total2.y += rebound2.y;
+			}
+
+		});
+
+		footprint1.applyVector(total1);
+		footprint2.applyVector(total2);
+
+		if (total1.x !== 0 || total1.y !== 0 || total2.x !== 0 || total2.y !== 0) {
+			// Make sure there are no collisions caused by this adjustment
+			if (tries >= MAX_COLLISION_TRIES) {
+				// Give up if we've tried too much
+				return false;
+			}
+			return _doFootprintCollisions(footprint1, footprint2, tries + 1);
 		}
 
 		return true;
@@ -182,16 +239,25 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 				piece.setReal(true);
 				piece.setActive(false);
 				players.push(piece);
-
-				// Did the player block the target?
-				if (_target && Util.distance(_target.getCoords(), piece.getCoords()) < Piece.RADIUS * 2) {
-					targetBlocked = true;
-				}
 			}
 		});
 
-		// Solidify the target forecast
+		// Handle footprint collision
+		if (players[0].collidesWith(players[1])) {
+			players[0].savePos();
+			players[1].savePos();
+			_doFootprintCollisions(players[0], players[1]);
+		}
+
 		if (_target) {
+
+			// Did a player block the target?
+			players.forEach(function(piece) {
+				if (_target.collidesWith(piece)) {
+					targetBlocked = true;
+				}
+			});
+
 			// If someone has played on the forecast, move it
 			if (targetBlocked) {
 				newSpot = _generateGoodSpot();
@@ -203,6 +269,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 				}
 			}
 
+			// Solidify the target forecast
 			if (_target) {
 				_target.setType(Piece.Type.TARGET);
 				_target.appear();

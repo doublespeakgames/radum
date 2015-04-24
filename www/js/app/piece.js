@@ -7,6 +7,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 
 	var RADIUS = 25
 	, CREATE_TIME = 200
+	, MOVE_TIME = 400
 	, PULSE_TIME = 400
 	, PULSE_MAX = 1.5
 	, BORDER_WIDTH = 4
@@ -19,10 +20,12 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		this._player = player;
 		this._real = true;
 		this._transitionScale = 0.4;
+		this._transitionMove = 1;
 		this._prompt = new TouchPrompt(coords, 'primary' + player);
 		this._active = type === Piece.Type.FOOTPRINT;
 		this._pulsing = 0;
 		this._label = null;
+		this._savedPos = null;
 	}
 
 	Piece.Type = {
@@ -37,7 +40,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 	Piece.prototype = {
 		draw: function(delta) {
 			if (this._real || (!this._real && this._transitionScale > 0)) {
-				var colour, border, alpha = 1, radius = RADIUS;
+				var colour, border, alpha = 1, radius = RADIUS, drawX, drawY;
 				switch(this._type) {
 					case Piece.Type.FOOTPRINT:
 						colour = null;
@@ -57,9 +60,29 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 						alpha = 0.5;
 						break
 				}
+
+				if (this._savedPos && (this._savedPos.x !== this._coords.x || this._savedPos.y !== this._coords.y)) {
+					if (this._transitionMove === 1) {
+						// Start the animation
+						this._transitionMove = 0;
+					}
+					this._transitionMove += delta / MOVE_TIME;
+					this._transitionMove = this._transitionMove > 1 ? 1 : this._transitionMove;
+
+					drawX = this._savedPos.x + this._transitionMove * (this._coords.x - this._savedPos.x);
+					drawY = this._savedPos.y + this._transitionMove * (this._coords.y - this._savedPos.y);
+
+					if (this._transitionMove === 1) {
+						this._savedPos = null;
+					}
+				} else {
+					drawX = this._coords.x;
+					drawY = this._coords.y;
+				}
+
 				Graphics.circle(
-					this._coords.x, 
-					this._coords.y, 
+					drawX, 
+					drawY, 
 					radius * this._transitionScale, 
 					colour, 
 					border,
@@ -110,6 +133,13 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 			this._coords = coords;
 			this._prompt._coords = coords;
 		},
+		applyVector: function(vector) {
+			this._coords.x += vector.x;
+			this._coords.y += vector.y;
+		},
+		collidesWith: function(piece) {
+			return Util.distance(this._coords, piece.getCoords()) < RADIUS * 2;
+		},
 		contains: function(coords) {
 			return Math.sqrt(Math.pow(this._coords.x - coords.x, 2) + 
 				Math.pow(this._coords.y - coords.y, 2)) <= RADIUS / 2;
@@ -117,12 +147,23 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		getReboundVector: function(coords) {
 			var distance = Util.distance(this._coords, coords)
 			, delta = RADIUS * 2 - distance
+			, dx = coords.x - this._coords.x
+			, dy = coords.y - this._coords.y
 			;
 
 			if (delta > 0) {
+
+				// If we're perfectly aligned (how unlikely!), fudge just a little
+				if (dx === 0 && dy === 0) {
+					dx += (Math.random() * 0.2) - 0.1;
+					dy += (Math.random() * 0.2) - 0.1;
+
+					distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+				}
+
 				return {
-					x: delta * ((coords.x - this._coords.x) / distance),
-					y: delta * ((coords.y - this._coords.y) / distance)
+					x: delta * (dx / distance),
+					y: delta * (dy / distance)
 				};
 			}
 			return {x: 0, y: 0};
@@ -160,7 +201,9 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		},
 		pulse: function() {
 			this._pulsing = 1;
-
+		},
+		savePos: function() {
+			this._savedPos = { x: this._coords.x, y: this._coords.y };
 		}
 	};
 
