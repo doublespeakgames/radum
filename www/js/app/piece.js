@@ -5,7 +5,7 @@
  **/
 define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util, TouchPrompt) {
 
-	var RADIUS = 25
+	var RADIUS = 20
 	, CREATE_TIME = 200
 	, PULSE_TIME = 400
 	, PULSE_MAX = 1.5
