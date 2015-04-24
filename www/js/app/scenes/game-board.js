@@ -11,6 +11,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	var BOARD_CENTER = {x: 180, y: 320}
 	, BOARD_RADIUS = 150
 	, SUBMIT_DELAY = 400
+	, MOVES = 6
 	;
 
 	var _stateMachine = new StateMachine({
@@ -34,10 +35,14 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 			DONESCORING: 'PAUSED'
 		},
 		PAUSED: {
-			UNPAUSE: 'UPKEEP'
+			UNPAUSE: 'UPKEEP',
+			GAMEOVER: 'ENDGAME'
 		},
 		UPKEEP: {
 			NEXTTURN: 'IDLE'
+		},
+		ENDGAME: {
+			NEWGAME: 'IDLE'
 		}
 	}, 'IDLE');
 
@@ -47,6 +52,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	, _activePlayer = 1
 	, _scoreHorizons = []
 	, _target
+	, _scores = [0, 0]
+	, _movesLeft = [MOVES, MOVES]
 	;
 
 	function _getBoundaryVector(coords) {
@@ -108,8 +115,6 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		, translatedX = pos.x - BOARD_RADIUS
 		, ySpace = _getSliceHeight(translatedX)
 		;
-
-		console.log(translatedX, ySpace);
 
 		pos.y = Math.floor((Math.random() * ySpace) + (BOARD_RADIUS - ySpace / 2));
 
@@ -214,8 +219,23 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		}
 
 		setTimeout(function scorePiece() {
-			var score = scoring.shift();
+			var score = scoring.shift()
+			, points = 0
+			;
+
 			score.piece.pulse();
+
+			if (score.piece.ownerNumber() !== score.player) {
+				points = score.piece.ownerNumber() === 0 ? 2 : -1;
+
+				_scores[score.player - 1] += points;
+
+				score.piece.setLabel({
+					text: points,
+					colour: 'primary' + score.player
+				});
+			}
+
 			if (scoring.length > 0) {
 				setTimeout(scorePiece, (scoring[0].distance - score.distance) * ScoreHorizon.RATE);
 			} else {
@@ -258,6 +278,28 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 			return a.distance - b.distance;
 		});
 	}
+
+	function _drawMoveCounter(player, x) {
+		for (var i = 0; i < _movesLeft[player - 1]; i++) {
+			if (_stateMachine.is(['IDLE', 'MOVED', 'PRIMED']) && _activePlayer === player && i + 1 === _movesLeft[player - 1]) {
+				Graphics.circle(x, 30 + (i * 18), 8, null, 'primary' + player);
+			} else {
+				Graphics.circle(x, 30 + (i * 18), 8, 'primary' + player);
+			}
+		}
+	}
+
+	function _getNextPlayer() {
+		return _activePlayer === 1 ? 2 : 1;
+	}
+
+	function _resetGame() {
+		_movesLeft = [MOVES, MOVES];
+		_scores = [0, 0];
+		_playedPieces.length = 0;
+		_scoreHorizons.length = 0;
+		_target = null;
+	}
 	
 	return new Scene({
 		 background: null,
@@ -298,6 +340,14 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 		_activePiece.draw(delta);
 		 	}
 
+		 	// Draw the scores
+	 		Graphics.text(_scores[0], 60, 38, 40, 'primary1');
+	 		Graphics.text(_scores[1], 300, 38, 40, 'primary2');
+
+	 		// Draw the move counters
+	 		_drawMoveCounter(1, 30);
+	 		_drawMoveCounter(2, 330);
+
 		 	// Draw the touch prompt
 		 	if (_stateMachine.is('PAUSED')) {
 			 	_prompt.draw(delta);
@@ -305,7 +355,11 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 },
 
 		 onActivate: function() {
-		 	if (_activePlayer === 1 && _stateMachine.can('NEXTPLAYER')) {
+		 	if (_stateMachine.can('NEWGAME')) {
+		 		_resetGame();
+		 		_stateMachine.go('NEWGAME');
+		 	}
+		 	else if (_activePlayer === 1 && _stateMachine.can('NEXTPLAYER')) {
 		 		_activePlayer = 2;
 		 		_stateMachine.go('NEXTPLAYER');
 		 	} else if (_activePlayer === 2 && _stateMachine.can('SCORE')) {
@@ -314,11 +368,12 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 	} else if (_stateMachine.can('NEXTTURN')) {
 		 		// Remove score horizons
 		 		_scoreHorizons.length = 0;
-		 		// Make any old footprints into sentreis
+		 		// Make any old footprints into sentries
 		 		_playedPieces.forEach(function(piece) {
 		 			if (piece.isa(Piece.Type.FOOTPRINT)) {
 		 				piece.setType(Piece.Type.SENTRY);
 		 			}
+		 			piece.setLabel(null);
 		 		});
 		 		// Get a new target
 		 		_target = _getNewTarget();
@@ -327,7 +382,11 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 },
 
 		 onInputStart: function(coords) {
-		 	if (_stateMachine.can('UNPAUSE')) {
+		 	if (_movesLeft[_getNextPlayer() - 1] === 0 && _stateMachine.can('GAMEOVER')) {
+	 			require('app/engine').changeScene('game-over', _scores);
+	 			_stateMachine.go('GAMEOVER')
+		 	}
+		 	else if (_stateMachine.can('UNPAUSE')) {
 		 		require('app/engine').changeScene('stage-screen');
 		 		_stateMachine.go('UNPAUSE');
 		 	}
@@ -359,6 +418,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 
 		 		_playedPieces.push(_activePiece);
 		 		_activePiece = null;
+		 		_movesLeft[_activePlayer - 1]--;
 		 		_stateMachine.go('SUBMIT');
 		 	}
 		 	else if (_stateMachine.can('STOP')) {

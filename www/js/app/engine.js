@@ -12,9 +12,10 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 	, _lastFrame = Util.time()
 	, _sceneCrossfade = 1
 	, _lastScene
+	, _lastMove 
 	;	
 
-	function _changeScene(sceneName) {
+	function _changeScene(sceneName, param) {
 
 		if (_activeScene) {
 			_lastScene = _activeScene;
@@ -22,7 +23,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 
 		_sceneCrossfade = 0;
 		_activeScene = SceneStore.get(sceneName);
-		_activeScene.activate();
+		_activeScene.activate(param);
 	}
 
 	function _inputLocked() {
@@ -40,6 +41,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 		if (_inputLocked()) {
 			return;
 		}
+		_lastMove = { x: e.clientX, y: e.clientY };
 		_activeScene.onInputStart(Graphics.getScaler().scaleCoords({x: e.pageX, y: e.pageY}));
 	}, 200);
 
@@ -60,6 +62,11 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 		if (_inputLocked()) {
 			return;
 		}
+		if (_lastMove && e.clientX === _lastMove.x && e.clientY === _lastMove.y) {
+			// Didn't actually move. Stupid Chrome.
+			return;
+		}
+		_lastMove = { x: e.clientX, y: e.clientY };
 		_activeScene.onInputMove(Graphics.getScaler().scaleCoords({x: e.clientX, y: e.clientY}));
 	}, 10);
 

@@ -12,8 +12,8 @@ define(['app/util', 'app/graphics'],
 	Scene.prototype = {
 		background: null,
 		onActivate: function() {},
-		activate: function() {
-			this.onActivate();
+		activate: function(param) {
+			this.onActivate(param);
 			Graphics.setBackground(this.background);
 		},
 		drawFrame: function(delta) {},

@@ -10,6 +10,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 	, PULSE_TIME = 400
 	, PULSE_MAX = 1.5
 	, BORDER_WIDTH = 4
+	, FONT_SIZE = 24
 	;
 
 	function Piece(coords, type, player) {
@@ -21,6 +22,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		this._prompt = new TouchPrompt(coords, 'primary' + player);
 		this._active = type === Piece.Type.FOOTPRINT;
 		this._pulsing = 0;
+		this._label = null;
 	}
 
 	Piece.Type = {
@@ -49,7 +51,6 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 					case Piece.Type.TARGET:
 						colour = 'negative';
 						border = 'background';
-						// radius = RADIUS + BORDER_WIDTH;
 						break;
 					case Piece.Type.TARGET_FORECAST:
 						colour = 'negative';
@@ -64,7 +65,12 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 					border,
 					BORDER_WIDTH * this._transitionScale,
 					alpha,
-					this._type === Piece.Type.TARGET);
+					this._type === Piece.Type.TARGET,
+					this._type === Piece.Type.TARGET_FORECAST);
+
+				if (this._label) {
+					Graphics.text(this._label.text, this._coords.x, this._coords.y, FONT_SIZE * this._transitionScale, this._label.colour);
+				}
 			}
 			if (this._pulsing > 0 && this._transitionScale < PULSE_MAX) {
 				this._transitionScale += delta / PULSE_TIME;
@@ -145,6 +151,9 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		},
 		setActive: function(active) {
 			this._active = this._type === Piece.Type.FOOTPRINT && active;
+		},
+		setLabel: function(label) {
+			this._label = label;
 		},
 		appear: function() {
 			this._transitionScale = 0;

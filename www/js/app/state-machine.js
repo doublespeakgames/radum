@@ -39,7 +39,17 @@ define([], function() {
 	}
 
 	function _isState(state) {
-		return this._currentState === state;
+		if (typeof state === 'string') {
+			return this._currentState === state;
+		}
+
+		// Array of possible states
+		for (var i = 0, len = state.length; i < len; i++) {
+			if (state[i] === this._currentState) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	function _chooseAction(actions) {

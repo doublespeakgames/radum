@@ -78,7 +78,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 	}
 
 	function _drawText(text, x, y, fontSize, colour) {
-		_canvas.globalAlpha = 1;
+		_canvas.globalAlpha = this._globalAlpha;
 		colour = colour || 'negative';
 		// General text rules
 		_canvas.textAlign = 'center';
@@ -92,25 +92,31 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		document.body.style.background = colour ? _theme[colour] : 'transparent';
 	}
 
-	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder) {
+	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder, clipToBoard) {
 		alpha = alpha == null ? 1 : alpha;
 		borderWidth = borderWidth == null ? 4 : borderWidth;
 
-		var borderRadius = radius - borderWidth / 2;
+		var borderRadius = radius - borderWidth / 2 + 1;
 		borderRadius = borderRadius < 0 ? 0 : borderRadius;
 
 		_canvas.globalAlpha = alpha * this._globalAlpha;
 		if (colour) {
+			if (clipToBoard) {
+				_canvas.globalCompositeOperation = 'source-atop';
+			}
 			_canvas.beginPath();
 			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(radius), 0, 2 * Math.PI, false);
 			_canvas.fillStyle = _theme[colour];
 			_canvas.fill();
+			if (clipToBoard) {
+				_canvas.globalCompositeOperation = 'source-over';
+			}
 		}
 
 		if (borderColour) {
 			if (specialBorder) {
 				_canvas.globalCompositeOperation = 'destination-over';
-				borderRadius += borderWidth;
+				borderRadius += borderWidth - 1;
 			}
 			_canvas.beginPath();
 			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(borderRadius), 0, 2 * Math.PI, false);
@@ -126,7 +132,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 
 	function _drawRect(x, y, width, height, colour) {
 		colour = colour || 'negative';
-		_canvas.globalAlpha = 1;
+		_canvas.globalAlpha = this._globalAlpha;
 		_canvas.beginPath();
 		_canvas.fillStyle = null;
 		_canvas.strokeStyle = _theme[colour];
