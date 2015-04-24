@@ -7,7 +7,7 @@
 define(['app/util', 'app/graphics'], function(Util, Graphics) {
 
 	var DURATION = 5000
-	, MAX_RADIUS = 300
+	, MAX_RADIUS = 400
 	;
 
 	function ScoreHorizon(player, coords) {
