@@ -11,7 +11,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 	, PULSE_TIME = 400
 	, PULSE_MAX = 1.5
 	, BORDER_WIDTH = 4
-	, FONT_SIZE = 24
+	, FONT_SIZE = 36
 	;
 
 	function Piece(coords, type, player) {
@@ -93,7 +93,14 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 					this._type === Piece.Type.TARGET_FORECAST);
 
 				if (this._label) {
-					Graphics.text(this._label.text, this._coords.x, this._coords.y, FONT_SIZE * this._transitionScale, this._label.colour);
+					Graphics.text(
+						this._label.text, 
+						this._coords.x, 
+						this._coords.y, 
+						FONT_SIZE * this._transitionScale, 
+						this._label.colour,
+						'negative'
+					);
 				}
 
 				if (this._charged) {
