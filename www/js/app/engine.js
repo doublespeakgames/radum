@@ -82,7 +82,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 
 		// Start the main menu
 		// _changeScene('main-menu');
-		_changeScene('stage-screen');
+		_changeScene('main-menu');
 
 		// Start the gameloop
 		(function gameLoop() {
