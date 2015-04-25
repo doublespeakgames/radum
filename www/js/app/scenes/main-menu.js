@@ -22,7 +22,7 @@ define(['app/scenes/scene', 'app/graphics'], function(Scene, Graphics) {
 	}];
 
 	function _startGame() {
-		require('app/engine').changeScene('game-board');
+		require('app/engine').changeScene('stage-screen');
 	}
 
 	function _showRules() {
