@@ -100,9 +100,10 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 					Graphics.circle(
 						drawX,
 						drawY,
-						(radius / 2) * this._transitionScale,
+						radius * 0.7 * this._transitionScale,
 						null,
-						'secondary' + this._player
+						'secondary' + this._player,
+						3
 					);
 				}
 			}

@@ -96,8 +96,9 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		alpha = alpha == null ? 1 : alpha;
 		borderWidth = borderWidth == null ? 4 : borderWidth;
 
-		var borderRadius = radius - borderWidth / 2 + 1;
-		borderRadius = borderRadius < 0 ? 0 : borderRadius;
+		var borderRadius = radius - borderWidth / 2;
+		circleWidth = radius - (borderColour ? 1 : 0);
+		circleWidth = circleWidth < 0 ? 0 : circleWidth;
 
 		_canvas.globalAlpha = alpha * this._globalAlpha;
 		if (colour) {
@@ -105,7 +106,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 				_canvas.globalCompositeOperation = 'source-atop';
 			}
 			_canvas.beginPath();
-			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(radius), 0, 2 * Math.PI, false);
+			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(circleWidth), 0, 2 * Math.PI, false);
 			_canvas.fillStyle = _theme[colour];
 			_canvas.fill();
 			if (clipToBoard) {
@@ -118,6 +119,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 				_canvas.globalCompositeOperation = 'destination-over';
 				borderRadius += borderWidth - 1;
 			}
+			borderRadius = borderRadius < 0 ? 0 : borderRadius;
 			_canvas.beginPath();
 			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(borderRadius), 0, 2 * Math.PI, false);
 			_canvas.lineWidth = _scaler.scaleValue(borderWidth);
