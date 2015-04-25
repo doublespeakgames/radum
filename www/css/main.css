@@ -10,7 +10,6 @@ body {
 }
 
 canvas {
-	bordeR: 4px solid;
-	border-color: rgba(1, 1, 1, 0.2);
+	/*border: 4px solid rgba(1, 1, 1, 0.2);*/
 	box-sizing: border-box;
 }

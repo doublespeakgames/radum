@@ -290,22 +290,30 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		setTimeout(function scorePiece() {
 			var score = scoring.shift()
 			, points = 0
+			, scoringPlayer
 			;
 
 			score.piece.pulse();
 
 			if (score.piece.ownerNumber() !== score.player) {
-				points = score.piece.ownerNumber() === 0 ? 2 : -1;
+
+				if (score.piece.ownerNumber() === 0) {
+					scoringPlayer = score.player;
+					points = -2;
+				} else {
+					scoringPlayer = score.player === 1 ? 2 : 1;
+					points = 1;
+				}
 
 				if (score.piece._charged) {
 					points *= 2;
 				}
 
-				_scores[score.player - 1] += points;
+				_scores[scoringPlayer - 1] += points;
 
 				score.piece.setLabel({
 					text: points,
-					colour: 'secondary' + score.player
+					colour: 'secondary' + scoringPlayer
 				});
 				score.piece.setCharged(false);
 			} else {

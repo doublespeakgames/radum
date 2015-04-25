@@ -5,7 +5,7 @@
  **/
 define(['app/scenes/scene', 'app/graphics', 'app/touch-prompt'], function(Scene, Graphics, TouchPrompt) {
 
-	var _prompt = new TouchPrompt({x: 180, y: 550}, 'negative')
+	var _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 550}, 'negative')
 	_scores = [0, 0]
 	;
 
