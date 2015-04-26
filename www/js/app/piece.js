@@ -12,6 +12,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 	, PULSE_MAX = 1.5
 	, BORDER_WIDTH = 4
 	, FONT_SIZE = 36
+	, MAX_LEVEL = 3
 	;
 
 	function Piece(coords, type, player) {
@@ -26,7 +27,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		this._pulsing = 0;
 		this._label = null;
 		this._savedPos = null;
-		this._charged = false;
+		this._level = 1;
 	}
 
 	Piece.Type = {
@@ -103,11 +104,22 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 					);
 				}
 
-				if (this._charged) {
+				if (this._level > 1) {
 					Graphics.circle(
 						drawX,
 						drawY,
 						radius * 0.7 * this._transitionScale,
+						null,
+						'secondary' + this._player,
+						3
+					);
+				}
+
+				if (this._level > 2) {
+					Graphics.circle(
+						drawX,
+						drawY,
+						radius * 0.4 * this._transitionScale,
 						null,
 						'secondary' + this._player,
 						3
@@ -224,8 +236,15 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		savePos: function() {
 			this._savedPos = { x: this._coords.x, y: this._coords.y };
 		},
-		setCharged: function(c) {
-			this._charged = c;
+		levelUp: function() {
+			this._level++;
+			this._level = this._level > MAX_LEVEL ? MAX_LEVEL : this._level;
+		},
+		resetLevel: function() {
+			this._level = 1;
+		},
+		pointValue: function() {
+			return Math.pow(this._level, 2);
 		}
 	};
 

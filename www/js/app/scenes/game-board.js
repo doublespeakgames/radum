@@ -302,11 +302,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 					points = -2;
 				} else {
 					scoringPlayer = score.player === 1 ? 2 : 1;
-					points = 1;
-				}
-
-				if (score.piece._charged) {
-					points *= 2;
+					points = score.piece.pointValue();
 				}
 
 				_scores[scoringPlayer - 1] += points;
@@ -315,9 +311,9 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 					text: points,
 					colour: 'secondary' + scoringPlayer
 				});
-				score.piece.setCharged(false);
+				score.piece.resetLevel();
 			} else {
-				score.piece.setCharged(true);
+				score.piece.levelUp();
 			}
 
 			if (scoring.length > 0) {
@@ -467,7 +463,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 			piece.setLabel(null);
 		 		});
 		 		// Get a new target
-		 		_target = _getNewTarget();
+		 		// _target = _getNewTarget();
 		 		_stateMachine.go('NEXTTURN');
 		 	}
 		 },
