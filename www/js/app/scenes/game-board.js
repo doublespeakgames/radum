@@ -14,6 +14,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	, MOVES = 6
 	, MOVE_TRANSITION_DURATION = 200
 	, MAX_COLLISION_TRIES = 5
+	, SCORE_DEADZONE = 2
 	;
 
 	var _stateMachine = new StateMachine({
@@ -293,9 +294,11 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 			, scoringPlayer
 			;
 
-			score.piece.pulse();
+			if (score.player) {
+				score.piece.pulse();
+			}
 
-			if (score.piece.ownerNumber() !== score.player) {
+			if (score.player && score.piece.ownerNumber() !== score.player) {
 
 				if (score.piece.ownerNumber() === 0) {
 					scoringPlayer = score.player;
@@ -312,7 +315,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 					colour: 'secondary' + scoringPlayer
 				});
 				score.piece.resetLevel();
-			} else {
+			} else if(score.player) {
 				score.piece.levelUp();
 			}
 
@@ -341,6 +344,11 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 			, closest = Math.min.apply(Math, distances)
 			, winner = distances[0] === closest ? distances[1] === closest ? null : 1 : 2
 			;
+
+			if (Math.abs(distances[0] - distances[1]) <= SCORE_DEADZONE) {
+				// Too close to call a winner
+				winner = null;
+			}
 
 			pieceScores.push({
 				distance: closest,
@@ -428,8 +436,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 	}
 
 		 	// Draw the scores
-	 		Graphics.text(_scores[0], 60, 38, 40, 'primary1');
-	 		Graphics.text(_scores[1], 420, 38, 40, 'primary2');
+	 		Graphics.text(_scores[0], 50, 38, 40, 'primary1', null, 'left');
+	 		Graphics.text(_scores[1], 430, 38, 40, 'primary2', null, 'right');
 
 	 		// Draw the move counters
 	 		_drawMoveCounter(1, 30, delta);

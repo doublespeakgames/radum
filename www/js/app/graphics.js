@@ -77,16 +77,15 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		return _options.height;
 	}
 
-	function _drawText(text, x, y, fontSize, colour, borderColour, borderWidth) {
+	function _drawText(text, x, y, fontSize, colour, borderColour, align) {
 		_canvas.globalAlpha = this._globalAlpha;
 		colour = colour || 'negative';
 		// General text rules
-		_canvas.textAlign = 'center';
+		_canvas.textAlign = align || 'center';
 		_canvas.textBaseline = 'middle';
 		_canvas.font = _scaler.scaleValue(fontSize) + 'px Arial, Helvetica, sans-serif';
 		if (borderColour) {
 			_canvas.fillStyle = _theme[borderColour];
-			_canvas.lineWidth = borderWidth || 4;
 			_canvas.fillText(text, _scaler.scaleValue(x + 1), _scaler.scaleValue(y + 1));
 		}
 		_canvas.fillStyle = _theme[colour];
