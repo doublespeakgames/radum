@@ -13,8 +13,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	, SUBMIT_DELAY = 400
 	, MOVES = 6
 	, MOVE_TRANSITION_DURATION = 200
-	, MAX_COLLISION_TRIES = 5
-	, SCORE_DEADZONE = 2
+	, MAX_COLLISION_TRIES = 10
+	, SCORE_DEADZONE = 5
 	;
 
 	var _stateMachine = new StateMachine({

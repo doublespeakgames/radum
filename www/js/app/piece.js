@@ -244,7 +244,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 			this._level = 1;
 		},
 		pointValue: function() {
-			return Math.pow(this._level, 2);
+			return Math.pow(2, this._level - 1);
 		}
 	};
 
