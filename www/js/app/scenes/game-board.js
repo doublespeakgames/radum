@@ -4,8 +4,9 @@
  *	(c) doublespeak games 2015	
  **/
 define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 
-		'app/piece', 'app/touch-prompt', 'app/score-horizon'], 
-		function(Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, ScoreHorizon) {
+		'app/piece', 'app/touch-prompt', 'app/score-horizon', 'app/ai/test'], 
+		function(Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, 
+			ScoreHorizon, TestAI) {
 
 
 	var BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
@@ -15,6 +16,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	, MOVE_TRANSITION_DURATION = 200
 	, MAX_COLLISION_TRIES = 10
 	, SCORE_DEADZONE = 5
+	, DEBUG_AI = true
 	;
 
 	var _stateMachine = new StateMachine({
@@ -58,6 +60,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	, _target
 	, _scores = [0, 0]
 	, _movesLeft = [MOVES, MOVES]
+	, _ai = new TestAI(BOARD_RADIUS, BOARD_CENTER, 10)
 	;
 
 	function _getBoundaryVector(coords) {
@@ -410,6 +413,14 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 drawFrame: function(delta) {
 		 	Graphics.circle(BOARD_CENTER.x, BOARD_CENTER.y, BOARD_RADIUS, 'background');
 
+		 	// DEBUG: Draw AI scores
+		 	if (_ai && DEBUG_AI) {
+		 		_ai.getScores().forEach(function(score) {
+		 			var s = Math.round(score.score * 10) / 10;
+		 			Graphics.text(s, score.coords.x, score.coords.y, 4, 'debug');
+		 		});
+		 	}
+
 			// draw the score horizons
 			if (_scoreHorizons.length > 0) {
 				Graphics.save();
@@ -470,10 +481,14 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 			}
 		 			piece.setLabel(null);
 		 		});
-		 		// Get a new target
-		 		// _target = _getNewTarget();
+
 		 		_stateMachine.go('NEXTTURN');
 		 	}
+
+	 		// Calculate AI scores
+	 		if (_ai) {
+	 			_ai.think(2, _playedPieces);
+	 		}
 		 },
 
 		 onInputStart: function(coords) {

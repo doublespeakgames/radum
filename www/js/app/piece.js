@@ -171,9 +171,9 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		collidesWith: function(piece) {
 			return Util.distance(this._coords, piece.getCoords()) < RADIUS * 2;
 		},
-		contains: function(coords) {
+		contains: function(coords, pieceCollision) {
 			return Math.sqrt(Math.pow(this._coords.x - coords.x, 2) + 
-				Math.pow(this._coords.y - coords.y, 2)) <= RADIUS / 2;
+				Math.pow(this._coords.y - coords.y, 2)) <= (pieceCollision ? RADIUS * 2 : RADIUS / 2);
 		},
 		getReboundVector: function(coords) {
 			var distance = Util.distance(this._coords, coords)
@@ -242,6 +242,9 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		},
 		resetLevel: function() {
 			this._level = 1;
+		},
+		getLevel: function() {
+			return this._level;
 		},
 		pointValue: function() {
 			return Math.pow(2, this._level - 1);
