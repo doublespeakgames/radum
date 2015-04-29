@@ -96,8 +96,8 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 				if (this._label) {
 					Graphics.text(
 						this._label.text, 
-						this._coords.x, 
-						this._coords.y, 
+						this._coords.x - 1, 
+						this._coords.y - 1, 
 						FONT_SIZE * this._transitionScale, 
 						this._label.colour,
 						'negative'

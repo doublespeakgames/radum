@@ -84,10 +84,10 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		_canvas.textAlign = align || 'center';
 		_canvas.textBaseline = 'middle';
 		// _canvas.font = _scaler.scaleValue(fontSize) + 'px Arial, Helvetica, sans-serif';
-		_canvas.font = _scaler.scaleValue(fontSize) + 'px Futura Condensed Bold';
+		_canvas.font = _scaler.scaleValue(fontSize) + 'px montserratregular';
 		if (borderColour) {
 			_canvas.fillStyle = _theme[borderColour];
-			_canvas.fillText(text, _scaler.scaleValue(x + 1), _scaler.scaleValue(y + 1));
+			_canvas.fillText(text, _scaler.scaleValue(x + 2), _scaler.scaleValue(y + 2));
 		}
 		_canvas.fillStyle = _theme[colour];
 		_canvas.fillText(text, _scaler.scaleValue(x), _scaler.scaleValue(y));
