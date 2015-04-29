@@ -153,8 +153,8 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 	}
 
 	function _clipToBoard() {
-		var boardCenter = require('app/scenes/game-board').getCenter()
-		, boardRadius = require('app/scenes/game-board').getRadius()
+		var boardCenter = require('app/engine').BOARD_CENTER
+		, boardRadius = require('app/engine').BOARD_RADIUS
 		;
 
 		_canvas.beginPath();

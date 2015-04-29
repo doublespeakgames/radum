@@ -4,19 +4,17 @@
  *	(c) doublespeak games 2015	
  **/
 define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 
-		'app/piece', 'app/touch-prompt', 'app/score-horizon', 'app/ai/test'], 
+		'app/piece', 'app/touch-prompt', 'app/score-horizon'], 
 		function(Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, 
-			ScoreHorizon, TestAI) {
+			ScoreHorizon) {
 
 
-	var BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
-	, BOARD_RADIUS = 200
-	, SUBMIT_DELAY = 400
+	var SUBMIT_DELAY = 400
 	, MOVES = 6
 	, MOVE_TRANSITION_DURATION = 200
 	, MAX_COLLISION_TRIES = 10
 	, SCORE_DEADZONE = 5
-	, DEBUG_AI = true
+	, DEBUG_AI = false
 	;
 
 	var _stateMachine = new StateMachine({
@@ -60,21 +58,20 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	, _target
 	, _scores = [0, 0]
 	, _movesLeft = [MOVES, MOVES]
-	, _ai = new TestAI(BOARD_RADIUS, BOARD_CENTER, 10)
 	;
 
 	function _getBoundaryVector(coords) {
-		var distance = Util.distance(coords, BOARD_CENTER)
+		var distance = Util.distance(coords, require('app/engine').BOARD_CENTER)
 		, scale = 1
 		;
 		
 		// Make sure the piece is on the board
-		if (distance > BOARD_RADIUS) {
-			scale = BOARD_RADIUS / distance;
+		if (distance > require('app/engine').BOARD_RADIUS) {
+			scale = require('app/engine').BOARD_RADIUS / distance;
 
 			return {
-				x: (scale * coords.x) + (1 - scale) * BOARD_CENTER.x - coords.x,
-				y: (scale * coords.y) + (1 - scale) * BOARD_CENTER.y - coords.y
+				x: (scale * coords.x) + (1 - scale) * require('app/engine').BOARD_CENTER.x - coords.x,
+				y: (scale * coords.y) + (1 - scale) * require('app/engine').BOARD_CENTER.y - coords.y
 			};
 		}
 
@@ -168,22 +165,22 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	}
 
 	function _getSliceHeight(x) {
-		return 2 * Math.sqrt(Math.pow(BOARD_RADIUS, 2) - Math.pow(x, 2));
+		return 2 * Math.sqrt(Math.pow(require('app/engine').BOARD_RADIUS, 2) - Math.pow(x, 2));
 	}
 
 	function _generateSpot() {
 		var pos = {
-			x: Math.floor(Math.random() * BOARD_RADIUS * 2)
+			x: Math.floor(Math.random() * require('app/engine').BOARD_RADIUS * 2)
 		}
-		, translatedX = pos.x - BOARD_RADIUS
+		, translatedX = pos.x - require('app/engine').BOARD_RADIUS
 		, ySpace = _getSliceHeight(translatedX)
 		;
 
-		pos.y = Math.floor((Math.random() * ySpace) + (BOARD_RADIUS - ySpace / 2));
+		pos.y = Math.floor((Math.random() * ySpace) + (require('app/engine').BOARD_RADIUS - ySpace / 2));
 
 		// translate to canvas coords
-		pos.x += Graphics.width() / 2 - BOARD_RADIUS;
-		pos.y += Graphics.height() / 2 - BOARD_RADIUS;
+		pos.x += Graphics.width() / 2 - require('app/engine').BOARD_RADIUS;
+		pos.y += Graphics.height() / 2 - require('app/engine').BOARD_RADIUS;
 
 		return pos;
 	}
@@ -401,21 +398,13 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	
 	return new Scene({
 		 background: null,
-		 
-		 getCenter: function() {
-		 	return BOARD_CENTER;
-		 },
-
-		 getRadius: function() {
-		 	return BOARD_RADIUS;
-		 },
 
 		 drawFrame: function(delta) {
-		 	Graphics.circle(BOARD_CENTER.x, BOARD_CENTER.y, BOARD_RADIUS, 'background');
+		 	Graphics.circle(require('app/engine').BOARD_CENTER.x, require('app/engine').BOARD_CENTER.y, require('app/engine').BOARD_RADIUS, 'background');
 
 		 	// DEBUG: Draw AI scores
-		 	if (_ai && DEBUG_AI) {
-		 		_ai.getScores().forEach(function(score) {
+		 	if (require('app/engine').getAI() && DEBUG_AI) {
+		 		require('app/engine').getAI().getScores().forEach(function(score) {
 		 			var s = Math.round(score.score * 100) / 100;
 		 			Graphics.text(s, score.coords.x, score.coords.y, 4, 'debug');
 		 		});
@@ -465,6 +454,13 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 		_resetGame();
 		 		_stateMachine.go('NEWGAME');
 		 	}
+		 	else if (_activePlayer === 1 && require('app/engine').getAI() && _stateMachine.can('SCORE')) {
+		 		// Get the bot to place a piece
+		 		_playedPieces.push(require('app/engine').getAI().play(_playedPieces));
+		 		_movesLeft[1]--;
+		 		_activePlayer = 1;
+		 		_score();
+		 	}
 		 	else if (_activePlayer === 1 && _stateMachine.can('NEXTPLAYER')) {
 		 		_activePlayer = 2;
 		 		_stateMachine.go('NEXTPLAYER');
@@ -486,8 +482,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 	}
 
 	 		// Calculate AI scores
-	 		if (_ai) {
-	 			_ai.think(2, _playedPieces);
+	 		if (require('app/engine').getAI()) {
+	 			require('app/engine').getAI().think(_playedPieces);
 	 		}
 		 },
 

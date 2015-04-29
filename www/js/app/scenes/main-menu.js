@@ -18,7 +18,7 @@ define(['app/scenes/scene', 'app/graphics'], function(Scene, Graphics) {
 		y: 440,
 		width: 360,
 		height: 100,
-		onTrigger: _showRules
+		onTrigger: function() { require('app/engine').setBot(true); _startGame(); }
 	}];
 
 	function _startGame() {
@@ -35,8 +35,8 @@ define(['app/scenes/scene', 'app/graphics'], function(Scene, Graphics) {
 
 		drawFrame: function(delta) {
 			Graphics.text('Radüm', Graphics.width() / 2, Graphics.height() / 3 - 30, 100);
-			Graphics.text('play', Graphics.width() / 2, Graphics.height() / 2 + 20, 50);
-			Graphics.text('rules', Graphics.width() / 2, Graphics.height() / 2 + 170, 50);
+			Graphics.text('vs human', Graphics.width() / 2, Graphics.height() / 2 + 20, 50);
+			Graphics.text('vs cpu', Graphics.width() / 2, Graphics.height() / 2 + 170, 50);
 
 			if (DEBUG) {
 				_hitBoxes.forEach(function(box) {
