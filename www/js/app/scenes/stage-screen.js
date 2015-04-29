@@ -7,7 +7,8 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine', 'app/touch-prom
 
 	var _stateMachine = new StateMachine({
 		PLAYER1: {
-			NEXT: 'PLAYER2'
+			NEXT: 'PLAYER2',
+			NEXTVSCPU: 'SCORE'
 		},
 		PLAYER2: {
 			NEXT: 'SCORE'
@@ -24,7 +25,11 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine', 'app/touch-prom
 
 		onActivate: function() {
 			var background;
-			_stateMachine.go('NEXT');
+			if (require('app/engine').getAI() && _stateMachine.can('NEXTVSCPU')) {
+				_stateMachine.go('NEXTVSCPU');
+			} else {
+				_stateMachine.go('NEXT');
+			}
 			_stateMachine.choose({
 				PLAYER1: function() {
 					background = 'primary1';

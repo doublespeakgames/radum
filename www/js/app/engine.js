@@ -3,17 +3,28 @@
  *	handles game loop and input
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'], 
-		function(Util, EM, Graphics, SceneStore) {
+define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app/ai/test'], 
+		function(Util, EM, Graphics, SceneStore, TestAI) {
 	
-	var CROSSFADE_TIME = 300;
+	var CROSSFADE_TIME = 300
+	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
+	, BOARD_RADIUS = 200
 
 	var _activeScene
 	, _lastFrame = Util.time()
 	, _sceneCrossfade = 1
 	, _lastScene
 	, _lastMove 
-	;	
+	, _ai
+	;
+
+	function _setBot(bot) {
+		_ai = bot ? new TestAI(2, BOARD_RADIUS, BOARD_CENTER, 10) : null;
+	}
+
+	function _getAI() {
+		return _ai;
+	}
 
 	function _changeScene(sceneName, param) {
 
@@ -113,6 +124,10 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store'],
 
 	return {
 		init: _init,
-		changeScene: _changeScene
+		changeScene: _changeScene,
+		setBot: _setBot,
+		getAI: _getAI,
+		BOARD_CENTER: BOARD_CENTER,
+		BOARD_RADIUS: BOARD_RADIUS
 	};
 });

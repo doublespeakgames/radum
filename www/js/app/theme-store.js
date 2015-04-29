@@ -11,7 +11,8 @@ define(function() {
 		primary2: '#FF3D7F',
 		secondary2: '#FF9E9D',
 		background:  '#DAD8A7',
-		negative: '#FFFFFF'
+		negative: '#FFFFFF',
+		debug: '#000000'
 	}];
 
 	return {
