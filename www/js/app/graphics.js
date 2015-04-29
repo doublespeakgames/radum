@@ -83,7 +83,8 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		// General text rules
 		_canvas.textAlign = align || 'center';
 		_canvas.textBaseline = 'middle';
-		_canvas.font = _scaler.scaleValue(fontSize) + 'px Arial, Helvetica, sans-serif';
+		// _canvas.font = _scaler.scaleValue(fontSize) + 'px Arial, Helvetica, sans-serif';
+		_canvas.font = _scaler.scaleValue(fontSize) + 'px Futura Condensed Bold';
 		if (borderColour) {
 			_canvas.fillStyle = _theme[borderColour];
 			_canvas.fillText(text, _scaler.scaleValue(x + 1), _scaler.scaleValue(y + 1));
