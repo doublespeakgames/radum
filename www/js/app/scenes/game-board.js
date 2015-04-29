@@ -416,7 +416,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 	// DEBUG: Draw AI scores
 		 	if (_ai && DEBUG_AI) {
 		 		_ai.getScores().forEach(function(score) {
-		 			var s = Math.round(score.score * 10) / 10;
+		 			var s = Math.round(score.score * 100) / 100;
 		 			Graphics.text(s, score.coords.x, score.coords.y, 4, 'debug');
 		 		});
 		 	}

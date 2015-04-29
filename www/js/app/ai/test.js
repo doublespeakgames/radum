@@ -1,9 +1,9 @@
-define(['app/util'], function(Util) {
+define(['app/util', 'app/piece'], function(Util, Piece) {
 
 	var FRIENDLY_LEVEL1 = 1
 	, FRIENDLY_LEVEL2 = 1
 	, FRIENDLY_LEVEL3 = -0.5
-	, ENEMY_LEVEL1 = 2
+	, ENEMY_LEVEL1 = 1
 	, ENEMY_LEVEL2 = 0.5
 	, ENEMY_LEVEL3 = -0.5
 	;
@@ -39,11 +39,11 @@ define(['app/util'], function(Util) {
 
 		pieces.forEach(function(piece) {
 			if (score === null) { return; }
-			var d = Util.distance(piece.getCoords(), pos) || 1;
+			var d = 1 - (Util.distance(piece.getCoords(), pos) - Piece.RADIUS * 2) / (radius);
 			if (piece.contains(pos, true)) {
 				score = null;
 			} else {
-				score +=  (radius / d) * _getPieceWeight(piece, playerNum);
+				score += Math.log10(d * 100) * _getPieceWeight(piece, playerNum);
 			}
 		});
 
