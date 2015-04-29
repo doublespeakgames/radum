@@ -1,40 +1,52 @@
 define(['app/util', 'app/piece'], function(Util, Piece) {
 
+	// Early-game weights
 	var FRIENDLY_LEVEL1 = 1
 	, FRIENDLY_LEVEL2 = 1
 	, FRIENDLY_LEVEL3 = -0.5
 	, ENEMY_LEVEL1 = 1
 	, ENEMY_LEVEL2 = 0.5
 	, ENEMY_LEVEL3 = -0.5
+
+	// Late-game weights
+	, LATE_FRIENDLY_LEVEL1 = 0
+	, LATE_FRIENDLY_LEVEL2 = 1
+	, LATE_FRIENDLY_LEVEL3 = -5
+	, LATE_ENEMY_LEVEL1 = 0
+	, LATE_ENEMY_LEVEL2 = 0.5
+	, LATE_ENEMY_LEVEL3 = -5
+
+	// Distance from the center where the initial piece may fall (scale of radius)
+	, INITIAL_RADIUS = 0.5
 	;
 
 	function _getSliceHeight(x, radius) {
 		return 2 * Math.sqrt(Math.pow(radius, 2) - Math.pow(x - radius, 2));
 	}
 
-	function _getPieceWeight(piece) {
+	function _getPieceWeight(piece, movesLeft) {
 		if (this._playerNum === piece.ownerNumber()) {
 			switch(piece.getLevel()) {
 				case 1:
-					return FRIENDLY_LEVEL1;
+					return movesLeft > 2 ? FRIENDLY_LEVEL1 : LATE_FRIENDLY_LEVEL1;
 				case 2:
-					return FRIENDLY_LEVEL2;
+					return movesLeft > 2 ? FRIENDLY_LEVEL2 : LATE_FRIENDLY_LEVEL2;
 				case 3:
-					return FRIENDLY_LEVEL3;
+					return movesLeft > 2 ? FRIENDLY_LEVEL3 : LATE_FRIENDLY_LEVEL3;
 			}
 		} else {
 			switch(piece.getLevel()) {
 				case 1:
-					return ENEMY_LEVEL1;
+					return movesLeft > 2 ? ENEMY_LEVEL1 : LATE_ENEMY_LEVEL1;
 				case 2:
-					return ENEMY_LEVEL2;
+					return movesLeft > 2 ? ENEMY_LEVEL2 : LATE_ENEMY_LEVEL2;
 				case 3:
-					return ENEMY_LEVEL3;
+					return movesLeft > 2 ? ENEMY_LEVEL3 : LATE_ENEMY_LEVEL3;
 			}
 		}
 	}
 
-	function _calculateScore(pos, pieces, radius) {
+	function _calculateScore(pos, pieces, radius, movesLeft) {
 		var score = 0;
 
 		pieces.forEach(function(piece) {
@@ -43,14 +55,14 @@ define(['app/util', 'app/piece'], function(Util, Piece) {
 			if (piece.contains(pos, true)) {
 				score = null;
 			} else {
-				score += Math.log10(d * 100) * _getPieceWeight(piece);
+				score += Math.log10(d * 100) * _getPieceWeight(piece, movesLeft);
 			}
 		});
 
-		return score || 0;
+		return score;
 	}
 
-	function _getScores(pieces) {
+	function _getScores(pieces, movesLeft) {
 		var yPos
 		, xPos
 		, yBound
@@ -69,9 +81,9 @@ define(['app/util', 'app/piece'], function(Util, Piece) {
 				};
 				score = {
 					coords: coords,
-					score: _calculateScore(coords, pieces, this._boardRadius)		
+					score: _calculateScore(coords, pieces, this._boardRadius, movesLeft)		
 				};
-				if (this._best === null || score.score > this._best.score) {
+				if (score.score !== null && (this._best === null || score.score > this._best.score)) {
 					this._best = score;
 				}
 				this._scores.push(score);
@@ -79,9 +91,27 @@ define(['app/util', 'app/piece'], function(Util, Piece) {
 		}
 	}
 
-	function _playPiece(pieces) {
-		_getScores(pieces);
-		return new Piece(this._best.coords, Piece.Type.FOOTPRINT, this._playerNum);
+	function _getInitial() {
+		var theta = Math.random() * Math.PI * 2
+		, r = Math.random() * this._boardRadius * INITIAL_RADIUS
+		, x = Math.cos(theta) * r
+		, y = Math.sin(theta) * r
+		;
+
+		return {
+			x: this._boardCenter.x + x,
+			y: this._boardCenter.y + y
+		};
+	}
+
+	function _playPiece(pieces, movesLeft) {
+		if (pieces.length <= 1) {
+			// First piece
+			return new Piece(_getInitial.call(this), Piece.Type.FOOTPRINT, this._playerNum);
+		} else {
+			_getScores.call(this, pieces, movesLeft);
+			return new Piece(this._best.coords, Piece.Type.FOOTPRINT, this._playerNum);
+		}
 	}
 	
 	function TestAI(playerNum, boardRadius, boardCenter, chunkSize) {

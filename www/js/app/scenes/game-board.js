@@ -456,7 +456,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 	}
 		 	else if (_activePlayer === 1 && require('app/engine').getAI() && _stateMachine.can('SCORE')) {
 		 		// Get the bot to place a piece
-		 		_playedPieces.push(require('app/engine').getAI().play(_playedPieces));
+		 		_playedPieces.push(require('app/engine').getAI().play(_playedPieces, _movesLeft[1]));
 		 		_movesLeft[1]--;
 		 		_activePlayer = 1;
 		 		_score();
@@ -482,8 +482,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 	}
 
 	 		// Calculate AI scores
-	 		if (require('app/engine').getAI()) {
-	 			require('app/engine').getAI().think(_playedPieces);
+	 		if (DEBUG_AI && require('app/engine').getAI()) {
+	 			require('app/engine').getAI().think(_playedPieces, _movesLeft[1]);
 	 		}
 		 },
 
