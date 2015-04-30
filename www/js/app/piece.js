@@ -32,9 +32,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 
 	Piece.Type = {
 		FOOTPRINT: 0,
-		TARGET: 1,
-		TARGET_FORECAST: 2,
-		SENTRY: 3
+		SENTRY: 1
 	};
 
 	Piece.RADIUS = RADIUS;

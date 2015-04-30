@@ -55,7 +55,6 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: Graphics.height() - 60}, 'background')
 	, _activePlayer = 1
 	, _scoreHorizons = []
-	, _target
 	, _scores = [0, 0]
 	, _movesLeft = [MOVES, MOVES]
 	;
@@ -164,67 +163,6 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		return true;
 	}
 
-	function _getSliceHeight(x) {
-		return 2 * Math.sqrt(Math.pow(require('app/engine').BOARD_RADIUS, 2) - Math.pow(x, 2));
-	}
-
-	function _generateSpot() {
-		var pos = {
-			x: Math.floor(Math.random() * require('app/engine').BOARD_RADIUS * 2)
-		}
-		, translatedX = pos.x - require('app/engine').BOARD_RADIUS
-		, ySpace = _getSliceHeight(translatedX)
-		;
-
-		pos.y = Math.floor((Math.random() * ySpace) + (require('app/engine').BOARD_RADIUS - ySpace / 2));
-
-		// translate to canvas coords
-		pos.x += Graphics.width() / 2 - require('app/engine').BOARD_RADIUS;
-		pos.y += Graphics.height() / 2 - require('app/engine').BOARD_RADIUS;
-
-		return pos;
-	}
-
-	function _generateGoodSpot() {
-		var spot = null
-		, counter = 0
-		;
-
-		while(spot === null && counter++ < 100) {
-			spot = _generateSpot();
-			spot = _goodSpot(spot) ? spot : null;
-		}
-
-		return spot;
-	}
-
-	function _getNewTarget() {
-		var spot = _generateGoodSpot();
-
-		if (!spot) {
-			// Couldn't find a spot. No target for you.
-			console.debug("Couldn't find a free space for the target. Write better code.");
-			return null;
-		}
-
-		return new Piece(
-			spot,
-			Piece.Type.TARGET_FORECAST,
-			0
-		);
-	}
-
-	function _goodSpot(coords) {
-		var good = true;
-		_playedPieces.forEach(function(piece) {
-			if (Util.distance(piece.getCoords(), coords) < Piece.RADIUS * 2) {
-				good = false;
-			}
-		});
-
-		return good;
-	}
-
 	function _score() {
 		var players = []
 		, scoring
@@ -250,33 +188,6 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 			_doFootprintCollisions(players[0], players[1]);
 		}
 
-		if (_target) {
-
-			// Did a player block the target?
-			players.forEach(function(piece) {
-				if (_target.collidesWith(piece)) {
-					targetBlocked = true;
-				}
-			});
-
-			// If someone has played on the forecast, move it
-			if (targetBlocked) {
-				newSpot = _generateGoodSpot();
-				if (newSpot) {
-					_target.move(newSpot);
-				} else {
-					// No legal place found
-					_target = null;
-				}
-			}
-
-			// Solidify the target forecast
-			if (_target) {
-				_target.setType(Piece.Type.TARGET);
-				_target.appear();
-			}
-		}
-
 		// Score the board
 		scoring = _getRoundScores(players);
 		if (scoring.length == 0) {
@@ -300,13 +211,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 
 			if (score.player && score.piece.ownerNumber() !== score.player) {
 
-				if (score.piece.ownerNumber() === 0) {
-					scoringPlayer = score.player;
-					points = -2;
-				} else {
-					scoringPlayer = score.player === 1 ? 2 : 1;
-					points = score.piece.pointValue();
-				}
+				scoringPlayer = score.player === 1 ? 2 : 1;
+				points = score.piece.pointValue();
 
 				_scores[scoringPlayer - 1] += points;
 
@@ -357,9 +263,6 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 			});
 		}
 
-		if (_target) {
-			scorePiece(_target);
-		}
 		_playedPieces.forEach(scorePiece);
 
 		return pieceScores.sort(function(a, b) {
@@ -393,7 +296,6 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		_scores = [0, 0];
 		_playedPieces.length = 0;
 		_scoreHorizons.length = 0;
-		_target = null;
 	}
 	
 	return new Scene({
@@ -418,11 +320,6 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 					horizon.draw(delta);
 				});
 				Graphics.restore();
-			}
-
-			// Draw the target
-			if (_target) {
-				_target.draw(delta);
 			}
 
 			// Draw all the pieces

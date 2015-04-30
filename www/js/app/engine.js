@@ -19,7 +19,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 	;
 
 	function _setBot(bot) {
-		_ai = bot ? new TestAI(2, BOARD_RADIUS, BOARD_CENTER, 10) : null;
+		_ai = bot ? new TestAI(2, BOARD_RADIUS, BOARD_CENTER, 5) : null;
 	}
 
 	function _getAI() {
