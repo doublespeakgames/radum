@@ -24,7 +24,18 @@
 		<link rel="apple-touch-icon" href="img/badge.png" />
 		<link rel="stylesheet" href="css/main.css">
 		<script type="text/javascript" data-main="js/app" src="js/lib/require.js"></script>
+		<script type="text/javascript">
+			window.onload = function tryStart() {
+				// This is to ensure fonts are loaded prior to initializing the screen
+				if (window.startGame) {
+					startGame();
+				} else {
+					setTimeout(tryStart, 50);
+				}
+			}
+		</script>
 	</head>
 	<body>
+		<div style="visibility:hidden;">This text is required or onload will fire before the font is loaded. Hooray!</div>
 	</body>
 </html>

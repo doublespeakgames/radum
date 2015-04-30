@@ -24,6 +24,7 @@ js/app/scenes/main-menu.js
 js/app/scenes/stage-screen.js
 js/app/scenes/game-over.js
 js/app/scene-store.js
+js/app/ai/test.js
 js/app/engine.js
 js/app/main.js
 js/app.js

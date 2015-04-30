@@ -14,5 +14,7 @@ requirejs.config({
 	}
 });
 
-// Load the main module to start the game
-requirejs(["app/main"]);
+function startGame() {
+	// Load the main module to start the game
+	requirejs(["app/main"]);
+}
