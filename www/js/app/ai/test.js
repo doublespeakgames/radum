@@ -16,6 +16,9 @@ define(['app/util', 'app/piece'], function(Util, Piece) {
 	, LATE_ENEMY_LEVEL2 = 0.5
 	, LATE_ENEMY_LEVEL3 = -5
 
+	// Tendancy to play near the center
+	, CENTER_PULL = 0.1
+
 	// Distance from the center where the initial piece may fall (scale of radius)
 	, INITIAL_RADIUS = 0.5
 	;
@@ -47,7 +50,8 @@ define(['app/util', 'app/piece'], function(Util, Piece) {
 	}
 
 	function _calculateScore(pos, pieces, radius, movesLeft) {
-		var score = 0;
+		var score = Math.log10((1 - (Util.distance(pos, this._boardCenter) / radius)) * 100) * CENTER_PULL;
+		score = score < 0 ? 0 : score;
 
 		pieces.forEach(function(piece) {
 			if (score === null || !piece.isReal()) { return; }
@@ -81,7 +85,7 @@ define(['app/util', 'app/piece'], function(Util, Piece) {
 				};
 				score = {
 					coords: coords,
-					score: _calculateScore(coords, pieces, this._boardRadius, movesLeft)		
+					score: _calculateScore.call(this, coords, pieces, this._boardRadius, movesLeft)		
 				};
 				if (score.score !== null && (this._best === null || score.score > this._best.score)) {
 					this._best = score;
