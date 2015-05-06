@@ -105,10 +105,12 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 			Graphics.clear();
 			if (_lastScene) {
 				Graphics.setAlpha(1 - _sceneCrossfade);
-				_lastScene.drawFrame(delta);
+				_lastScene.doFrame(delta);
+				_lastScene.drawFrame();
 			}
 			Graphics.setAlpha(_sceneCrossfade);
-			_activeScene.drawFrame(delta);
+			_activeScene.doFrame(delta);
+			_activeScene.drawFrame();
 
 			if (_sceneCrossfade < 1) {
 				_sceneCrossfade += delta / CROSSFADE_TIME;

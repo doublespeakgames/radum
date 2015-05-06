@@ -10,18 +10,22 @@ define(['app/util', 'app/graphics'], function(Util, Graphics) {
 	, MAX_RADIUS = 400
 	;
 
-	function ScoreHorizon(player, coords) {
+	function ScoreHorizon(player, coords, stepCallback) {
 		this._scale = 0;
 		this._coords = coords;
 		this._player = player;
 		this._stopped = false;
+		this._stepCallback = stepCallback;
 	}
 	ScoreHorizon.prototype = {
-		draw: function(delta) {
+		do: function(delta) {
 			if (!this._stopped && this._scale < 1) {
 				this._scale += delta / DURATION;
 				this._scale = this._scale >= 1 ? 1 : this._scale;
 			}
+			this._stepCallback && this._stepCallback(MAX_RADIUS * this._scale);
+		},
+		draw: function() {
 			Graphics.circle(
 				this._coords.x 
 				, this._coords.y

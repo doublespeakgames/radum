@@ -16,11 +16,15 @@ define(['app/scenes/scene', 'app/graphics', 'app/touch-prompt'], function(Scene,
 			_scores = scores;
 		},
 
-		drawFrame: function(delta) {
+		doFrame: function(delta) {
+			_prompt.do(delta);
+		},
+
+		drawFrame: function() {
 			Graphics.text(_scores[0], Graphics.width() / 2 - 80, Graphics.height() / 3, 80, 'primary1');
 			Graphics.text(_scores[1], Graphics.width() / 2 + 80, Graphics.height() / 3, 80, 'primary2');
 
-			_prompt.draw(delta);
+			_prompt.draw();
 		},
 
 		onInputStart: function(coords) {

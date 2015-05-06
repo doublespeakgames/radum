@@ -38,7 +38,54 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 	Piece.RADIUS = RADIUS;
 
 	Piece.prototype = {
-		draw: function(delta) {
+		do: function(delta) {
+			if (this._savedPos && (this._savedPos.x !== this._coords.x || this._savedPos.y !== this._coords.y)) {
+				if (this._transitionMove === 1) {
+					// Start the animation
+					this._transitionMove = 0;
+				}
+				this._transitionMove += delta / MOVE_TIME;
+				this._transitionMove = this._transitionMove > 1 ? 1 : this._transitionMove;
+
+				if (this._transitionMove === 1) {
+					this._savedPos = null;
+				}
+			}
+
+			if (this._pulsing > 0 && this._transitionScale < PULSE_MAX) {
+				this._transitionScale += delta / PULSE_TIME;
+				if (this._transitionScale >= PULSE_MAX) {
+					this._transitionScale = PULSE_MAX;
+					this._pulsing = -1;
+				}
+			}
+			else if(this._pulsing < 0 && this._transitionScale > 1 ) {
+				this._transitionScale -= delta / PULSE_TIME;
+				if (this._transitionScale <= 1) {
+					this._transitionScale = 1;
+					this._pulsing = 0;
+				}
+			}
+			else if (this._transitionScale < 1 && this._real) {
+				this._transitionScale += delta / CREATE_TIME;
+				this._transitionScale = this._transitionScale > 1 ? 1 : this._transitionScale;
+				if (this._transitionScale === 1 && this._realCallback) {
+					this._realCallback();
+					this._realCallback = null;
+				}
+			} 
+			else if (this._transitionScale > 0 && !this._real) {
+				this._transitionScale -= delta / CREATE_TIME;
+				this._transitionScale = this._transitionScale < 0 ? 0 : this._transitionScale;
+				if (this._transitionScale === 0 && this._realCallback) {
+					this._realCallback();
+					this._realCallback = null;
+				}
+			} else if (this._real && this._type === Piece.Type.FOOTPRINT && this._active) {
+				this._prompt.do(delta);
+			}
+		},
+		draw: function() {
 			if (this._real || (!this._real && this._transitionScale > 0)) {
 				var colour, border, alpha = 1, radius = RADIUS, drawX, drawY;
 				switch(this._type) {
@@ -62,19 +109,8 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 				}
 
 				if (this._savedPos && (this._savedPos.x !== this._coords.x || this._savedPos.y !== this._coords.y)) {
-					if (this._transitionMove === 1) {
-						// Start the animation
-						this._transitionMove = 0;
-					}
-					this._transitionMove += delta / MOVE_TIME;
-					this._transitionMove = this._transitionMove > 1 ? 1 : this._transitionMove;
-
 					drawX = this._savedPos.x + this._transitionMove * (this._coords.x - this._savedPos.x);
 					drawY = this._savedPos.y + this._transitionMove * (this._coords.y - this._savedPos.y);
-
-					if (this._transitionMove === 1) {
-						this._savedPos = null;
-					}
 				} else {
 					drawX = this._coords.x;
 					drawY = this._coords.y;
@@ -124,38 +160,9 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 					);
 				}
 			}
-			if (this._pulsing > 0 && this._transitionScale < PULSE_MAX) {
-				this._transitionScale += delta / PULSE_TIME;
-				if (this._transitionScale >= PULSE_MAX) {
-					this._transitionScale = PULSE_MAX;
-					this._pulsing = -1;
-				}
-			}
-			else if(this._pulsing < 0 && this._transitionScale > 1 ) {
-				this._transitionScale -= delta / PULSE_TIME;
-				if (this._transitionScale <= 1) {
-					this._transitionScale = 1;
-					this._pulsing = 0;
-				}
-			}
-			else if (this._transitionScale < 1 && this._real) {
-				this._transitionScale += delta / CREATE_TIME;
-				this._transitionScale = this._transitionScale > 1 ? 1 : this._transitionScale;
-				if (this._transitionScale === 1 && this._realCallback) {
-					this._realCallback();
-					this._realCallback = null;
-				}
-			} 
-			else if (this._transitionScale > 0 && !this._real) {
-				this._transitionScale -= delta / CREATE_TIME;
-				this._transitionScale = this._transitionScale < 0 ? 0 : this._transitionScale;
-				if (this._transitionScale === 0 && this._realCallback) {
-					this._realCallback();
-					this._realCallback = null;
-				}
-			} 
-			else if (this._real && this._type === Piece.Type.FOOTPRINT && this._active) {
-				this._prompt.draw(delta);
+
+			if (this._real && this._type === Piece.Type.FOOTPRINT && this._active) {
+				this._prompt.draw();
 			}
 		},
 		move: function(coords) {

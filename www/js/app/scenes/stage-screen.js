@@ -47,9 +47,13 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine', 'app/touch-prom
 			this.background = background;
 		},
 
-		drawFrame: function(delta) {
+		doFrame: function(delta) {
+			_prompt.do(delta);
+		},
+
+		drawFrame: function() {
 			Graphics.text(_frameText, Graphics.width() / 2, Graphics.height() / 3 - 30, 80);
-			_prompt.draw(delta);
+			_prompt.draw();
 		},
 
 		onInputStart: function(coords) {

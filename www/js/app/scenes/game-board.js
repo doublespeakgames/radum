@@ -57,6 +57,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	, _scoreHorizons = []
 	, _scores = [0, 0]
 	, _movesLeft = [MOVES, MOVES]
+	, _paused = false
 	;
 
 	function _getBoundaryVector(coords) {
@@ -194,46 +195,50 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 			_stateMachine.go('DONESCORING');
 			return;
 		} else {
+			function scorePiece(distance) {
+				var score = scoring[0]
+				, points = 0
+				, scoringPlayer
+				;
+
+				if (!score || score.distance > distance) {
+					// Not yet
+					return;
+				}
+				scoring.shift()
+
+				if (score.player) {
+					score.piece.pulse();
+				}
+
+				if (score.player && score.piece.ownerNumber() !== score.player) {
+
+					scoringPlayer = score.player === 1 ? 2 : 1;
+					points = score.piece.pointValue();
+
+					_scores[scoringPlayer - 1] += points;
+
+					score.piece.setLabel({
+						text: points,
+						colour: 'secondary' + scoringPlayer
+					});
+					score.piece.resetLevel();
+				} else if(score.player) {
+					score.piece.levelUp();
+				}
+
+				console.log(scoring.length);
+				if (scoring.length === 0) {
+					_scoreHorizons.forEach(function(horizon) {
+						horizon.stop();
+					});
+					_stateMachine.go('DONESCORING');
+				}
+			}
 			players.forEach(function(p) {
-				_scoreHorizons.push(new ScoreHorizon(p.ownerNumber(), p.getCoords()));
+				_scoreHorizons.push(new ScoreHorizon(p.ownerNumber(), p.getCoords(), scorePiece));
 			});
 		}
-
-		setTimeout(function scorePiece() {
-			var score = scoring.shift()
-			, points = 0
-			, scoringPlayer
-			;
-
-			if (score.player) {
-				score.piece.pulse();
-			}
-
-			if (score.player && score.piece.ownerNumber() !== score.player) {
-
-				scoringPlayer = score.player === 1 ? 2 : 1;
-				points = score.piece.pointValue();
-
-				_scores[scoringPlayer - 1] += points;
-
-				score.piece.setLabel({
-					text: points,
-					colour: 'secondary' + scoringPlayer
-				});
-				score.piece.resetLevel();
-			} else if(score.player) {
-				score.piece.levelUp();
-			}
-
-			if (scoring.length > 0) {
-				setTimeout(scorePiece, (scoring[0].distance - score.distance) * ScoreHorizon.RATE);
-			} else {
-				_scoreHorizons.forEach(function(horizon) {
-					horizon.stop();
-				});
-				_stateMachine.go('DONESCORING');
-			}
-		}, (scoring[0].distance) * ScoreHorizon.RATE);
 	}
 
 	function _getRoundScores(players) {
@@ -270,7 +275,15 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		});
 	}
 
-	function _drawMoveCounter(player, x, delta) {
+	function _doMoveCounter(delta) {
+		if (_moveTransition > 0)
+		{
+			_moveTransition -= delta / MOVE_TRANSITION_DURATION;
+			_moveTransition = _moveTransition < 0 ? 0 : _moveTransition;
+		}
+	}
+
+	function _drawMoveCounter(player, x) {
 		for (var i = 0; i < _movesLeft[player - 1]; i++) {
 			if (_stateMachine.is(['IDLE', 'MOVED', 'PRIMED']) && _activePlayer === player && i + 1 === _movesLeft[player - 1]) {
 				Graphics.circle(x, 30 + (i * 18), 8, null, 'primary' + player);
@@ -281,8 +294,6 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 
 		if (_moveTransition > 0 && player === _activePlayer)
 		{
-			_moveTransition -= delta / MOVE_TRANSITION_DURATION;
-			_moveTransition = _moveTransition < 0 ? 0 : _moveTransition;
 			Graphics.circle(x, 30 + (_movesLeft[player - 1] * 18), 8 * (_moveTransition), null, 'primary' + player);
 		}
 	}
@@ -297,11 +308,50 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		_playedPieces.length = 0;
 		_scoreHorizons.length = 0;
 	}
+
+	// TEMP
+	window.p = function() {
+		_paused = !_paused;
+	}
 	
 	return new Scene({
 		 background: null,
 
-		 drawFrame: function(delta) {
+		 doFrame: function(delta) {
+
+		 	if (_paused) {
+		 		// Nothing moves when paused
+		 		return;
+		 	}
+
+		 	// Advance horizons
+			if (_scoreHorizons.length > 0) {
+				_scoreHorizons.forEach(function(horizon) { 
+					horizon.do(delta);
+				});
+			}
+
+			// Advance the pieces
+		 	_playedPieces.forEach(function(piece) {
+		 		piece.do(delta);
+		 	});
+
+		 	// Advance the current footprint
+		 	if (_activePiece) {
+		 		_activePiece.do(delta);
+		 	}
+
+	 		// Advance the move counters
+	 		_doMoveCounter(delta);
+
+		 	// Advances the touch prompt
+		 	if (_stateMachine.is('PAUSED')) {
+			 	_prompt.do(delta);
+			}
+		 },
+
+		 drawFrame: function() {
+
 		 	Graphics.circle(require('app/engine').BOARD_CENTER.x, require('app/engine').BOARD_CENTER.y, require('app/engine').BOARD_RADIUS, 'background');
 
 		 	// DEBUG: Draw AI scores
@@ -317,19 +367,19 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 				Graphics.save();
 				Graphics.clipToBoard();
 				_scoreHorizons.forEach(function(horizon) { 
-					horizon.draw(delta);
+					horizon.draw();
 				});
 				Graphics.restore();
 			}
 
 			// Draw all the pieces
 		 	_playedPieces.forEach(function(piece) {
-		 		piece.draw(delta);
+		 		piece.draw();
 		 	});
 
 		 	// Draw the current footprint
 		 	if (_activePiece) {
-		 		_activePiece.draw(delta);
+		 		_activePiece.draw();
 		 	}
 
 		 	// Draw the scores
@@ -337,12 +387,12 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	 		Graphics.text(_scores[1], 430, 38, 40, 'primary2', null, 'right');
 
 	 		// Draw the move counters
-	 		_drawMoveCounter(1, 30, delta);
-	 		_drawMoveCounter(2, 450, delta);
+	 		_drawMoveCounter(1, 30);
+	 		_drawMoveCounter(2, 450);
 
 		 	// Draw the touch prompt
 		 	if (_stateMachine.is('PAUSED')) {
-			 	_prompt.draw(delta);
+			 	_prompt.draw();
 			}
 		 },
 

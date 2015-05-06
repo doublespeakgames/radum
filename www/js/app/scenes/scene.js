@@ -16,7 +16,8 @@ define(['app/util', 'app/graphics'],
 			this.onActivate(param);
 			Graphics.setBackground(this.background);
 		},
-		drawFrame: function(delta) {},
+		doFrame: function(delta) {},
+		drawFrame: function() {},
 
 		onInputStart: function(coords) {},
 		onInputStop: function() {},
