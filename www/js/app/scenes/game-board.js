@@ -227,7 +227,6 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 					score.piece.levelUp();
 				}
 
-				console.log(scoring.length);
 				if (scoring.length === 0) {
 					_scoreHorizons.forEach(function(horizon) {
 						horizon.stop();
