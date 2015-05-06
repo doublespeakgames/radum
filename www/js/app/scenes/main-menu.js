@@ -9,34 +9,40 @@ define(['app/scenes/scene', 'app/graphics'], function(Scene, Graphics) {
 
 	var _hitBoxes = [{
 		x: 0,
-		y: 295,
+		y: 230,
 		width: 480,
 		height: 100,
 		onTrigger: _startGame
 	},{
 		x: 0,
-		y: 420,
+		y: 350,
 		width: 480,
 		height: 100,
 		onTrigger: function() { require('app/engine').setBot(true); _startGame(); }
+	},{
+		x: 0,
+		y: 470,
+		width: 480,
+		height: 100,
+		onTrigger: _startTutorial
 	}];
 
 	function _startGame() {
 		require('app/engine').changeScene('stage-screen');
 	}
 
-	function _showRules() {
-		// TODO
-		console.log('show rules');
+	function _startTutorial() {
+		require('app/engine').changeScene('game-board').startTutorial();
 	}
 
 	return new Scene({
 		background: 'background',
 
 		drawFrame: function(delta) {
-			Graphics.text('Radüm', Graphics.width() / 2, Graphics.height() / 3 - 30, 100);
-			Graphics.text('vs human', Graphics.width() / 2, Graphics.height() / 2 + 20, 40);
-			Graphics.text('vs cpu', Graphics.width() / 2, Graphics.height() / 2 + 140, 40);
+			Graphics.text('Radüm', Graphics.width() / 2, 120, 100);
+			Graphics.text('vs. human', Graphics.width() / 2, 280, 40);
+			Graphics.text('vs. cpu', Graphics.width() / 2, 400, 40);
+			Graphics.text('tutorial', Graphics.width() / 2, 520, 40);
 
 			if (DEBUG) {
 				_hitBoxes.forEach(function(box) {

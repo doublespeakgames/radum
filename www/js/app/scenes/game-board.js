@@ -4,9 +4,9 @@
  *	(c) doublespeak games 2015	
  **/
 define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 
-		'app/piece', 'app/touch-prompt', 'app/score-horizon'], 
+		'app/piece', 'app/touch-prompt', 'app/score-horizon', 'app/tutorial'], 
 		function(Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, 
-			ScoreHorizon) {
+			ScoreHorizon, Tutorial) {
 
 
 	var SUBMIT_DELAY = 400
@@ -308,9 +308,10 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		_scoreHorizons.length = 0;
 	}
 
-	// TEMP
-	window.p = function() {
-		_paused = !_paused;
+	function _startTutorial() {
+		Tutorial.init([{
+			message: ['Radüm is a game about', 'distance']
+		}]);
 	}
 	
 	return new Scene({
@@ -346,6 +347,11 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 	// Advances the touch prompt
 		 	if (_stateMachine.is('PAUSED')) {
 			 	_prompt.do(delta);
+			}
+
+			// Advance the tutorial
+			if (Tutorial.isActive()) {
+				Tutorial.do(delta);
 			}
 		 },
 
@@ -392,6 +398,11 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 	// Draw the touch prompt
 		 	if (_stateMachine.is('PAUSED')) {
 			 	_prompt.draw();
+			}
+
+			// Draw the tutorial
+			if (Tutorial.isActive()) {
+				Tutorial.draw();
 			}
 		 },
 
@@ -488,6 +499,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 		_activePiece.move(coords);
 		 		_stateMachine.go('MOVE');
 		 	}
-		 }
+		 },
+
+		 startTutorial: _startTutorial
 	});
 });

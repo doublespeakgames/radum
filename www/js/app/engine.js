@@ -35,6 +35,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 		_sceneCrossfade = 0;
 		_activeScene = SceneStore.get(sceneName);
 		_activeScene.activate(param);
+		return _activeScene;
 	}
 
 	function _inputLocked() {
@@ -92,7 +93,6 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 		document.body.addEventListener('mousemove', _handleInputMove);
 
 		// Start the main menu
-		// _changeScene('main-menu');
 		_changeScene('main-menu');
 
 		// Start the gameloop

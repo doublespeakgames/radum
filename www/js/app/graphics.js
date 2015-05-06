@@ -137,13 +137,23 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		_canvas.globalAlpha = this._globalAlpha;
 	}
 
-	function _drawRect(x, y, width, height, colour) {
+	function _drawRect(x, y, width, height, colour, fillColour, borderWidth, opacity) {
 		colour = colour || 'negative';
+		borderWidth = borderWidth || 2;
+		opacity = opacity == null ? 1 : opacity;
+		_canvas.globalAlpha = this._globalAlpha * opacity;
+
+		if (fillColour) {
+			_canvas.beginPath();
+			_canvas.fillStyle = _theme[fillColour];
+			_canvas.fillRect(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(width), _scaler.scaleValue(height));
+		}
+
 		_canvas.globalAlpha = this._globalAlpha;
+
 		_canvas.beginPath();
-		_canvas.fillStyle = null;
 		_canvas.strokeStyle = _theme[colour];
-		_canvas.lineWidth = _scaler.scaleValue(2);
+		_canvas.lineWidth = _scaler.scaleValue(borderWidth);
 		_canvas.rect(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(width), _scaler.scaleValue(height));
 		_canvas.stroke();
 	}
