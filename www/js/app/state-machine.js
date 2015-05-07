@@ -57,16 +57,21 @@ define([], function() {
 		action && action();
 	}
 
+	function _resetState() {
+		this._currentState = this._initialState;
+	}
+
 	function StateMachine(transitions, initialState) {
 		this._transitions = transitions;
-		this._currentState = initialState;
+		this._currentState = this._initialState = initialState;
 		DEBUG && console.debug('STATEMACHINE: Started in state ' + initialState);
 	}
 	StateMachine.prototype = {
 		can: _canTransitionVia,
 		go: _makeTransitionVia,
 		is: _isState,
-		choose: _chooseAction
+		choose: _chooseAction,
+		reset: _resetState
 	}
 
 	return StateMachine;

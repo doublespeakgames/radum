@@ -15,6 +15,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	, MAX_COLLISION_TRIES = 10
 	, SCORE_DEADZONE = 5
 	, DEBUG_AI = false
+	, TOUCH = 'ontouchstart' in document.documentElement
 	;
 
 	var _stateMachine = new StateMachine({
@@ -207,6 +208,11 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 					// Not yet
 					return;
 				}
+
+				if (Tutorial.isActive()) {
+					Tutorial.advance();
+				}
+
 				scoring.shift()
 
 				if (score.player) {
@@ -330,7 +336,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		}, {
 			message: ['Players secretly play', 'pieces and score points', 'based on their positions']
 		}, {
-			message: ['Touch/click to place', 'your target'],
+			message: [(TOUCH ? 'Touch' : 'Click') + ' to place', 'your target'],
 			advanceTest: function() { return !!_activePiece; }
 		}, {
 			message: ['Drag the piece to the', 'highlighted zone'],
@@ -339,7 +345,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 				Graphics.circle(150, 220, 40, 'primary1', null, null, 0.3);
 			}
 		}, {
-			message: ['Tap/click the target', 'to confirm'],
+			message: [(TOUCH ? 'Tap' : 'Click') + ' the target', 'to confirm'],
 			advanceTest: function () { return !_activePiece && _moveTransition <= 0; },
 			reverseTest: function() { return _activePiece && Util.distance(_activePiece.getCoords(), {x:150,y:220}) >= 15; },
 			onDraw: function() {
@@ -350,7 +356,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 			message: ['Let\'s see where your', 'opponent played'],
 			onAdvance: function() {
 		 		// Force opponent's move
-		 		_playedPieces.push(new Piece({ x: 330, y: 400 }, Piece.Type.FOOTPRINT, 2));
+		 		_playedPieces.push(new Piece({ x: 250, y: 180 }, Piece.Type.FOOTPRINT, 2));
 		 		_movesLeft[1]--;
 		 		_activePlayer = 1;
 		 		_score();
@@ -374,10 +380,104 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 			}
 		}, {
 			message: ['Confirm the move'],
-			advanceTest: function () { return !_activePiece && _moveTransition <= 0; },
+			advanceTest: function() { return !_activePiece && _moveTransition <= 0; },
 			reverseTest: function() { return _activePiece && Util.distance(_activePiece.getCoords(), {x:120,y:300}) >= 15; },
 			onDraw: function() {
 				Graphics.circle(120, 300, 40, 'primary1', null, null, 0.3);
+			},
+			canSubmit: true
+		}, {
+			message: ['Sentries are triggered', 'by whomever plays', 'closer to them'],
+			onAdvance: function() {
+		 		// Force opponent's move
+		 		_playedPieces.push(new Piece({ x: 330, y: 480 }, Piece.Type.FOOTPRINT, 2));
+		 		_movesLeft[1]--;
+		 		_activePlayer = 1;
+		 		_score();
+			}
+		}, {
+			advanceTest: function() {
+				return false; // The scoring horizons will advance me
+			}
+		}, {
+			message: ['You triggered', 'your own sentry']
+		}, {
+			message: ['When you trigger your', 'own sentry, it', 'levels up']
+		}, {
+			advanceTest: function() {
+				return false; // Same as before
+			}
+		}, {
+			message: ['You also triggered', 'your opponent\'s', 'sentry']
+		}, {
+			message: ['Your opponent gains', 'points based on', 'its level']
+		}, {
+			advanceTest: function() { 
+				return _stateMachine.is('PAUSED');
+			}
+		}, {
+			message: ['Now there are', 'more sentries'],
+			onAdvance: function() {
+				_resetTurn();
+				_stateMachine.go('UNPAUSE');
+				_stateMachine.go('NEXTTURN');
+			}
+		}, {
+			message: ['Put your target in', 'the highlighted area'],
+			advanceTest: function () { return _activePiece != null && Util.distance(_activePiece.getCoords(), {x:360,y:290}) < 15; },
+			onDraw: function() {
+				Graphics.circle(360, 290, 40, 'primary1', null, null, 0.3);
+			}
+		}, {
+			message: ['Confirm the move'],
+			advanceTest: function() { return !_activePiece && _moveTransition <= 0; },
+			reverseTest: function() { return _activePiece && Util.distance(_activePiece.getCoords(), {x:360,y:290}) >= 15; },
+			onDraw: function() {
+				Graphics.circle(360, 290, 40, 'primary1', null, null, 0.3);
+			},
+			canSubmit: true
+		}, {
+			message: ['Watch what happens', 'this time'],
+			onAdvance: function() {
+		 		// Force opponent's move
+		 		_playedPieces.push(new Piece({ x: 240, y: 230 }, Piece.Type.FOOTPRINT, 2));
+		 		_movesLeft[1]--;
+		 		_activePlayer = 1;
+		 		_score();
+			}
+		}, {
+			advanceTest: function() {
+				return false; // The scoring horizons will advance me
+			}
+		}, {
+			message: ['Your opponent levels', 'up a sentry']
+		}, {
+			advanceTest: function() {
+				return false; // The scoring horizons will advance me
+			}
+		}, {
+			message: ['But then gives you', '2 points']
+		}, {
+			advanceTest: function() {
+				return false; // The scoring horizons will advance me
+			}
+		}, {
+			message: ['Then gives you', 'another point']
+		}, {
+			advanceTest: function() {
+				return false; // The scoring horizons will advance me
+			}
+		}, {
+			message: ['Finally, you give your', 'opponent a point']
+		}, {
+			message: ['The game ends after', '6 turns'],
+		}, {
+			message: ['The player with the most', 'points is the winner'],
+			onAdvance: function() {
+				require('app/engine').changeScene('main-menu');
+				Tutorial.deactivate();
+				_resetGame();
+				_stateMachine.reset();
 			}
 		}]);
 	}

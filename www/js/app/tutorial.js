@@ -32,10 +32,10 @@ define(['app/graphics', 'app/touch-prompt'], function(Graphics, TouchPrompt) {
 	}
 
 	function _advance() {
-		_stage().onAdvance && _stage().onAdvance();
 		_lastStage = _stage();
 		_currentStage++;
 		_transition = 0;
+		_lastStage.onAdvance && _lastStage.onAdvance();
 	}
 
 	function _reverse() {
@@ -95,6 +95,11 @@ define(['app/graphics', 'app/touch-prompt'], function(Graphics, TouchPrompt) {
 		do: _do,
 		draw: _draw,
 		init: _init,
+		deactivate: function() {
+			_stages = null;
+			_currentStage = 0;
+			_lastStage = null;
+		},
 		isActive: function() { 
 			return !!_stages; 
 		},
@@ -104,6 +109,6 @@ define(['app/graphics', 'app/touch-prompt'], function(Graphics, TouchPrompt) {
 		canSubmit: function() {
 			return !_stages || !_stage() || _stage().canSubmit;
 		},
-		advance: _advance
+		advance: _advance,
 	};
 });
