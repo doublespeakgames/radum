@@ -3,8 +3,8 @@
  *	handles game loop and input
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app/ai/test'], 
-		function(Util, EM, Graphics, SceneStore, TestAI) {
+define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app/ai/test', 'app/tutorial'], 
+		function(Util, EM, Graphics, SceneStore, TestAI, Tutorial) {
 	
 	var CROSSFADE_TIME = 300
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
@@ -54,7 +54,12 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 			return;
 		}
 		_lastMove = { x: e.clientX, y: e.clientY };
-		_activeScene.onInputStart(Graphics.getScaler().scaleCoords({x: e.pageX, y: e.pageY}));
+
+		if (Tutorial.isActive() && Tutorial.isBlocking()) {
+			Tutorial.advance();
+		} else {
+			_activeScene.onInputStart(Graphics.getScaler().scaleCoords({x: e.pageX, y: e.pageY}));
+		}
 	}, 200);
 
 	var _handleInputStop = Util.timeGate(function(e) {
@@ -109,8 +114,16 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 				_lastScene.drawFrame();
 			}
 			Graphics.setAlpha(_sceneCrossfade);
-			_activeScene.doFrame(delta);
+
+			if (!Tutorial.isActive() || !Tutorial.isBlocking()) {
+				_activeScene.doFrame(delta);
+			}
 			_activeScene.drawFrame();
+
+			if (Tutorial.isActive()) {
+				Tutorial.do(delta);
+				Tutorial.draw();
+			}
 
 			if (_sceneCrossfade < 1) {
 				_sceneCrossfade += delta / CROSSFADE_TIME;
