@@ -96,8 +96,8 @@
  				return;
  			}
 
-	 		this.playedPieces.push(this.player1.play(this.playedPieces, this.turnsRemaining));
-	 		this.playedPieces.push(this.player2.play(this.playedPieces, this.turnsRemaining));
+	 		this.playedPieces.push(this.player1.play(this.playedPieces, TURNS - this.turnsRemaining));
+	 		this.playedPieces.push(this.player2.play(this.playedPieces, TURNS - this.turnsRemaining));
 
 	 		_score.call(this);
 
@@ -119,7 +119,7 @@
  				return;
  			}
 
- 			return this.scores[0] > this.scores[1] ? 1 : this.scores[1] > this.scores[0] ? 2 : 0;
+ 			return this.scores[0] > this.scores[1] ? this.player1 : this.scores[1] > this.scores[0] ? this.player2 : null;
  		}
  	};
 

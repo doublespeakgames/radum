@@ -3,8 +3,8 @@
  *	handles game loop and input
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app/ai/test', 'app/tutorial'], 
-		function(Util, EM, Graphics, SceneStore, TestAI, Tutorial) {
+define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app/ai/weighted', 'app/tutorial'], 
+		function(Util, EM, Graphics, SceneStore, Bot, Tutorial) {
 	
 	var CROSSFADE_TIME = 300
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
@@ -20,7 +20,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 	;
 
 	function _setBot(bot) {
-		_ai = bot ? new TestAI(2, BOARD_RADIUS, BOARD_CENTER, 5) : null;
+		_ai = bot ? new Bot(2, BOARD_RADIUS, BOARD_CENTER) : null;
 	}
 
 	function _getAI() {
