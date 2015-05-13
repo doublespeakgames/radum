@@ -109,13 +109,17 @@ define(['app/util', 'app/piece'], function(Util, Piece) {
 	}
 
 	function _playPiece(pieces, movesLeft) {
+		var piece;
 		if (pieces.length <= 1) {
 			// First piece
-			return new Piece(_getInitial.call(this), Piece.Type.FOOTPRINT, this._playerNum);
+			piece = new Piece(_getInitial.call(this), Piece.Type.FOOTPRINT, this._playerNum);
 		} else {
 			_getScores.call(this, pieces, movesLeft);
-			return new Piece(this._best.coords, Piece.Type.FOOTPRINT, this._playerNum);
+			piece = new Piece(this._best.coords, Piece.Type.FOOTPRINT, this._playerNum);
 		}
+
+		piece.setReal(false);
+		return piece;
 	}
 	
 	function TestAI(playerNum, boardRadius, boardCenter, chunkSize) {

@@ -9,6 +9,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 	var CROSSFADE_TIME = 300
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
 	, BOARD_RADIUS = 200
+	, DEBUG = true // TODO: SET THIS TO FALSE BEFORE DEPLOYING
 
 	var _activeScene
 	, _lastFrame = Util.time()
@@ -88,6 +89,15 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 	}, 10);
 
 	function _init() {
+
+		if (DEBUG && window.location.search.indexOf('spawn') >= 0) {
+			// Divert to the spawning pools!
+			require(['app/spawning-pool/engine'], function(SpawningPool) {
+				SpawningPool.run();
+			});
+			return;
+		}
+
 		// Start everything
 		Graphics.init();
 		document.body.addEventListener('touchstart', _handleInputStart);
