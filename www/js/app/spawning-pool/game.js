@@ -120,6 +120,14 @@
  			}
 
  			return this.scores[0] > this.scores[1] ? this.player1 : this.scores[1] > this.scores[0] ? this.player2 : null;
+ 		},
+ 		getLoser: function() {
+ 			if (this.turnsRemaining > 0) {
+ 				console.error('Tried to get the loser of a game in progress');
+ 				return;
+ 			}
+
+ 			return this.scores[0] > this.scores[1] ? this.player2 : this.scores[1] > this.scores[0] ? this.player1 : null;
  		}
  	};
 
