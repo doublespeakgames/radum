@@ -7,22 +7,32 @@
  **/
 define(['app/util', 'app/piece'], function(Util, Piece) {
 
+	var CHUNK_SIZE = 5
+
 	// Shitty default weights that Michael guessed
 	// Rows are turns (1-6), and columns are weights as follows:
 	// friendly 1, 2, 3, enemy 1, 2, 3, "gravity"
-	var DEFAULT_WEIGHTS = [
-		[1,    1, -0.5,    1,  0.5, -0.5,  0.1],
-		[1,    1, -0.5,    1,  0.5, -0.5,  0.1],
-		[1,    1, -0.5,    1,  0.5, -0.5,  0.1],
-		[0,    1,   -5,    0,  0.5,   -5,  0.1],
-		[0,    1,   -5,    0,  0.5,   -5,  0.1],
-		[0,    1,   -5,    0,  0.5,   -5,  0.1]
+	// , DEFAULT_WEIGHTS = [
+	// 	[1,    1, -0.5,    1,  0.5, -0.5,  0.1],
+	// 	[1,    1, -0.5,    1,  0.5, -0.5,  0.1],
+	// 	[1,    1, -0.5,    1,  0.5, -0.5,  0.1],
+	// 	[0,    1,   -5,    0,  0.5,   -5,  0.1],
+	// 	[0,    1,   -5,    0,  0.5,   -5,  0.1],
+	// 	[0,    1,   -5,    0,  0.5,   -5,  0.1]
+	// ]
+
+	// Weights evolved from the spawning pool
+	, DEFAULT_WEIGHTS = [
+		[ 0.66,  0.68,  0.52, -0.76,  0.52,  0.84,  0.38],
+		[-0.81,  0.30, -0.46,  0.67, -0.55, -0.37, -0.74],
+		[-0.47, -0.80, -0.45,  0.50,  0.79, -0.74,  0.09],
+		[-0.31, -0.98, -0.24, -0.57,  0.98, -0.14,  0.01],
+		[-0.60,  0.07,  0.68,  0.73,  0.80,  0.47,  0.14],
+		[-0.87, -0.08,  0.65,  0.03,  0.19,  0.18,  0.30]
 	]
 
 	// Distance from the center where the initial piece may fall (scale of radius)
 	, DEFAULT_INITIAL_RADIUS = 0.5
-
-	, CHUNK_SIZE = 5
 	;
 
 	function _getSliceHeight(x, radius) {
@@ -89,7 +99,7 @@ define(['app/util', 'app/piece'], function(Util, Piece) {
 
 	function _getInitial() {
 		var theta = Math.random() * Math.PI * 2
-		, r = Math.random() * this._boardRadius * this._initiaRadius
+		, r = Math.random() * this._boardRadius * this._initialRadius
 		, x = Math.cos(theta) * r
 		, y = Math.sin(theta) * r
 		;
@@ -119,7 +129,7 @@ define(['app/util', 'app/piece'], function(Util, Piece) {
 		this._boardRadius = boardRadius;
 		this._boardCenter = boardCenter;
 		this._weights = weights || DEFAULT_WEIGHTS;
-		this._initiaRadius = initialRadius || DEFAULT_INITIAL_RADIUS;
+		this._initialRadius = initialRadius || DEFAULT_INITIAL_RADIUS;
 		this._scores = [];
 		this._best = null;
 	}

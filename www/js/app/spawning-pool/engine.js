@@ -6,8 +6,8 @@
  **/
  define(['app/spawning-pool/game', 'app/ai/weighted'], function(Game, Bot) {
 
- 	var STARTING_BOTS = 200
- 	, GENERATIONS = 100
+ 	var STARTING_BOTS = 100
+ 	, GENERATIONS = 1000
  	;
 
  	var _games = []
@@ -28,7 +28,7 @@
  		} else {
  			// Mum and dad get bi-zay
  			weights = _doItAllNightLong(mum, dad);
- 			initialRadius = Math.random() < 0.5 ? mum.initialRadius : dad.initialRadius;
+ 			initialRadius = Math.random() < 0.5 ? mum._initialRadius : dad._initialRadius;
  		}
 
  		return new Bot(0, require('app/engine').BOARD_RADIUS, require('app/engine').BOARD_CENTER, weights, initialRadius);
@@ -38,7 +38,7 @@
  		var row = [];
 
  		for (var i = 0; i < 7; i++) {
- 			row.push((Math.random() * 10) - 5);
+ 			row.push((Math.random() * 2) - 1);
  		}
 
  		return row;
@@ -125,9 +125,71 @@
  		var youngestGeneration;
  		for (var i = 0; i < GENERATIONS; i++) {
  			youngestGeneration = _runGeneration();
- 			console.log("Generation " + i + " complete");
+ 			console.log("Generation " + i, youngestGeneration);
  		}
- 		console.log(youngestGeneration);
+
+ 		console.log(_bestBot(youngestGeneration));
+ 	}
+
+ 	function _bestWeight(fittest, turn, idx) {
+		var counts = {}
+		, best = false
+		;
+
+		fittest.forEach(function(ai) { 
+			var val = Math.round(ai._weights[turn][idx] * 100) / 100;
+			counts[val] = (counts[val] || 0) + 1;
+		});
+		
+		for (var weight in counts) {
+			if (!best || counts[weight] > best.count) {
+				best = {
+					weight: weight,
+					count: counts[weight]
+				};
+			}
+		}
+		return best.weight;
+ 	}
+
+ 	function _bestOpener(fittest) {
+ 		var best = false
+ 		, counts = {}
+ 		;
+
+ 		fittest.forEach(function(ai) {
+ 			var val = Math.round(ai._initialRadius * 100) / 100;
+ 			counts[val] = (counts[val] || 0) + 1;
+ 		});
+
+ 		for (var opener in counts) {
+ 			if (!best || counts[opener] > best.count) {
+ 				best = {
+ 					opener: opener,
+ 					count: counts[opener]
+ 				};
+ 			}
+ 		}
+ 		return best.opener;
+ 	}
+
+ 	function _bestBot(fittest) {
+ 		var weights = []
+ 		, turn
+ 		;
+
+ 		for (var turnNum = 0, turns = fittest[0]._weights.length; turnNum < turns; turnNum++) {
+ 			turn = [];
+ 			for (var idx = 0, len = fittest[0]._weights[0].length; idx < len; idx++) {
+ 				turn.push(_bestWeight(fittest, turnNum, idx));
+ 			}
+ 			weights.push(turn);
+ 		}
+
+ 		return {
+ 			weights: weights,
+ 			opener: _bestOpener(fittest)
+ 		};
  	}
 
  	return {
