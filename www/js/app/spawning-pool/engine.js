@@ -6,8 +6,9 @@
  **/
  define(['app/spawning-pool/game', 'app/ai/weighted'], function(Game, Bot) {
 
- 	var STARTING_BOTS = 100
+ 	var STARTING_BOTS = 200
  	, GENERATIONS = 1000
+ 	, MUTATION_CHANCE = 0.001
  	;
 
  	var _games = []
@@ -52,6 +53,10 @@
 			bebe.push([]);
  			for (var weight = 0; weight < mum._weights[turn].length; weight++) {
  				bebe[turn].push(Math.random() < 0.5 ? mum._weights[turn][weight] : dad._weights[turn][weight]);
+ 				if (Math.random() < MUTATION_CHANCE) {
+ 					// Totally mutated, bro
+ 					bebe[turn][weight] *= -1; 
+ 				}
  			}
  		}
 

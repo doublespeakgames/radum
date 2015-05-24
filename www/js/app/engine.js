@@ -3,8 +3,8 @@
  *	handles game loop and input
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app/ai/weighted', 'app/tutorial'], 
-		function(Util, EM, Graphics, SceneStore, Bot, Tutorial) {
+define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app/ai/weighted', 'app/tutorial', 'app/menu-bar'], 
+		function(Util, EM, Graphics, SceneStore, Bot, Tutorial, MenuBar) {
 	
 	var CROSSFADE_TIME = 300
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
@@ -27,15 +27,28 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 		return _ai;
 	}
 
-	function _changeScene(sceneName, param) {
+	function _reset() {
+		if (_activeScene) {
+			_activeScene.reset();
+		}
+
+		_changeScene('main-menu');
+	}
+
+	function _changeScene(sceneName, param, resetFirst) {
 
 		if (_activeScene) {
 			_lastScene = _activeScene;
+			_lastScene.onDeactivate();
 		}
 
 		_sceneCrossfade = 0;
 		_activeScene = SceneStore.get(sceneName);
+		if (resetFirst) {
+			_activeScene.reset();
+		}
 		_activeScene.activate(param);
+		Graphics.toggleMenu(_activeScene.showMenu && !Tutorial.isActive());
 		return _activeScene;
 	}
 
@@ -100,6 +113,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 
 		// Start everything
 		Graphics.init();
+		MenuBar.init();
 		document.body.addEventListener('touchstart', _handleInputStart);
 		document.body.addEventListener('mousedown', _handleInputStart);
 		document.body.addEventListener('touchend', _handleInputStop);
@@ -149,6 +163,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 
 	return {
 		init: _init,
+		reset: _reset,
 		changeScene: _changeScene,
 		setBot: _setBot,
 		getAI: _getAI,

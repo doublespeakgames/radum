@@ -77,6 +77,10 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		return _options.height;
 	}
 
+	function _colour(cName) {
+		return _theme[cName];
+	}
+
 	function _drawText(text, x, y, fontSize, colour, borderColour, align) {
 		_canvas.globalAlpha = this._globalAlpha;
 		colour = colour || 'negative';
@@ -186,6 +190,10 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		_canvas.restore();
 	}
 
+	function _toggleMenu(show) {
+		document.body.className = show ? "show-menu" : "";
+	}
+
 	return {
 		init: _init,
 		setAlpha: _setAlpha,
@@ -201,6 +209,8 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		clipToBoard: _clipToBoard,
 		text: _drawText,
 		circle: _drawCircle,
-		rect: _drawRect
+		rect: _drawRect,
+		toggleMenu: _toggleMenu,
+		colour: _colour
 	};
 });

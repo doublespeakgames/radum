@@ -19,6 +19,7 @@ define(['app/graphics', 'app/touch-prompt'], function(Graphics, TouchPrompt) {
 	function _init(stages) {
 		_stages = stages;
 		_transition = 0;
+		Graphics.toggleMenu(false);
 	}
 
 	function _testAdvance() {
@@ -70,7 +71,7 @@ define(['app/graphics', 'app/touch-prompt'], function(Graphics, TouchPrompt) {
 
 		if (_lastStage && _transition < 1 && _lastStage.message) {
 			Graphics.setAlpha(1 - _transition);
-			Graphics.rect(20, Graphics.height() - (HEIGHT * (1 -_transition)) + 2, Graphics.width() - 40, HEIGHT, 'negative', 'background', 4, 0.9);
+			Graphics.rect(20, Graphics.height() - (HEIGHT * (1 -_transition)) + 2, Graphics.width() - 40, HEIGHT, 'negative', 'menu', 4, 0.9);
 			_lastStage.message.forEach(function(text, idx) {
 				Graphics.text(text, Graphics.width() / 2, Graphics.height() - (HEIGHT * (1 - _transition)) + 50 + (idx * 34), 32, 'negative');
 			});
@@ -78,7 +79,7 @@ define(['app/graphics', 'app/touch-prompt'], function(Graphics, TouchPrompt) {
 
 		if (_stage().message) {
 			Graphics.setAlpha(_transition);
-			Graphics.rect(20, Graphics.height() - (HEIGHT * _transition) + 2, Graphics.width() - 40, HEIGHT, 'negative', 'background', 4, 0.9);
+			Graphics.rect(20, Graphics.height() - (HEIGHT * _transition) + 2, Graphics.width() - 40, HEIGHT, 'negative', 'menu', 4, 0.9);
 
 			_stage().message.forEach(function(text, idx) {
 				Graphics.text(text, Graphics.width() / 2, Graphics.height() - (HEIGHT * _transition) + 50 + (idx * 34), 32, 'negative');

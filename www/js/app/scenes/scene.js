@@ -11,7 +11,10 @@ define(['app/util', 'app/graphics'],
 	}
 	Scene.prototype = {
 		background: null,
+		showMenu: false,
+		reset: function() {},
 		onActivate: function() {},
+		onDeactivate: function() {},
 		activate: function(param) {
 			this.onActivate(param);
 			Graphics.setBackground(this.background);

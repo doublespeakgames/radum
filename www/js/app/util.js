@@ -28,7 +28,7 @@ define([], function() {
 				return;
 			}
 			lastCall =_time();
-			func.apply(this, arguments);
+			return func.apply(this, arguments);
 		}
 	}
 

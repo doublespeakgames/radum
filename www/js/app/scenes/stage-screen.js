@@ -16,35 +16,47 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine', 'app/touch-prom
 		SCORE: {
 			NEXT: 'PLAYER1'
 		}
-	}, 'SCORE');
+	}, 'PLAYER1');
 
 	var _frameText
-	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: Graphics.height() - 60}, 'negative');
+	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: Graphics.height() - 70}, 'negative');
+
+	function _setColours() {
+		var background;
+		_stateMachine.choose({
+			PLAYER1: function() {
+				background = 'primary1';
+				_frameText = 'Player 1';
+			},
+			PLAYER2: function() {
+				background = 'primary2';
+				_frameText = 'Player 2';
+			},
+			SCORE: function() {
+				background = 'background';
+				_frameText = 'Score';
+			}
+		});
+		this.background = background;
+	}
 
 	return new Scene({
 
+		reset: function() {
+			_stateMachine.reset();
+			_setColours.call(this);
+		},
+
 		onActivate: function() {
-			var background;
+			_setColours.call(this);
+		},
+
+		onDeactivate: function() {
 			if (require('app/engine').getAI() && _stateMachine.can('NEXTVSCPU')) {
 				_stateMachine.go('NEXTVSCPU');
 			} else {
 				_stateMachine.go('NEXT');
 			}
-			_stateMachine.choose({
-				PLAYER1: function() {
-					background = 'primary1';
-					_frameText = 'Player 1';
-				},
-				PLAYER2: function() {
-					background = 'primary2';
-					_frameText = 'Player 2';
-				},
-				SCORE: function() {
-					background = 'background';
-					_frameText = 'Score';
-				}
-			});
-			this.background = background;
 		},
 
 		doFrame: function(delta) {

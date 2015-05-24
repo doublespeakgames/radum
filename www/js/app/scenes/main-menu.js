@@ -28,7 +28,7 @@ define(['app/scenes/scene', 'app/graphics'], function(Scene, Graphics) {
 	}];
 
 	function _startGame() {
-		require('app/engine').changeScene('stage-screen');
+		require('app/engine').changeScene('stage-screen', null, true);
 	}
 
 	function _startTutorial() {

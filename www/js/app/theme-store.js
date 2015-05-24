@@ -12,6 +12,7 @@ define(function() {
 		secondary2: '#FF9E9D',
 		background:  '#DAD8A7',
 		negative: '#FFFFFF',
+		menu: '#DAD8A7',
 		debug: '#000000'
 	}];
 
