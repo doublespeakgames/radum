@@ -5,9 +5,9 @@
  **/
 define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 
 		'app/piece', 'app/touch-prompt', 'app/score-horizon', 'app/tutorial',
-		'app/physics'], 
+		'app/physics', 'app/menu-bar'], 
 		function(Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, 
-			ScoreHorizon, Tutorial, Physics) {
+			ScoreHorizon, Tutorial, Physics, MenuBar) {
 
 
 	var SUBMIT_DELAY = 400
@@ -227,6 +227,13 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		_playedPieces.length = 0;
 		_scoreHorizons.length = 0;
 		_stateMachine.reset();
+	}
+
+	function _toggleMenu(active) {
+		if (!MenuBar.isLoaded()) {
+			MenuBar.init();
+		}
+		Graphics.toggleMenu(active);
 	}
 
 	function _startTutorial() {
@@ -467,6 +474,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 },
 
 		 onActivate: function() {
+		 	_toggleMenu(true);
+
 		 	if (_stateMachine.can('NEWGAME')) {
 		 		_resetGame();
 		 		_stateMachine.go('NEWGAME');
@@ -494,7 +503,15 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	 		}
 		 },
 
-		 onInputStart: function(coords) {
+		 onDeactivate: function() {
+		 	_toggleMenu(false);
+		 },
+
+		 onInputStart: function(coords, e) {
+
+		 	// Pass the event on to the menu bar, if necessary
+		 	if (e && MenuBar.handleEvent(e)) { return; }
+
 		 	if (_movesLeft[_getNextPlayer() - 1] === 0 && _stateMachine.can('GAMEOVER')) {
 	 			require('app/engine').changeScene('game-over', _scores);
 	 			_stateMachine.go('GAMEOVER')

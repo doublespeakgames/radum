@@ -3,8 +3,8 @@
  *	handles game loop and input
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app/ai/weighted', 'app/tutorial', 'app/menu-bar'], 
-		function(Util, EM, Graphics, SceneStore, Bot, Tutorial, MenuBar) {
+define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app/ai/weighted', 'app/tutorial'], 
+		function(Util, EM, Graphics, SceneStore, Bot, Tutorial) {
 	
 	var CROSSFADE_TIME = 300
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
@@ -48,7 +48,6 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 			_activeScene.reset();
 		}
 		_activeScene.activate(param);
-		Graphics.toggleMenu(_activeScene.showMenu && !Tutorial.isActive());
 		return _activeScene;
 	}
 
@@ -72,7 +71,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 		if (Tutorial.isActive() && Tutorial.isBlocking()) {
 			Tutorial.advance();
 		} else {
-			_activeScene.onInputStart(Graphics.getScaler().scaleCoords({x: e.pageX, y: e.pageY}));
+			_activeScene.onInputStart(Graphics.getScaler().scaleCoords({x: e.pageX, y: e.pageY}), e);
 		}
 	}, 200);
 
@@ -80,7 +79,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 		if (_inputLocked()) {
 			return;
 		}
-		_activeScene.onInputStop();
+		_activeScene.onInputStop(e);
 	}, 10);
 
 	var _handleInputMove = Util.timeGate(function(e) {
@@ -98,7 +97,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 			return;
 		}
 		_lastMove = { x: e.clientX, y: e.clientY };
-		_activeScene.onInputMove(Graphics.getScaler().scaleCoords({x: e.clientX, y: e.clientY}));
+		_activeScene.onInputMove(Graphics.getScaler().scaleCoords({x: e.clientX, y: e.clientY}), e);
 	}, 10);
 
 	function _init() {
@@ -113,7 +112,6 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 
 		// Start everything
 		Graphics.init();
-		MenuBar.init();
 		document.body.addEventListener('touchstart', _handleInputStart);
 		document.body.addEventListener('mousedown', _handleInputStart);
 		document.body.addEventListener('touchend', _handleInputStop);

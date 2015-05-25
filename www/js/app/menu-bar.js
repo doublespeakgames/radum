@@ -16,26 +16,9 @@ define(['app/util', 'app/graphics'], function(Util, Graphics) {
 	, _menuStyles = null
 	;
 
-	var _handler = Util.timeGate(function(e) {
-		var target = e.target;
-
-		if (target.id === 'burger-button' || target.parentNode.id === 'burger-button') {
-			_toggleMenu(e);
-		} else if(target.nodeName === 'LI') {
-			_toggleMenu(e);
-			MENU_ITEMS[target.getAttribute('data-id')].action();
-		}
-	}, 200);
-
 	function _init() {
 		// Create menu
 		var el = _menuBar = document.createElement('div');
-		el.addEventListener('touchstart', function(e) { 
-			if (!_visible()) return; e.stopPropagation(); setTimeout(function() { _handler(e); }, 50); return false; 
-		});
-		el.addEventListener('mousedown', function(e) { 
-			if (!_visible()) return; e.stopPropagation(); setTimeout(function() { _handler(e); }, 50); return false; 
-		});
 		el.setAttribute('id', 'menu-bar');
 		_menuStyles = _initStylesheet();
 		_initColours();
@@ -82,6 +65,8 @@ define(['app/util', 'app/graphics'], function(Util, Graphics) {
 		_clearStyles();
 		_addStyleRule('#menu-bar', 'color:' + Graphics.colour('menu'));
 		_addStyleRule('#menu-bar.open', 'background:' + Graphics.colour('menu') + ';color:' + Graphics.colour('negative'));
+		_addStyleRule('#logo path', 'fill:' + Graphics.colour('menu') + ';stroke:' + Graphics.colour('menu') + ';');
+		_addStyleRule('#menu-bar.open #logo path', 'fill:' + Graphics.colour('negative') + ';stroke:' + Graphics.colour('negative') + ';');
 	}
 
 	function _createHamburger(menu) {
@@ -97,7 +82,7 @@ define(['app/util', 'app/graphics'], function(Util, Graphics) {
 	}
 
 	function _createLogo(menu) {
-		// TODO
+		menu.appendChild(document.getElementById('logo'));
 	}	
 
 	function _createMenu(menu) {
@@ -114,14 +99,32 @@ define(['app/util', 'app/graphics'], function(Util, Graphics) {
 		menu.appendChild(list);
 	}
 
-	function _toggleMenu(e) {
-		if (!_visible()) { return true; }
+	function _toggleMenu() {
 		_menuBar.className = _menuBar.className === 'open' ? '' : 'open';
-		e && e.stopPropagation();
+	}
+
+	function _handleEvent(e) {
+		if (e.target.getAttribute('id') === 'burger-button' || 
+			(e.target.parentNode && e.target.parentNode.getAttribute('id') === 'burger-button')) {
+			_toggleMenu();
+			return true;
+		} else if(e.target.nodeName === 'LI') {
+			_toggleMenu();
+			MENU_ITEMS[e.target.getAttribute('data-id')].action();
+			return true;
+		} else if(e.target.getAttribute('id') === 'logo' || 
+			(e.target.parentNode && e.target.parentNode.getAttribute('id') === 'logo')) {
+			window.open('http://www.doublespeakgames.com');
+			return true;
+		}
 		return false;
 	}
 
 	return {
-		init: _init
+		init: _init,
+		isLoaded: function() {
+			return !!_menuBar;
+		},
+		handleEvent: _handleEvent
 	};
 });

@@ -66,6 +66,7 @@ canvas {
     width: 40px;
     position: absolute;
     right: 0px;
+    cursor: pointer;
 }
 
 #burger-button > div {
@@ -97,5 +98,26 @@ canvas {
     list-style: none;
     font-size: 2em;
     line-height: 3em;
-    cursor: default;
+    cursor: pointer;
+}
+
+#logo {
+    position: absolute;
+    display: none;
+    top: 5px;
+    left: 5px;
+    height: 30px;
+    cursor: pointer;
+}
+
+#menu-bar #logo {
+    display: block;
+}
+
+#logo path {
+    -webkit-transition: 200ms;
+    -moz-transition: 200ms;
+    -ms-transition: 200ms;
+    -o-transition: 200ms;
+    transition: 200ms;
 }
