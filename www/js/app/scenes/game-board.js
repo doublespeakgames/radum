@@ -242,7 +242,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		}, {
 			message: ['Players secretly play', 'pieces and score points', 'based on their positions']
 		}, {
-			message: [(TOUCH ? 'Touch' : 'Click') + ' to place', 'your target'],
+			message: [(TOUCH ? 'Touch' : 'Click') + ' the board to place', 'a piece'],
 			advanceTest: function() { return !!_activePiece; }
 		}, {
 			message: ['Drag the piece to the', 'highlighted zone'],
@@ -251,7 +251,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 				Graphics.circle(150, 220, 40, 'primary1', null, null, 0.3);
 			}
 		}, {
-			message: [(TOUCH ? 'Tap' : 'Click') + ' the target', 'to confirm'],
+			message: [(TOUCH ? 'Tap' : 'Click') + ' the piece', 'to confirm'],
 			advanceTest: function () { return !_activePiece && _moveTransition <= 0; },
 			reverseTest: function() { return _activePiece && Util.distance(_activePiece.getCoords(), {x:150,y:220}) >= 15; },
 			onDraw: function() {
@@ -279,7 +279,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 				_stateMachine.go('NEXTTURN');
 			}
 		}, {
-			message: ['Put your target in', 'the highlighted area'],
+			message: ['Put a piece in', 'the highlighted area'],
 			advanceTest: function () { return _activePiece != null && Util.distance(_activePiece.getCoords(), {x:120,y:300}) < 15; },
 			onDraw: function() {
 				Graphics.circle(120, 300, 40, 'primary1', null, null, 0.3);
@@ -329,7 +329,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 				_stateMachine.go('NEXTTURN');
 			}
 		}, {
-			message: ['Put your target in', 'the highlighted area'],
+			message: ['Put a piece in', 'the highlighted area'],
 			advanceTest: function () { return _activePiece != null && Util.distance(_activePiece.getCoords(), {x:360,y:290}) < 15; },
 			onDraw: function() {
 				Graphics.circle(360, 290, 40, 'primary1', null, null, 0.3);
