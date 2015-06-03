@@ -194,6 +194,10 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		document.body.className = show ? "show-menu" : "";
 	}
 
+	function _changeTheme() {
+		_theme = ThemeStore.next(_theme);
+	}
+
 	return {
 		init: _init,
 		setAlpha: _setAlpha,
@@ -211,6 +215,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		circle: _drawCircle,
 		rect: _drawRect,
 		toggleMenu: _toggleMenu,
-		colour: _colour
+		colour: _colour,
+		changeTheme: _changeTheme
 	};
 });

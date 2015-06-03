@@ -8,7 +8,11 @@ define(['app/util', 'app/graphics'], function(Util, Graphics) {
 	var MENU_ITEMS = {
 		mainMenu: {
 			text: 'main menu',
-			action: function() { require('app/engine').reset(); }
+			action: function() { require('app/engine').reset(); _toggleMenu(); }
+		},
+		changeTheme: {
+			text: 'change theme',
+			action: function() { Graphics.changeTheme(); _initColours(); Graphics.setBackground('negative'); }
 		}
 	};
 
@@ -109,7 +113,6 @@ define(['app/util', 'app/graphics'], function(Util, Graphics) {
 			_toggleMenu();
 			return true;
 		} else if(e.target.nodeName === 'LI') {
-			_toggleMenu();
 			MENU_ITEMS[e.target.getAttribute('data-id')].action();
 			return true;
 		} else if(e.target.getAttribute('id') === 'logo' || 

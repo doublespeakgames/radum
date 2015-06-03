@@ -53,7 +53,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	var _activePiece = null
 	, _playedPieces = []
 	, _moveTransition = 0
-	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: Graphics.height() - 70}, 'background')
+	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: Graphics.height() - 70}, 'menu')
 	, _activePlayer = 1
 	, _scoreHorizons = []
 	, _scores = [0, 0]
@@ -389,7 +389,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	}
 	
 	return new Scene({
-		 background: null,
+		 background: 'negative',
 		 showMenu: true,
 
 		 reset: _resetGame,
