@@ -178,7 +178,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		},
 		contains: function(coords, pieceCollision) {
 			return Math.sqrt(Math.pow(this._coords.x - coords.x, 2) + 
-				Math.pow(this._coords.y - coords.y, 2)) <= (pieceCollision ? RADIUS * 2 : RADIUS / 2);
+				Math.pow(this._coords.y - coords.y, 2)) <= (pieceCollision ? RADIUS * 2 : RADIUS * 0.75);
 		},
 		getReboundVector: function(coords) {
 			var distance = Util.distance(this._coords, coords)
