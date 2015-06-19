@@ -3,7 +3,8 @@
  *	scene for the final score display
  *	(c) doublespeak games 2015	
  **/
-define(['app/scenes/scene', 'app/graphics', 'app/touch-prompt'], function(Scene, Graphics, TouchPrompt) {
+define(['app/event-manager', 'app/scenes/scene', 'app/graphics', 'app/touch-prompt'], 
+	function(E, Scene, Graphics, TouchPrompt) {
 
 	var _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 550}, 'negative')
 	_scores = [0, 0]
@@ -13,6 +14,10 @@ define(['app/scenes/scene', 'app/graphics', 'app/touch-prompt'], function(Scene,
 		background: 'background',
 
 		onActivate: function(scores) {
+			E.fire('gameOver', {
+				scores: scores,
+				singlePlayer: !!require('app/engine').getAI()
+			});
 			_scores = scores;
 		},
 
@@ -28,6 +33,10 @@ define(['app/scenes/scene', 'app/graphics', 'app/touch-prompt'], function(Scene,
 		},
 
 		onInputStart: function(coords) {
+			E.fire('gameStart', { 
+				fromTitle: false,
+				singlePlayer: !!require('app/engine').getAI()
+			});
 			require('app/engine').changeScene('stage-screen');
 		}
 	});

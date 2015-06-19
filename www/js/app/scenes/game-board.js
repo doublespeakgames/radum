@@ -3,10 +3,10 @@
  *  scene for the main game board
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 
-		'app/piece', 'app/touch-prompt', 'app/score-horizon', 'app/tutorial',
-		'app/physics', 'app/menu-bar'], 
-		function(Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, 
+define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',  
+		'app/state-machine', 'app/piece', 'app/touch-prompt', 'app/score-horizon', 
+		'app/tutorial', 'app/physics', 'app/menu-bar'], 
+		function(E, Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, 
 			ScoreHorizon, Tutorial, Physics, MenuBar) {
 
 
@@ -550,6 +550,9 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 		_stateMachine.go('SUBMIT');
 
 		 		if (!Tutorial.isActive()) {
+			 		E.fire('playPiece', {
+		 				playerNumber: _activePlayer		 			
+		 			});
 			 		setTimeout(function() {
 			 			require('app/engine').changeScene('stage-screen');
 			 		}, SUBMIT_DELAY);

@@ -3,7 +3,7 @@
  *	scene for the main menu
  *	(c) doublespeak games 2015	
  **/
-define(['app/scenes/scene', 'app/graphics'], function(Scene, Graphics) {
+define(['app/scenes/scene', 'app/graphics', 'app/event-manager'], function(Scene, Graphics, E) {
 	
 	var DEBUG = false;
 
@@ -18,7 +18,7 @@ define(['app/scenes/scene', 'app/graphics'], function(Scene, Graphics) {
 		y: 350,
 		width: 480,
 		height: 100,
-		onTrigger: function() { require('app/engine').setBot(true); _startGame(); }
+		onTrigger: function() { require('app/engine').setBot(true); _startGame(true); }
 	},{
 		x: 0,
 		y: 470,
@@ -27,11 +27,18 @@ define(['app/scenes/scene', 'app/graphics'], function(Scene, Graphics) {
 		onTrigger: _startTutorial
 	}];
 
-	function _startGame() {
+	function _startGame(singlePlayer) {
+		E.fire('startGame', { 
+			fromTitle: true, 
+			singlePlayer: singlePlayer 
+		});
 		require('app/engine').changeScene('stage-screen', null, true);
 	}
 
 	function _startTutorial() {
+		E.fire('startTutorial', { 
+			fromTitle: true 
+		});
 		require('app/engine').changeScene('game-board').startTutorial();
 	}
 
