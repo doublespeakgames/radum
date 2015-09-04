@@ -37,11 +37,11 @@ canvas {
     height: 400px;
     border-top: 4px solid;
     opacity: 0;
-    -webkit-transform: translateY(360px);
-    -moz-transform: translateY(360px);
-    -ms-transform: translateY(360px);
-    -o-transform: translateY(360px);
-    transform: translateY(360px);
+    -webkit-transform: translate3d(0, 360px, 0);
+    -moz-transform: translate3d(0, 360px, 0);
+    -ms-transform: translate3d(0, 360px, 0);
+    -o-transform: translate3d(0, 360px, 0);
+    transform: translate3d(0, 360px, 0);
     -webkit-transition: 300ms;
     -moz-transition: 300ms;
     -ms-transition: 300ms;
@@ -54,11 +54,11 @@ canvas {
 }
 
 #menu-bar.open {
-    -webkit-transform: translateY(0);
-    -moz-transform: translateY(0);
-    -ms-transform: translateY(0);
-    -o-transform: translateY(0);
-    transform: translateY(0);
+    -webkit-transform: translate3d(0, 0, 0);
+    -moz-transform: translate3d(0, 0, 0);
+    -ms-transform: translate3d(0, 0, 0);
+    -o-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
 }
 
 #burger-button {
