@@ -3,8 +3,9 @@
  *	scene for the final score display
  *	(c) doublespeak games 2015	
  **/
-define(['app/event-manager', 'app/scenes/scene', 'app/graphics', 'app/touch-prompt'], 
-	function(E, Scene, Graphics, TouchPrompt) {
+define(['app/event-manager', 'app/scenes/scene', 'app/graphics', 
+		'app/touch-prompt', 'app/audio'], 
+	function(E, Scene, Graphics, TouchPrompt, Audio) {
 
 	var _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 550}, 'negative')
 	_scores = [0, 0]
@@ -18,6 +19,7 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics', 'app/touch-prom
 				scores: scores,
 				singlePlayer: !!require('app/engine').getAI()
 			});
+			Audio.play('FINAL');
 			_scores = scores;
 		},
 

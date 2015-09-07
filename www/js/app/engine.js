@@ -3,7 +3,8 @@
  *	handles game loop and input
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app/ai/weighted', 'app/tutorial'], 
+define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 
+		'app/ai/weighted', 'app/tutorial'], 
 		function(Util, EM, Graphics, SceneStore, Bot, Tutorial) {
 	
 	var CROSSFADE_TIME = 300

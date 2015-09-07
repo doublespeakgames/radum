@@ -5,9 +5,9 @@
  **/
 define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',  
 		'app/state-machine', 'app/piece', 'app/touch-prompt', 'app/score-horizon', 
-		'app/tutorial', 'app/physics', 'app/menu-bar'], 
+		'app/tutorial', 'app/physics', 'app/menu-bar', 'app/audio'], 
 		function(E, Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, 
-			ScoreHorizon, Tutorial, Physics, MenuBar) {
+			ScoreHorizon, Tutorial, Physics, MenuBar, Audio) {
 
 
 	var SUBMIT_DELAY = 400
@@ -59,6 +59,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 	, _scores = [0, 0]
 	, _movesLeft = [MOVES, MOVES]
 	, _paused = false
+	, _soundScheme = 1;
 	;
 
 	function _score() {
@@ -112,6 +113,11 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 				scoring.shift()
 
 				if (score.player) {
+					if (score.piece.pointValue() > 0) {
+						Audio.play('SCORE' + Math.ceil(Math.random() * 3));
+					} else {
+						Audio.play('SCORE' + Math.ceil(Math.random() * 3) + 3);
+					}
 					score.piece.pulse();
 				}
 
@@ -216,6 +222,9 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
  			piece.setLabel(null);
  		});
 
+ 		// Get the sound scheme for each player
+ 		_soundScheme = Math.ceil(Math.random() * 4);
+
  		_stateMachine.go('NEXTTURN');
 	}
 
@@ -234,6 +243,12 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 			MenuBar.init();
 		}
 		Graphics.toggleMenu(active);
+	}
+
+	function _getSoundNumber(playerNum) {
+		if (playerNum == null) playerNum = _activePlayer;
+
+		return ((playerNum + _soundScheme) % 4) + 1;
 	}
 
 	function _startTutorial() {
@@ -531,6 +546,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 		}
 		 		if (!_activePiece) {
 		 			_activePiece = new Piece(coords, Piece.Type.FOOTPRINT, _activePlayer);
+		 			Audio.play('CHOICE' + _getSoundNumber());
 		 		} else {
 		 			_activePiece.move(coords);
 		 		}
@@ -548,6 +564,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 		_activePiece = null;
 		 		_movesLeft[_activePlayer - 1]--;
 		 		_stateMachine.go('SUBMIT');
+		 		Audio.play('CONFIRM' + _getSoundNumber());
 
 		 		if (!Tutorial.isActive()) {
 			 		E.fire('playPiece', {

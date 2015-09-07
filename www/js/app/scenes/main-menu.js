@@ -3,7 +3,9 @@
  *	scene for the main menu
  *	(c) doublespeak games 2015	
  **/
-define(['app/scenes/scene', 'app/graphics', 'app/event-manager'], function(Scene, Graphics, E) {
+define(['app/scenes/scene', 'app/graphics', 'app/event-manager', 
+		'app/audio'], 
+		function(Scene, Graphics, E, Audio) {
 	
 	var DEBUG = false;
 
@@ -62,7 +64,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager'], function(Scene
 			_hitBoxes.forEach(function(box) {
 				if (coords.x > box.x && coords.x < box.x + box.width &&
 					coords.y > box.y && coords.y < box.y + box.height) {
-
+					Audio.play('SELECT');
 					box.onTrigger();
 				}
 			});

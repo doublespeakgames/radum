@@ -3,7 +3,9 @@
  *	scene for the different stage notification prompts
  *	(c) doublespeak games 2015	
  **/
-define(['app/scenes/scene', 'app/graphics', 'app/state-machine', 'app/touch-prompt'], function(Scene, Graphics, StateMachine, TouchPrompt) {
+define(['app/scenes/scene', 'app/graphics', 'app/state-machine', 
+		'app/touch-prompt', 'app/audio'], 
+		function(Scene, Graphics, StateMachine, TouchPrompt, Audio) {
 
 	var _stateMachine = new StateMachine({
 		PLAYER1: {
@@ -69,6 +71,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine', 'app/touch-prom
 		},
 
 		onInputStart: function(coords) {
+			Audio.play('READY');
 			require('app/engine').changeScene('game-board');
 		}
 	});
