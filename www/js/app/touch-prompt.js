@@ -9,10 +9,11 @@ define(['app/graphics', 'app/util'], function(Graphics, Util) {
 	, DURATION = 700
 	;
 
-	function TouchPrompt(coords, colour) {
+	function TouchPrompt(coords, colour, fromBottom) {
 		this._coords = coords;
 		this._aPos = 0;
 		this._colour = colour;
+		this._fromBottom = fromBottom;
 	}
 
 	TouchPrompt.prototype = {
@@ -30,7 +31,10 @@ define(['app/graphics', 'app/util'], function(Graphics, Util) {
 				this._colour, 
 				null,
 				0,
-				1 - this._aPos
+				1 - this._aPos,
+				null,
+				null,
+				this._fromBottom
 			);
 			Graphics.circle(
 				this._coords.x, 
@@ -39,7 +43,10 @@ define(['app/graphics', 'app/util'], function(Graphics, Util) {
 				null,
 				this._colour,
 				2,
-				1 - this._aPos
+				1 - this._aPos,
+				null,
+				null,
+				this._fromBottom
 			);
 		}
 	};

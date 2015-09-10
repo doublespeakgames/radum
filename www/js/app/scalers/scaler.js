@@ -16,7 +16,8 @@ define(['app/util'], function(Util) {
 		},
 		scaleValue: function(value) { return value; },
 		scaleCoords: function(coords) { return coords; },
-		scaleCanvas: function(canvas) {}
+		scaleCanvas: function(canvas) {},
+		scalePoint: function(point) { return point; }
 	};
 
 	return Scaler;

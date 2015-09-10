@@ -58,7 +58,8 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 	}
 
 	function _clear() {
-		_canvas.clearRect(0, 0, _scaler.scaleValue(_options.width), _scaler.scaleValue(_options.height));
+		var p = _scaler.scalePoint({ x: _options.width, y: 0 }, true);
+		_canvas.clearRect(0, 0, p.x, p.y);
 	}
 
 	function _getWindowWidth() {
@@ -81,7 +82,9 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		return _theme[cName];
 	}
 
-	function _drawText(text, x, y, fontSize, colour, borderColour, align) {
+	function _drawText(text, x, y, fontSize, colour, borderColour, align, fromBottom) {
+		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
+
 		_canvas.globalAlpha = this._globalAlpha;
 		colour = colour || 'negative';
 		// General text rules
@@ -94,14 +97,16 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 			_canvas.fillText(text, _scaler.scaleValue(x + 2), _scaler.scaleValue(y + 2));
 		}
 		_canvas.fillStyle = _theme[colour];
-		_canvas.fillText(text, _scaler.scaleValue(x), _scaler.scaleValue(y));
+		_canvas.fillText(text, point.x, point.y);
 	}
 
 	function _setBackground(colour) {
 		document.body.style.background = colour ? _theme[colour] : 'transparent';
 	}
 
-	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder, clipToBoard) {
+	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder, clipToBoard, fromBottom) {
+		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
+
 		alpha = alpha == null ? 1 : alpha;
 		borderWidth = borderWidth == null ? 4 : borderWidth;
 
@@ -115,7 +120,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 				_canvas.globalCompositeOperation = 'source-atop';
 			}
 			_canvas.beginPath();
-			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(circleWidth), 0, 2 * Math.PI, false);
+			_canvas.arc(point.x, point.y, _scaler.scaleValue(circleWidth), 0, 2 * Math.PI, false);
 			_canvas.fillStyle = _theme[colour];
 			_canvas.fill();
 			if (clipToBoard) {
@@ -130,7 +135,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 			}
 			borderRadius = borderRadius < 0 ? 0 : borderRadius;
 			_canvas.beginPath();
-			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(borderRadius), 0, 2 * Math.PI, false);
+			_canvas.arc(point.x, point.y, _scaler.scaleValue(borderRadius), 0, 2 * Math.PI, false);
 			_canvas.lineWidth = _scaler.scaleValue(borderWidth);
 			_canvas.strokeStyle = _theme[borderColour];
 			_canvas.stroke();
@@ -141,7 +146,9 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		_canvas.globalAlpha = this._globalAlpha;
 	}
 
-	function _drawRect(x, y, width, height, colour, fillColour, borderWidth, opacity) {
+	function _drawRect(x, y, width, height, colour, fillColour, borderWidth, opacity, fromBottom) {
+		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
+
 		colour = colour || 'negative';
 		borderWidth = borderWidth || 2;
 		opacity = opacity == null ? 1 : opacity;
@@ -150,7 +157,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		if (fillColour) {
 			_canvas.beginPath();
 			_canvas.fillStyle = _theme[fillColour];
-			_canvas.fillRect(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(width), _scaler.scaleValue(height));
+			_canvas.fillRect(point.x, point.y, _scaler.scaleValue(width), _scaler.scaleValue(height));
 		}
 
 		_canvas.globalAlpha = this._globalAlpha;
@@ -158,7 +165,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		_canvas.beginPath();
 		_canvas.strokeStyle = _theme[colour];
 		_canvas.lineWidth = _scaler.scaleValue(borderWidth);
-		_canvas.rect(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(width), _scaler.scaleValue(height));
+		_canvas.rect(point.x, point.y, _scaler.scaleValue(width), _scaler.scaleValue(height));
 		_canvas.stroke();
 	}
 

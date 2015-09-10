@@ -21,7 +21,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine',
 	}, 'PLAYER1');
 
 	var _frameText
-	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: Graphics.height() - 70}, 'negative');
+	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 70}, 'negative', true);
 
 	function _setColours() {
 		var background;

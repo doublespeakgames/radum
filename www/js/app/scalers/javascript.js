@@ -5,7 +5,9 @@
  **/
 define(['app/scalers/scaler'], function(Scaler){
 
-	var _scaleSheet = null; 
+	var _scaleSheet = null
+	, _verticalPad = 0
+	; 
 
 	function _addStyleRule(sheet, selector, rules) {
 		if (sheet.addRule) {
@@ -40,6 +42,7 @@ define(['app/scalers/scaler'], function(Scaler){
 			var G = require('app/graphics')
 			, scaledHeight = Math.round(G.height() * this._scale)
 			, scaledWidth = Math.round(G.width() * this._scale)
+			, verticalOffset = Math.round(scaledHeight / 2)
 			;
 
 			if (!_scaleSheet) {
@@ -54,6 +57,13 @@ define(['app/scalers/scaler'], function(Scaler){
 				_scaleSheet.deleteRule(0);
 			}
 
+			// Pad the vertical to the bottom
+			if (G.realHeight() > scaledHeight) {
+				_verticalPad = scaledHeight;
+				scaledHeight += (G.realHeight() - scaledHeight) / 2;
+				_verticalPad = scaledHeight - _verticalPad;
+			}
+
 			// Size and center the canvas
 			canvas.width = scaledWidth;
 			canvas.height = scaledHeight;
@@ -63,13 +73,28 @@ define(['app/scalers/scaler'], function(Scaler){
 				'position: absolute;' +
 				'top: 50%;' +
 				'left: 50%;' +
-				'margin-top: -' + Math.round(scaledHeight / 2) + 'px;' +
+				'margin-top: -' + verticalOffset + 'px;' +
 				'margin-left: -' + Math.round(scaledWidth / 2) + 'px;'
 			);
 		},
 
 		scaleValue: function(value) { 
 			return Math.round(value * this._scale); 
+		},
+
+		scalePoint: function(point, fromBottom) {
+
+			point = {
+				x: this.scaleValue(point.x),
+				y: this.scaleValue(point.y)
+			};
+
+			// Support positioning from bottom
+			if (fromBottom) {
+				point.y = require('app/graphics').realHeight() - _verticalPad - point.y;
+			}
+
+			return point;
 		}
 	});
 });
