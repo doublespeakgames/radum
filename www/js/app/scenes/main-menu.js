@@ -11,21 +11,27 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 
 	var _hitBoxes = [{
 		x: 0,
-		y: 230,
+		y: 240,
 		width: 480,
-		height: 100,
+		height: 80,
 		onTrigger: _startGame
 	},{
 		x: 0,
-		y: 350,
+		y: 320,
 		width: 480,
-		height: 100,
+		height: 80,
 		onTrigger: function() { require('app/engine').setBot(true); _startGame(true); }
 	},{
 		x: 0,
-		y: 470,
+		y: 400,
 		width: 480,
-		height: 100,
+		height: 80,
+		onTrigger: function() { console.log('Tournament!'); } // TODO
+	},{
+		x: 0,
+		y: 480,
+		width: 480,
+		height: 80,
 		onTrigger: _startTutorial
 	}];
 
@@ -50,7 +56,8 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 		drawFrame: function(delta) {
 			Graphics.text('Radüm', Graphics.width() / 2, 120, 100);
 			Graphics.text('vs. human', Graphics.width() / 2, 280, 40);
-			Graphics.text('vs. cpu', Graphics.width() / 2, 400, 40);
+			Graphics.text('vs. cpu', Graphics.width() / 2, 360, 40);
+			Graphics.text('tournament', Graphics.width() / 2, 440, 40)
 			Graphics.text('tutorial', Graphics.width() / 2, 520, 40);
 
 			if (DEBUG) {
