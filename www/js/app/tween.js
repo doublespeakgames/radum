@@ -59,7 +59,6 @@ define(['app/util', 'app/bezier-easing'], function(Util, BezierEasing) {
             } else if (this.time >= 1) { 
                 this.time = 1;
                 this.running = false;
-                _runHandlers(this, 'complete');
             }
             this._options.target[this._options.property] = 
                 this._options.mapping(
@@ -67,6 +66,10 @@ define(['app/util', 'app/bezier-easing'], function(Util, BezierEasing) {
                     this._options.end, 
                     this._options.stepping(this.time)
                 );
+
+            if (this.isComplete()) {
+                _runHandlers(this, 'complete');
+            }
 
             return this;
         }
@@ -94,7 +97,13 @@ define(['app/util', 'app/bezier-easing'], function(Util, BezierEasing) {
 
     /* Mappings */
     Tween.IntegerMapping = function(start, end, progress) {
-        return (end - start) * progress;
+        return start + ((end - start) * progress);
+    };
+    Tween.PointMapping = function(start, end, progress) {
+        return {
+            x: start.x + ((end.x - start.x) * progress),
+            y: start.y + ((end.y - start.y) * progress)
+        };
     };
 
     /* Private functions */

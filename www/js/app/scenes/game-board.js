@@ -82,9 +82,14 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 
 		// Handle footprint collision
 		if (players[0].collidesWith(players[1])) {
-			players[0].savePos();
-			players[1].savePos();
+			var oldPos = [
+				players[0].getCoords(true),
+				players[1].getCoords(true)
+			];
 			Physics.doFootprintCollisions(players[0], players[1], _playedPieces);
+
+			players[0].animateMove(oldPos[0]);
+			players[1].animateMove(oldPos[1]);
 		}
 
 		// Score the board

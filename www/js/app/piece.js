@@ -3,7 +3,8 @@
  *	game-piece that can be played to the board
  *	(c) doublespeak games 2015	
  **/
-define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util, TouchPrompt) {
+define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'], 
+	function(Graphics, Util, TouchPrompt, Tween) {
 
 	var RADIUS = 25
 	, CREATE_TIME = 200
@@ -26,8 +27,9 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		this._active = type === Piece.Type.FOOTPRINT;
 		this._pulsing = 0;
 		this._label = null;
-		this._savedPos = null;
+		this._drawPos = null;
 		this._level = 1;
+		this._tweens = {};
 	}
 
 	Piece.Type = {
@@ -39,18 +41,6 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 
 	Piece.prototype = {
 		do: function(delta) {
-			if (this._savedPos && (this._savedPos.x !== this._coords.x || this._savedPos.y !== this._coords.y)) {
-				if (this._transitionMove === 1) {
-					// Start the animation
-					this._transitionMove = 0;
-				}
-				this._transitionMove += delta / MOVE_TIME;
-				this._transitionMove = this._transitionMove > 1 ? 1 : this._transitionMove;
-
-				if (this._transitionMove === 1) {
-					this._savedPos = null;
-				}
-			}
 
 			if (this._pulsing > 0 && this._transitionScale < PULSE_MAX) {
 				this._transitionScale += delta / PULSE_TIME;
@@ -84,6 +74,15 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 			} else if (this._real && this._type === Piece.Type.FOOTPRINT && this._active) {
 				this._prompt.do(delta);
 			}
+
+			var newTweens = {};
+			Object.keys(this._tweens).forEach(function(key) {
+				var tween = this._tweens[key];
+				if (!tween.run(delta).isComplete()) {
+					newTweens[key] = tween;
+				}
+			}.bind(this));
+			this._tweens = newTweens;
 		},
 		draw: function() {
 			if (this._real || (!this._real && this._transitionScale > 0)) {
@@ -108,9 +107,9 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 						break
 				}
 
-				if (this._savedPos && (this._savedPos.x !== this._coords.x || this._savedPos.y !== this._coords.y)) {
-					drawX = this._savedPos.x + this._transitionMove * (this._coords.x - this._savedPos.x);
-					drawY = this._savedPos.y + this._transitionMove * (this._coords.y - this._savedPos.y);
+				if (this._drawPos) {
+					drawX = this._drawPos.x;
+					drawY = this._drawPos.y;
 				} else {
 					drawX = this._coords.x;
 					drawY = this._coords.y;
@@ -204,7 +203,14 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 			}
 			return {x: 0, y: 0};
 		},
-		getCoords: function() {
+		getCoords: function(clone) {
+			if (clone) {
+				return {
+					x: this._coords.x,
+					y: this._coords.y
+				};
+			}
+
 			return this._coords;
 		},
 		isReal: function() {
@@ -238,8 +244,19 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		pulse: function() {
 			this._pulsing = 1;
 		},
-		savePos: function() {
-			this._savedPos = { x: this._coords.x, y: this._coords.y };
+		animateMove: function(from) {
+			this._drawPos = from;
+			this._tweens.move = new Tween({
+				target: this,
+				property: '_drawPos',
+				start: this._drawPos,
+				end: this._coords,
+				duration: MOVE_TIME,
+				mapping: Tween.PointMapping
+			}).on('complete', function() {
+				delete this._tweens.move;
+				this._drawPos = null;
+			}.bind(this)).start();
 		},
 		levelUp: function() {
 			this._level++;
