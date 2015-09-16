@@ -89,7 +89,7 @@ define(['app/util', 'app/bezier-easing'], function(Util, BezierEasing) {
         var easing = BezierEasing(a, b, c, d);
         return function(t) {
             return easing.get(t);
-        }
+        };
     };
 
     /* Mappings */
