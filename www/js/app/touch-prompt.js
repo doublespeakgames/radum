@@ -3,7 +3,8 @@
  *	little pulsing animation prompting a touch/click
  *	(c) doublespeak games 2015	
  **/
-define(['app/graphics', 'app/util'], function(Graphics, Util) {
+define(['app/graphics', 'app/util', 'app/tween'], 
+	function(Graphics, Util, Tween) {
 	
 	var RADIUS = 20
 	, DURATION = 700
@@ -11,17 +12,23 @@ define(['app/graphics', 'app/util'], function(Graphics, Util) {
 
 	function TouchPrompt(coords, colour, fromBottom) {
 		this._coords = coords;
-		this._aPos = 0;
+		this._aPos = 0
 		this._colour = colour;
 		this._fromBottom = fromBottom;
+		this._tween = new Tween({
+			target: this,
+			property: '_aPos',
+			start: 0,
+			end: 1,
+			duration: DURATION,
+			stepping: Tween.BezierStepping(0, 0.1, 0.5, 1),
+			loop: true
+		}).start();
 	}
 
 	TouchPrompt.prototype = {
 		do: function(delta) {
-			this._aPos += delta / DURATION;
-			if (this._aPos > 1) {
-				this._aPos %= 1;
-			}
+			this._tween.run(delta);
 		},
 		draw: function() {
 			Graphics.circle(

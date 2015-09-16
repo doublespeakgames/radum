@@ -131,6 +131,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 
 			Util.requestFrame(gameLoop);
 			Graphics.clear();
+			
 			if (_lastScene) {
 				Graphics.setAlpha(1 - _sceneCrossfade);
 				_lastScene.doFrame(delta);

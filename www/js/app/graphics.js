@@ -3,7 +3,8 @@
  *	simple canvas-based graphics library
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, ThemeStore, ScalerStore) {
+define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'], 
+		function(Util, ThemeStore, ScalerStore, Tween) {
 	
 	var _canvas
 	, _canvasEl
