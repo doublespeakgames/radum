@@ -21,8 +21,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 		this._type = type;
 		this._player = player;
 		this._real = true;
-		this._transitionScale = 0.4;
-		this._transitionMove = 1;
+		this._scale = 0.4;
 		this._prompt = new TouchPrompt(coords, 'primary' + player);
 		this._active = type === Piece.Type.FOOTPRINT;
 		this._label = null;
@@ -32,7 +31,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 
 		this._tweens.appear = new Tween({
 			target: this,
-			property: '_transitionScale',
+			property: '_scale',
 			start: 0.4,
 			end: 1,
 			duration: CREATE_TIME
@@ -61,7 +60,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 			}.bind(this));
 		},
 		draw: function() {
-			if (this._real || (!this._real && this._transitionScale > 0)) {
+			if (this._real || (!this._real && this._scale > 0)) {
 				var colour, border, alpha = 1, radius = RADIUS, drawX, drawY;
 				switch(this._type) {
 					case Piece.Type.FOOTPRINT:
@@ -94,10 +93,10 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 				Graphics.circle(
 					drawX, 
 					drawY, 
-					radius * this._transitionScale, 
+					radius * this._scale, 
 					colour, 
 					border,
-					BORDER_WIDTH * this._transitionScale,
+					BORDER_WIDTH * this._scale,
 					alpha,
 					this._type === Piece.Type.TARGET,
 					this._type === Piece.Type.TARGET_FORECAST);
@@ -107,7 +106,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 						this._label.text, 
 						this._coords.x - 1, 
 						this._coords.y - 1, 
-						FONT_SIZE * this._transitionScale, 
+						FONT_SIZE * this._scale, 
 						this._label.colour,
 						'negative'
 					);
@@ -117,7 +116,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 					Graphics.circle(
 						drawX,
 						drawY,
-						radius * 0.7 * this._transitionScale,
+						radius * 0.7 * this._scale,
 						null,
 						'secondary' + this._player,
 						3
@@ -128,7 +127,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 					Graphics.circle(
 						drawX,
 						drawY,
-						radius * 0.4 * this._transitionScale,
+						radius * 0.4 * this._scale,
 						null,
 						'secondary' + this._player,
 						3
@@ -212,7 +211,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 			this._real = false;
 			this._tweens.submit = new Tween({
 				target: this,
-				property: '_transitionScale',
+				property: '_scale',
 				duration: CREATE_TIME,
 				start: 1,
 				end: 0				
@@ -223,7 +222,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 			this._active = false;
 			this._tweens.submit = new Tween({
 				target: this,
-				property: '_transitionScale',
+				property: '_scale',
 				duration: CREATE_TIME,
 				start: 0,
 				end: 1				
@@ -239,7 +238,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 			this._tweens.pulseUp = new Tween({
 				// Bigger
 				target: this,
-				property: '_transitionScale',
+				property: '_scale',
 				start: 1,
 				end: PULSE_MAX,
 				duration: PULSE_TIME
@@ -247,7 +246,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 				this._tweens.pulseDown = new Tween({
 					// Smaller
 					target: this,
-					property: '_transitionScale',
+					property: '_scale',
 					start: PULSE_MAX,
 					end: 1,
 					duration: PULSE_TIME
