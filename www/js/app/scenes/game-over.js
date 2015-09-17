@@ -7,7 +7,7 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 		'app/touch-prompt', 'app/audio'], 
 	function(E, Scene, Graphics, TouchPrompt, Audio) {
 
-	var _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 70}, 'negative', true)
+	var _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'negative', true)
 	_scores = [0, 0]
 	;
 

@@ -41,6 +41,7 @@ define(['app/graphics', 'app/util', 'app/tween'],
 				1 - this._aPos,
 				null,
 				null,
+				this._fromBottom,
 				this._fromBottom
 			);
 			Graphics.circle(
@@ -53,6 +54,7 @@ define(['app/graphics', 'app/util', 'app/tween'],
 				1 - this._aPos,
 				null,
 				null,
+				this._fromBottom,
 				this._fromBottom
 			);
 		}

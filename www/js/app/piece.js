@@ -200,13 +200,6 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 		setType: function(type) {
 			this._type = type;
 		},
-		setReal: function(real, callback) {
-			this._real = real;
-			if (this._realCallback) {
-				this._realCallback(true);
-			}
-			this._realCallback = callback
-		},
 		submit: function() {
 			this._real = false;
 			this._tweens.submit = new Tween({
@@ -227,9 +220,6 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 				start: 0,
 				end: 1				
 			}).start();
-		},
-		setActive: function(active) {
-			this._active = this._type === Piece.Type.FOOTPRINT && active;
 		},
 		setLabel: function(label) {
 			this._label = label;

@@ -105,8 +105,11 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		document.body.style.background = colour ? _theme[colour] : 'transparent';
 	}
 
-	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder, clipToBoard, fromBottom) {
+	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder, clipToBoard, fromBottom, fixedPos) {
 		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
+		if (fixedPos) {
+			point.y = _canvasEl.height - y;
+		}
 
 		alpha = alpha == null ? 1 : alpha;
 		borderWidth = borderWidth == null ? 4 : borderWidth;
