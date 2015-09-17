@@ -73,9 +73,8 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 
 		// Make the footprints real
 		_playedPieces.forEach(function(piece) {
-			if (piece.isa(Piece.Type.FOOTPRINT)) {			
-				piece.setReal(true);
-				piece.setActive(false);
+			if (piece.isa(Piece.Type.FOOTPRINT)) {
+				piece.reveal();
 				players.push(piece);
 			}
 		});
@@ -562,7 +561,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 onInputStop: function()  {
 		 	if (_stateMachine.can('SUBMIT')) {
 		 		// Submit the active piece
-		 		_activePiece.setReal(false);
+		 		_activePiece.submit();
 		 		_moveTransition = 1;
 
 		 		_playedPieces.push(_activePiece);

@@ -25,7 +25,7 @@ define(function() {
 		primary1: '#c9d787',
 		secondary1: '#e4ebc3',
 		primary2: '#ffc0a9',
-		secondary2: '#99c3cc',
+		secondary2: '#ffdfd4',
 		background:  '#ff8598',
 		negative: '#7d8a2e',
 		menu: '#ffffff'

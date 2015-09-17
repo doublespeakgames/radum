@@ -9,7 +9,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 	var RADIUS = 25
 	, CREATE_TIME = 200
 	, MOVE_TIME = 400
-	, PULSE_TIME = 400
+	, PULSE_TIME = 200
 	, PULSE_MAX = 1.5
 	, BORDER_WIDTH = 4
 	, FONT_SIZE = 36
@@ -25,11 +25,18 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 		this._transitionMove = 1;
 		this._prompt = new TouchPrompt(coords, 'primary' + player);
 		this._active = type === Piece.Type.FOOTPRINT;
-		this._pulsing = 0;
 		this._label = null;
 		this._drawPos = null;
 		this._level = 1;
 		this._tweens = {};
+
+		this._tweens.appear = new Tween({
+			target: this,
+			property: '_transitionScale',
+			start: 0.4,
+			end: 1,
+			duration: CREATE_TIME
+		}).start();
 	}
 
 	Piece.Type = {
@@ -42,47 +49,16 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 	Piece.prototype = {
 		do: function(delta) {
 
-			if (this._pulsing > 0 && this._transitionScale < PULSE_MAX) {
-				this._transitionScale += delta / PULSE_TIME;
-				if (this._transitionScale >= PULSE_MAX) {
-					this._transitionScale = PULSE_MAX;
-					this._pulsing = -1;
-				}
-			}
-			else if(this._pulsing < 0 && this._transitionScale > 1 ) {
-				this._transitionScale -= delta / PULSE_TIME;
-				if (this._transitionScale <= 1) {
-					this._transitionScale = 1;
-					this._pulsing = 0;
-				}
-			}
-			else if (this._transitionScale < 1 && this._real) {
-				this._transitionScale += delta / CREATE_TIME;
-				this._transitionScale = this._transitionScale > 1 ? 1 : this._transitionScale;
-				if (this._transitionScale === 1 && this._realCallback) {
-					this._realCallback();
-					this._realCallback = null;
-				}
-			} 
-			else if (this._transitionScale > 0 && !this._real) {
-				this._transitionScale -= delta / CREATE_TIME;
-				this._transitionScale = this._transitionScale < 0 ? 0 : this._transitionScale;
-				if (this._transitionScale === 0 && this._realCallback) {
-					this._realCallback();
-					this._realCallback = null;
-				}
-			} else if (this._real && this._type === Piece.Type.FOOTPRINT && this._active) {
+			if (this._real && this._type === Piece.Type.FOOTPRINT && this._active) {
 				this._prompt.do(delta);
 			}
 
-			var newTweens = {};
 			Object.keys(this._tweens).forEach(function(key) {
 				var tween = this._tweens[key];
-				if (!tween.run(delta).isComplete()) {
-					newTweens[key] = tween;
+				if (tween.run(delta).isComplete()) {
+					delete this._tweens[key];
 				}
 			}.bind(this));
-			this._tweens = newTweens;
 		},
 		draw: function() {
 			if (this._real || (!this._real && this._transitionScale > 0)) {
@@ -232,17 +208,51 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 			}
 			this._realCallback = callback
 		},
+		submit: function() {
+			this._real = false;
+			this._tweens.submit = new Tween({
+				target: this,
+				property: '_transitionScale',
+				duration: CREATE_TIME,
+				start: 1,
+				end: 0				
+			}).start();
+		},
+		reveal: function() {
+			this._real = true;
+			this._active = false;
+			this._tweens.submit = new Tween({
+				target: this,
+				property: '_transitionScale',
+				duration: CREATE_TIME,
+				start: 0,
+				end: 1				
+			}).start();
+		},
 		setActive: function(active) {
 			this._active = this._type === Piece.Type.FOOTPRINT && active;
 		},
 		setLabel: function(label) {
 			this._label = label;
 		},
-		appear: function() {
-			this._transitionScale = 0;
-		},
 		pulse: function() {
-			this._pulsing = 1;
+			this._tweens.pulseUp = new Tween({
+				// Bigger
+				target: this,
+				property: '_transitionScale',
+				start: 1,
+				end: PULSE_MAX,
+				duration: PULSE_TIME
+			}).on('complete', function() {
+				this._tweens.pulseDown = new Tween({
+					// Smaller
+					target: this,
+					property: '_transitionScale',
+					start: PULSE_MAX,
+					end: 1,
+					duration: PULSE_TIME
+				}).start();
+			}.bind(this)).start();
 		},
 		animateMove: function(from) {
 			this._drawPos = from;
