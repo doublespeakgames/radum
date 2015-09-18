@@ -166,11 +166,13 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 
 		_canvas.globalAlpha = this._globalAlpha;
 
-		_canvas.beginPath();
-		_canvas.strokeStyle = _theme[colour];
-		_canvas.lineWidth = _scaler.scaleValue(borderWidth);
-		_canvas.rect(point.x, point.y, _scaler.scaleValue(width), _scaler.scaleValue(height));
-		_canvas.stroke();
+		if (colour !== 'transparent') {
+			_canvas.beginPath();
+			_canvas.strokeStyle = _theme[colour];
+			_canvas.lineWidth = _scaler.scaleValue(borderWidth);
+			_canvas.rect(point.x, point.y, _scaler.scaleValue(width), _scaler.scaleValue(height));
+			_canvas.stroke();
+		}
 	}
 
 	function _setAlpha(alpha) {

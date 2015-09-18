@@ -26,7 +26,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 		y: 400,
 		width: 480,
 		height: 80,
-		onTrigger: function() { console.log('Tournament!'); } // TODO
+		onTrigger: _startTournament
 	},{
 		x: 0,
 		y: 480,
@@ -34,6 +34,13 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 		height: 80,
 		onTrigger: _startTutorial
 	}];
+
+	function _startTournament() {
+		E.fire('startTournament', {
+			fromTitle: true
+		});
+		require('app/engine').changeScene('tournament-lobby', null, true);
+	}
 
 	function _startGame(singlePlayer) {
 		E.fire('startGame', { 
