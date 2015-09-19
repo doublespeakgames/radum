@@ -197,7 +197,6 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
             } else if (keyCode === 13) {
                 _confirmPlayer();
             }
-
         }
     }); 
 });
