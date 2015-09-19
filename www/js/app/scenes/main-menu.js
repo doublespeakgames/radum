@@ -11,36 +11,23 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 
 	var _hitBoxes = [{
 		x: 0,
-		y: 240,
+		y: 230,
 		width: 480,
-		height: 80,
+		height: 100,
 		onTrigger: _startGame
 	},{
 		x: 0,
-		y: 320,
+		y: 350,
 		width: 480,
-		height: 80,
+		height: 100,
 		onTrigger: function() { require('app/engine').setBot(true); _startGame(true); }
 	},{
 		x: 0,
-		y: 400,
+		y: 470,
 		width: 480,
-		height: 80,
-		onTrigger: _startTournament
-	},{
-		x: 0,
-		y: 480,
-		width: 480,
-		height: 80,
+		height: 100,
 		onTrigger: _startTutorial
 	}];
-
-	function _startTournament() {
-		E.fire('startTournament', {
-			fromTitle: true
-		});
-		require('app/engine').changeScene('tournament-lobby', null, true);
-	}
 
 	function _startGame(singlePlayer) {
 		E.fire('startGame', { 
@@ -63,8 +50,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 		drawFrame: function(delta) {
 			Graphics.text('Radüm', Graphics.width() / 2, 120, 100, 'negative');
 			Graphics.text('vs. human', Graphics.width() / 2, 280, 40, 'negative');
-			Graphics.text('vs. cpu', Graphics.width() / 2, 360, 40, 'negative');
-			Graphics.text('tournament', Graphics.width() / 2, 440, 40, 'negative')
+			Graphics.text('vs. cpu', Graphics.width() / 2, 400, 40, 'negative');
 			Graphics.text('tutorial', Graphics.width() / 2, 520, 40, 'negative');
 
 			if (DEBUG) {
