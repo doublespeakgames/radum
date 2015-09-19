@@ -3,17 +3,15 @@
  *  scene for setting up a tournament
  *  (c) doublespeak games 2015  
  **/
-define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'], 
-        function(Scene, Graphics, Audio, Tween) {
+define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween', 
+        'app/player-button'], 
+        function(Scene, Graphics, Audio, Tween, PlayerButton) {
 
     var DEBUG = false
     ,   TOP_MENU = 20
     ,   PADDING = 30
     ,   MENU_SIZE = 30
     ,   PLAYERS_TOP = 100
-    ,   ANIM_DURATION = 150
-    ,   ENTRY_WIDTH = 400
-    ,   BUTTON_WIDTH = 40
     ;
 
     var _hitBoxes = [{
@@ -31,85 +29,35 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
         height: 80,
         enabled: _canStart,
         onTrigger: function() { console.log('play'); }
-    },{
-        x: Graphics.width() / 2 - 20,
-        y: PLAYERS_TOP + 40,
-        width: 40,
-        height: 40,
-        enabled: function() {
-            return _canAdd() && _addButton.expansion === 0;
-        },
-        onTrigger: _newPlayer
-    },{
-        x: (Graphics.width() + ENTRY_WIDTH - BUTTON_WIDTH) / 2,
-        y: PLAYERS_TOP + BUTTON_WIDTH,
-        width: BUTTON_WIDTH,
-        height: BUTTON_WIDTH,
-        enabled: function() {
-            return _addButton.expansion === 1;
-        },
-        onTrigger: _confirmPlayer
     }];
 
     var _players = []
-    ,   _tweens = []
-    ,   _addButton = { expansion: 0 }
+    ,   _buttons = [new PlayerButton({
+            x: Graphics.width() / 2,
+            y: PLAYERS_TOP + 60
+        })]
     ,   _currentInput = "";
     ;
 
-    function _newPlayer() {
-        _tweens.push(new Tween({
-            target: _addButton,
-            property: 'expansion',
-            start: 0,
-            end: 1,
-            duration: ANIM_DURATION,
-            stepping: Tween.BezierStepping(0.25, 0.1, 0.25, 0.1)
-        }).start());
+    function _getInputButton() {
+        var button = _buttons[0];
+        return button.state === PlayerButton.State.DELETE ? null : button;
+    }
 
+    function _newPlayer() {
+        _getInputButton().expand();
         require('app/engine').toggleKeyboard(true);
     }
 
     function _confirmPlayer() {
-        if (_currentInput.length === 0) {
+        if (_getInputButton().text.length === 0) {
             return;
         }
 
-        _tweens.push(new Tween({
-            target: _addButton,
-            property: 'expansion',
-            start: 1,
-            end: 0,
-            duration: ANIM_DURATION,
-            stepping: Tween.BezierStepping(0.25, 0.1, 0.25, 0.1)
-        }).on('complete', function() {
-            _currentInput = '';
-        }).start());
-        _players.splice(0, 0, _currentInput);
+        _getInputButton().collapse();
+        _players.splice(0, 0, _getInputButton().text);
         require('app/engine').toggleKeyboard(false);
-    }
-
-    function _drawAddButton() {
-
-        Graphics.stretchedCircle(
-            Graphics.width() / 2, 
-            PLAYERS_TOP + BUTTON_WIDTH + 20, 
-            BUTTON_WIDTH / 2,
-            ENTRY_WIDTH * _addButton.expansion,
-            'negative'
-        );
-
-        Graphics.setAlpha(1 - _addButton.expansion);
-        Graphics.text('+', Graphics.width() / 2 + (ENTRY_WIDTH / 2) * _addButton.expansion, PLAYERS_TOP + 60, 20, 'menu');
-
-        Graphics.setAlpha(_addButton.expansion);
-        Graphics.text('✓', Graphics.width() / 2 + (ENTRY_WIDTH / 2) * _addButton.expansion, PLAYERS_TOP + 60, 20, 'menu');
-
-        if (_currentInput) {
-            Graphics.text(_currentInput, Graphics.width() / 2, PLAYERS_TOP + 60, 20, 'menu');
-        }
-
-        Graphics.setAlpha(1);
+        _getInputButton().text = '';
     }
 
     function _drawPlayers() {
@@ -130,11 +78,8 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
         background: 'menu',
 
         doFrame: function(delta) {
-            Object.keys(_tweens).forEach(function(key) {
-                var tween = _tweens[key];
-                if (tween.run(delta).isComplete()) {
-                    delete _tweens[key];
-                }
+            _buttons.forEach(function(button) {
+                button.do(delta);
             });
         },
 
@@ -146,7 +91,9 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
             }
 
             Graphics.text('Players', Graphics.width() / 2, PLAYERS_TOP, 30, 'negative')
-            _canAdd() && _drawAddButton();
+            _buttons.forEach(function(button) {
+                button.draw();
+            });
             _drawPlayers();
 
             if (DEBUG) {
@@ -164,13 +111,19 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
         },
 
         onInputStart: function(coords) {
-            _hitBoxes.forEach(function(box) {
-                if (coords.x > box.x && coords.x < box.x + box.width &&
-                    coords.y > box.y && coords.y < box.y + box.height) {
-
-                    if (!box.enabled || box.enabled()) {
-                        Audio.play('SELECT');
-                        box.onTrigger();
+            _buttons.forEach(function(button) {
+                if (button.isClicked(coords)) {
+                    Audio.play('SELECT');
+                    switch(button.state) {
+                        case PlayerButton.State.ADD:
+                            button.expand();
+                            break;
+                        case PlayerButton.State.TEXT_ENTRY:
+                            if (button.text.length > 0)
+                            _confirmPlayer();
+                            break;
+                        case PlayerButton.State.DELETE:
+                            break;
                     }
                 }
             });
@@ -179,21 +132,20 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
         onKeyDown: function(keyCode) {
             var c = String.fromCharCode(keyCode).trim();
 
-            if (!_canAdd()) {
+            if (!_getInputButton()) {
                 return;
             }
 
-            if (c.length && _addButton.expansion === 0) {
+            if (c.length && _getInputButton().state === PlayerButton.State.ADD) {
                 _newPlayer();
             }
 
             if (c) {
-                _currentInput += c;
+                _getInputButton().addChar(c);
             }
 
             if (keyCode === 8) {
-                // Backspace
-                _currentInput = _currentInput.substring(0, _currentInput.length - 2);
+                _getInputButton().deleteChar();
             } else if (keyCode === 13) {
                 _confirmPlayer();
             }
