@@ -58,18 +58,18 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 	}
 
 	return new Scene({
-		background: 'background',
+		background: 'menu',
 
 		drawFrame: function(delta) {
-			Graphics.text('Radüm', Graphics.width() / 2, 120, 100);
-			Graphics.text('vs. human', Graphics.width() / 2, 280, 40);
-			Graphics.text('vs. cpu', Graphics.width() / 2, 360, 40);
-			Graphics.text('tournament', Graphics.width() / 2, 440, 40)
-			Graphics.text('tutorial', Graphics.width() / 2, 520, 40);
+			Graphics.text('Radüm', Graphics.width() / 2, 120, 100, 'negative');
+			Graphics.text('vs. human', Graphics.width() / 2, 280, 40, 'negative');
+			Graphics.text('vs. cpu', Graphics.width() / 2, 360, 40, 'negative');
+			Graphics.text('tournament', Graphics.width() / 2, 440, 40, 'negative')
+			Graphics.text('tutorial', Graphics.width() / 2, 520, 40, 'negative');
 
 			if (DEBUG) {
 				_hitBoxes.forEach(function(box) {
-					Graphics.rect(box.x, box.y, box.width, box.height);
+					Graphics.rect(box.x, box.y, box.width, box.height, 'negative');
 				});
 			}
 		},

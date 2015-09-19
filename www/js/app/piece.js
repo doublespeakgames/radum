@@ -72,14 +72,6 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 						colour = 'primary' + this._player;
 						border = 'secondary' + this._player;
 						break;
-					case Piece.Type.TARGET:
-						colour = 'negative';
-						border = 'background';
-						break;
-					case Piece.Type.TARGET_FORECAST:
-						colour = 'negative';
-						alpha = 0.5;
-						break
 				}
 
 				if (this._drawPos) {

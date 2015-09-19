@@ -86,13 +86,13 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
             PLAYERS_TOP + BUTTON_WIDTH + 20, 
             BUTTON_WIDTH / 2,
             ENTRY_WIDTH * _addButton.expansion,
-            'menu'
+            'negative'
         );
 
         Graphics.setAlpha(_addButton.expansion);
-        Graphics.text('✓', Graphics.width() / 2 + (ENTRY_WIDTH / 2) * _addButton.expansion, PLAYERS_TOP + 60, 20, 'negative');
+        Graphics.text('✓', Graphics.width() / 2 + (ENTRY_WIDTH / 2) * _addButton.expansion, PLAYERS_TOP + 60, 20, 'menu');
         Graphics.setAlpha(1 - _addButton.expansion);
-        Graphics.text('+', Graphics.width() / 2 + (ENTRY_WIDTH / 2) * _addButton.expansion, PLAYERS_TOP + 60, 20, 'negative');
+        Graphics.text('+', Graphics.width() / 2 + (ENTRY_WIDTH / 2) * _addButton.expansion, PLAYERS_TOP + 60, 20, 'menu');
         Graphics.setAlpha(1);
     }
 
@@ -111,7 +111,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
     }
    
     return new Scene({
-        background: 'background',
+        background: 'menu',
 
         doFrame: function(delta) {
             Object.keys(_tweens).forEach(function(key) {
