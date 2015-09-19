@@ -109,7 +109,10 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 
 		_activeScene.onKeyDown && _activeScene.onKeyDown(e.keyCode);
 
-		console.log(e.keyCode);
+		if (DEBUG)
+ 		{		
+ 			console.log('KEYDOWN: ' + e.keyCode);
+ 		}
 
 		return false;
 	}
