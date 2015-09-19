@@ -536,8 +536,12 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 	 			_stateMachine.go('GAMEOVER')
 		 	}
 		 	else if (_stateMachine.can('UNPAUSE')) {
-		 		require('app/engine').changeScene('stage-screen');
 		 		_stateMachine.go('UNPAUSE');
+		 		if (!require('app/engine').getAI()) {
+			 		require('app/engine').changeScene('stage-screen');
+			 	} else {
+			 		this.onActivate();
+			 	}
 		 	}
 		 	else if ((!Tutorial.isActive() || Tutorial.canSubmit()) && _stateMachine.can('CLICKPIECE') && 
 		 			_activePiece && _activePiece.contains(coords)) {
@@ -575,8 +579,12 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 				playerNumber: _activePlayer		 			
 		 			});
 			 		setTimeout(function() {
-			 			require('app/engine').changeScene('stage-screen');
-			 		}, SUBMIT_DELAY);
+			 			if (require('app/engine').getAI()) {
+			 				this.onActivate();
+			 			} else {
+				 			require('app/engine').changeScene('stage-screen');
+				 		}
+			 		}.bind(this), SUBMIT_DELAY);
 			 	}
 		 	}
 		 	else if (_stateMachine.can('STOP')) {

@@ -39,7 +39,8 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 				fromTitle: false,
 				singlePlayer: !!require('app/engine').getAI()
 			});
-			require('app/engine').changeScene('stage-screen');
+
+			require('app/engine').changeScene(require('app/engine').getAI() ? 'game-board' : 'stage-screen');	
 		}
 	});
 });

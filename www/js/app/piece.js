@@ -216,6 +216,9 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 		setLabel: function(label) {
 			this._label = label;
 		},
+		setReal: function(real) {
+			this._real = real;
+		},
 		pulse: function() {
 			this._tweens.pulseUp = new Tween({
 				// Bigger

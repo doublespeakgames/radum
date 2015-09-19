@@ -47,7 +47,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 			fromTitle: true, 
 			singlePlayer: singlePlayer 
 		});
-		require('app/engine').changeScene('stage-screen', null, true);
+		require('app/engine').changeScene(singlePlayer ? 'game-board' : 'stage-screen', null, true);
 	}
 
 	function _startTutorial() {
