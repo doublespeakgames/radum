@@ -121,3 +121,8 @@ canvas {
     -o-transition: 200ms;
     transition: 200ms;
 }
+
+.keyboard_target {
+    position: absolute;
+    top: -1000px;
+}

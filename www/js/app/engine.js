@@ -18,6 +18,8 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 	, _lastScene
 	, _lastMove 
 	, _ai
+	, _keyTarget
+	, _keyboardOpen
 	;
 
 	function _setBot(bot) {
@@ -101,6 +103,36 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 		_activeScene.onInputMove(Graphics.getScaler().scaleCoords({x: e.clientX, y: e.clientY}), e);
 	}, 10);
 
+	function _handleKeyDown(e) {
+		e = e || window.event;
+		e.preventDefault();
+
+		_activeScene.onKeyDown && _activeScene.onKeyDown(e.keyCode);
+
+		console.log(e.keyCode);
+
+		return false;
+	}
+
+	function _toggleKeyboard(open) {
+
+		_keyboardOpen = open;
+
+		if (!_keyTarget) {
+			_keyTarget = document.createElement('input');
+			_keyTarget.className = 'keyboard_target';
+			_keyTarget.addEventListener('blur', function() { _keyboardOpen && _keyTarget.focus(); });
+		}	
+
+		if (open && !_keyboardOpen) {
+			document.body.appendChild(_keyTarget);
+			_keyTarget.focus();
+		} else if(!open && _keyboardOpen) {
+			document.body.removeChild(_keyTarget);
+			_keyTarget.blur();
+		}
+	}
+
 	function _init() {
 
 		if (DEBUG && window.location.search.indexOf('spawn') >= 0) {
@@ -119,6 +151,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 		document.body.addEventListener('mouseup', _handleInputStop);
 		document.body.addEventListener('touchmove', _handleInputMove);
 		document.body.addEventListener('mousemove', _handleInputMove);
+		document.body.addEventListener('keydown', _handleKeyDown);
 
 		// Start the main menu
 		_changeScene('main-menu');
@@ -165,6 +198,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 		init: _init,
 		reset: _reset,
 		changeScene: _changeScene,
+		toggleKeyboard: _toggleKeyboard,
 		setBot: _setBot,
 		getAI: _getAI,
 		BOARD_CENTER: BOARD_CENTER,

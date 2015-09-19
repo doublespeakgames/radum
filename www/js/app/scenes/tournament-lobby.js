@@ -54,6 +54,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
     var _players = []
     ,   _tweens = []
     ,   _addButton = { expansion: 0 }
+    ,   _currentInput = "";
     ;
 
     function _newPlayer() {
@@ -65,9 +66,15 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
             duration: ANIM_DURATION,
             stepping: Tween.BezierStepping(0.25, 0.1, 0.25, 0.1)
         }).start());
+
+        require('app/engine').toggleKeyboard(true);
     }
 
     function _confirmPlayer() {
+        if (_currentInput.length === 0) {
+            return;
+        }
+
         _tweens.push(new Tween({
             target: _addButton,
             property: 'expansion',
@@ -75,8 +82,11 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
             end: 0,
             duration: ANIM_DURATION,
             stepping: Tween.BezierStepping(0.25, 0.1, 0.25, 0.1)
+        }).on('complete', function() {
+            _currentInput = '';
         }).start());
-        _players.push('PLAYER ' + (_players.length + 1));
+        _players.splice(0, 0, _currentInput);
+        require('app/engine').toggleKeyboard(false);
     }
 
     function _drawAddButton() {
@@ -89,10 +99,16 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
             'negative'
         );
 
-        Graphics.setAlpha(_addButton.expansion);
-        Graphics.text('✓', Graphics.width() / 2 + (ENTRY_WIDTH / 2) * _addButton.expansion, PLAYERS_TOP + 60, 20, 'menu');
         Graphics.setAlpha(1 - _addButton.expansion);
         Graphics.text('+', Graphics.width() / 2 + (ENTRY_WIDTH / 2) * _addButton.expansion, PLAYERS_TOP + 60, 20, 'menu');
+
+        Graphics.setAlpha(_addButton.expansion);
+        Graphics.text('✓', Graphics.width() / 2 + (ENTRY_WIDTH / 2) * _addButton.expansion, PLAYERS_TOP + 60, 20, 'menu');
+
+        if (_currentInput) {
+            Graphics.text(_currentInput, Graphics.width() / 2, PLAYERS_TOP + 60, 20, 'menu');
+        }
+
         Graphics.setAlpha(1);
     }
 
@@ -142,6 +158,11 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
             }
         },
 
+        onDeactivate: function() {
+            _currentInput = '';
+            _addButton.expansion = 0;
+        },
+
         onInputStart: function(coords) {
             _hitBoxes.forEach(function(box) {
                 if (coords.x > box.x && coords.x < box.x + box.width &&
@@ -153,6 +174,30 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
                     }
                 }
             });
+        },
+
+        onKeyDown: function(keyCode) {
+            var c = String.fromCharCode(keyCode).trim();
+
+            if (!_canAdd()) {
+                return;
+            }
+
+            if (c.length && _addButton.expansion === 0) {
+                _newPlayer();
+            }
+
+            if (c) {
+                _currentInput += c;
+            }
+
+            if (keyCode === 8) {
+                // Backspace
+                _currentInput = _currentInput.substring(0, _currentInput.length - 2);
+            } else if (keyCode === 13) {
+                _confirmPlayer();
+            }
+
         }
     }); 
 });
