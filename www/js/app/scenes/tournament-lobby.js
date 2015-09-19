@@ -11,7 +11,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
     ,   PADDING = 30
     ,   MENU_SIZE = 30
     ,   PLAYERS_TOP = 100
-    ,   ANIM_DURATION = 200
+    ,   ANIM_DURATION = 150
     ,   ENTRY_WIDTH = 400
     ,   BUTTON_WIDTH = 40
     ;
@@ -80,33 +80,19 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween'],
     }
 
     function _drawAddButton() {
-        Graphics.circle(
-            Graphics.width() / 2 - ((ENTRY_WIDTH / 2) * _addButton.expansion), 
+
+        Graphics.stretchedCircle(
+            Graphics.width() / 2, 
             PLAYERS_TOP + BUTTON_WIDTH + 20, 
-            BUTTON_WIDTH / 2, 
+            BUTTON_WIDTH / 2,
+            ENTRY_WIDTH * _addButton.expansion,
             'menu'
         );
 
-        if (_addButton.expansion > 0) {
-            Graphics.rect(
-                Graphics.width() / 2 - ((ENTRY_WIDTH / 2) * _addButton.expansion),
-                PLAYERS_TOP + BUTTON_WIDTH + 1,
-                ENTRY_WIDTH * _addButton.expansion,
-                BUTTON_WIDTH,
-                'transparent',
-                'menu'
-            );
-            Graphics.circle(
-                Graphics.width() / 2 + ((ENTRY_WIDTH / 2) * _addButton.expansion), 
-                PLAYERS_TOP + BUTTON_WIDTH + 20, 
-                BUTTON_WIDTH / 2, 
-                'menu'
-            );
-        }
         Graphics.setAlpha(_addButton.expansion);
-        Graphics.text('✓', Graphics.width() / 2 + (ENTRY_WIDTH / 2) * _addButton.expansion, PLAYERS_TOP + 60, 30, 'negative');
+        Graphics.text('✓', Graphics.width() / 2 + (ENTRY_WIDTH / 2) * _addButton.expansion, PLAYERS_TOP + 60, 20, 'negative');
         Graphics.setAlpha(1 - _addButton.expansion);
-        Graphics.text('+', Graphics.width() / 2 + (ENTRY_WIDTH / 2) * _addButton.expansion, PLAYERS_TOP + 60, 30, 'negative');
+        Graphics.text('+', Graphics.width() / 2 + (ENTRY_WIDTH / 2) * _addButton.expansion, PLAYERS_TOP + 60, 20, 'negative');
         Graphics.setAlpha(1);
     }
 

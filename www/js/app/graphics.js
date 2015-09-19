@@ -105,6 +105,40 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		document.body.style.background = colour ? _theme[colour] : 'transparent';
 	}
 
+	function _drawStretchedCircle(x, y, radius, stretchWidth, colour) {
+		var point = _scaler.scalePoint({x: x, y: y})
+		,   oY = radius * 0.1
+		,	oX = radius * 4.0 / 3.0
+		;
+
+		stretchWidth = _scaler.scaleValue(stretchWidth / 2);
+
+		_canvas.beginPath();
+		_canvas.moveTo(point.x - stretchWidth, point.y + radius);
+		_canvas.bezierCurveTo(
+			point.x - stretchWidth - oX,
+			point.y + radius - oY,
+			point.x - stretchWidth - oX,
+			point.y - radius + oY,
+			point.x - stretchWidth, 
+			point.y - radius
+		);
+		_canvas.lineTo(point.x + stretchWidth, point.y - radius);
+		_canvas.bezierCurveTo(
+			point.x + stretchWidth + oX, 
+			point.y - radius + oY,
+			point.x + stretchWidth + oX,
+			point.y + radius - oY,
+			point.x + stretchWidth, 
+			point.y + radius
+		);
+		_canvas.lineTo(point.x - stretchWidth, point.y + radius);
+		_canvas.closePath();
+
+		_canvas.fillStyle = _theme[colour];
+		_canvas.fill();
+	}
+
 	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder, clipToBoard, fromBottom, fixedPos) {
 		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
 		if (fixedPos) {
@@ -229,6 +263,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		rect: _drawRect,
 		toggleMenu: _toggleMenu,
 		colour: _colour,
+		stretchedCircle: _drawStretchedCircle,
 		changeTheme: _changeTheme
 	};
 });
