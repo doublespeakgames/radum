@@ -83,10 +83,16 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		return _theme[cName];
 	}
 
-	function _drawText(text, x, y, fontSize, colour, borderColour, align, fromBottom) {
-		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
+	function _textWidth(text, fontSize) {
+		_canvas.font = fontSize + 'px montserratregular';
+		return _canvas.measureText(text).width;
+	}
 
-		_canvas.globalAlpha = this._globalAlpha;
+	function _drawText(text, x, y, fontSize, colour, borderColour, align, fromBottom, alpha) {
+		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
+		alpha = alpha == null ? 1 : alpha;
+
+		_canvas.globalAlpha = alpha * this._globalAlpha;
 		colour = colour || 'negative';
 		// General text rules
 		_canvas.textAlign = align || 'center';
@@ -99,19 +105,24 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		}
 		_canvas.fillStyle = _theme[colour];
 		_canvas.fillText(text, point.x, point.y);
+
+		_canvas.globalAlpha = this._globalAlpha;
 	}
 
 	function _setBackground(colour) {
 		document.body.style.background = colour ? _theme[colour] : 'transparent';
 	}
 
-	function _drawStretchedCircle(x, y, radius, stretchWidth, colour) {
+	function _drawStretchedCircle(x, y, radius, stretchWidth, colour, alpha) {
 		var point = _scaler.scalePoint({x: x, y: y})
 		,   oY = radius * 0.1
 		,	oX = radius * 4.0 / 3.0
 		;
 
+		alpha = alpha == null ? 1 : alpha;
 		stretchWidth = _scaler.scaleValue(stretchWidth / 2);
+
+		_canvas.globalAlpha = alpha * this._globalAlpha;
 
 		_canvas.beginPath();
 		_canvas.moveTo(point.x - stretchWidth, point.y + radius);
@@ -137,6 +148,8 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 
 		_canvas.fillStyle = _theme[colour];
 		_canvas.fill();
+
+		_canvas.globalAlpha = this._globalAlpha;
 	}
 
 	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder, clipToBoard, fromBottom, fixedPos) {
@@ -259,6 +272,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		setBackground: _setBackground,
 		clipToBoard: _clipToBoard,
 		text: _drawText,
+		textWidth: _textWidth,
 		circle: _drawCircle,
 		rect: _drawRect,
 		toggleMenu: _toggleMenu,

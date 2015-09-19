@@ -23,7 +23,7 @@ define(['app/util', 'app/bezier-easing'], function(Util, BezierEasing) {
     var Tween = function(options) {
         this._options = Util.merge({
             stepping: Tween.LinearStepping(),
-            mapping: Tween.IntegerMapping,
+            mapping: Tween.DecimalMapping,
             loop: false
         }, options);
         this.time = 0;
@@ -96,7 +96,7 @@ define(['app/util', 'app/bezier-easing'], function(Util, BezierEasing) {
     };
 
     /* Mappings */
-    Tween.IntegerMapping = function(start, end, progress) {
+    Tween.DecimalMapping = function(start, end, progress) {
         return start + ((end - start) * progress);
     };
     Tween.PointMapping = function(start, end, progress) {

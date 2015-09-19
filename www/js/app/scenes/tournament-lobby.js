@@ -12,6 +12,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
     ,   PADDING = 30
     ,   MENU_SIZE = 30
     ,   PLAYERS_TOP = 100
+    ,   MAX_PLAYERS = 8
     ;
 
     var _hitBoxes = [{
@@ -31,8 +32,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
         onTrigger: function() { console.log('play'); }
     }];
 
-    var _players = []
-    ,   _buttons = [new PlayerButton({
+    var _buttons = [new PlayerButton({
             x: Graphics.width() / 2,
             y: PLAYERS_TOP + 60
         })]
@@ -54,24 +54,51 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
             return;
         }
 
-        _getInputButton().collapse();
-        _players.splice(0, 0, _getInputButton().text);
         require('app/engine').toggleKeyboard(false);
-        _getInputButton().text = '';
+
+        _getInputButton().collapse();
+
+        if (_canAdd()) {
+            _buttons.forEach(function(button) {
+                button.moveVertical(60);
+            });
+            _buttons.splice(0, 0, new PlayerButton({
+                x: Graphics.width() / 2,
+                y: PLAYERS_TOP + 60
+            }));
+        }
     }
 
-    function _drawPlayers() {
-        _players.forEach(function(player, idx) {
-            Graphics.text(player, Graphics.width() / 2, PLAYERS_TOP + 60 + ((idx + _canAdd()) * 60), 20, 'negative');
-        });
+    function _deletePlayer(player) {
+        var idx = _buttons.indexOf(player);
+        _buttons.splice(idx, 1);
+        if (_numPlayers() === MAX_PLAYERS - 1) {
+            for(idx--; idx >= 0; idx--) {
+                _buttons[idx].moveVertical(60);
+            }
+            _buttons.splice(0, 0, new PlayerButton({
+                x: Graphics.width() / 2,
+                y: PLAYERS_TOP + 60
+            }));
+        } else {
+            for(; idx < _buttons.length; idx++) {
+                _buttons[idx].moveVertical(-60);
+            }
+        }
+    }
+
+    function _numPlayers() {
+        var length = _buttons.length;
+        if (_getInputButton()) { length--; }
+        return length;
     }
 
     function _canAdd() {
-        return _players.length < 8;
+        return _numPlayers() < MAX_PLAYERS;
     }
 
     function _canStart() {
-        return _players.length > 2;
+        return _numPlayers() > 2;
     }
    
     return new Scene({
@@ -94,7 +121,6 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
             _buttons.forEach(function(button) {
                 button.draw();
             });
-            _drawPlayers();
 
             if (DEBUG) {
                 _hitBoxes.forEach(function(box) {
@@ -106,11 +132,19 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
         },
 
         onDeactivate: function() {
-            _currentInput = '';
-            _addButton.expansion = 0;
+            _getInputButton() && _getInputButton().clear();
         },
 
         onInputStart: function(coords) {
+
+            _hitBoxes.forEach(function(box) {
+                if (coords.x > box.x && coords.x < box.x + box.width &&
+                    coords.y > box.y && coords.y < box.y + box.height) {
+                    Audio.play('SELECT');
+                    box.onTrigger();
+                }
+            });
+
             _buttons.forEach(function(button) {
                 if (button.isClicked(coords)) {
                     Audio.play('SELECT');
@@ -123,6 +157,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
                             _confirmPlayer();
                             break;
                         case PlayerButton.State.DELETE:
+                            _deletePlayer(button);
                             break;
                     }
                 }
@@ -132,7 +167,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
         onKeyDown: function(keyCode) {
             var c = String.fromCharCode(keyCode).trim();
 
-            if (!_getInputButton()) {
+            if (!_getInputButton() || !_canAdd()) {
                 return;
             }
 

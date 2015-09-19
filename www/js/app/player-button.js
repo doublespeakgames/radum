@@ -11,6 +11,9 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
     ,   ENTRY_WIDTH = 400
     ,   BUTTON_WIDTH = 40
     ,   DEBUG = false
+    ,   CARAT_SPEED = 800
+    ,   CARAT_WIDTH = 3
+    ,   CARAT_HEIGHT = 20
     ;
     
     var PlayerButton = function(options) {
@@ -20,7 +23,22 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
         this.state = PlayerButton.State.ADD;
         this.width = 0;
         this.text = '';
+        this.carat = 0;
+        this.scale = 0;
+
+        this.tweenManager.add(new Tween({
+            target: this,
+            property: 'scale',
+            start: 0,
+            end: 1,
+            duration: ANIM_DURATION,
+            stepping: Tween.BezierStepping(0.25, 0.1, 0.25, 0.1)
+        }).start());
     };
+
+    function _textFull(button) {
+        return button.text.length > 17;
+    }
 
     function _getHitbox(button) {
         switch(button.state) {
@@ -32,15 +50,9 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
                     height: BUTTON_WIDTH
                 };
             case PlayerButton.State.TEXT_ENTRY:
-                return {
-                    x: button.x + (button.width - BUTTON_WIDTH) / 2,
-                    y: button.y - BUTTON_WIDTH / 2,
-                    width: BUTTON_WIDTH,
-                    height: BUTTON_WIDTH
-                };
             case PlayerButton.State.DELETE:
                 return {
-                    x: button.x + button.width,
+                    x: button.x + (button.width - BUTTON_WIDTH) / 2,
                     y: button.y - BUTTON_WIDTH / 2,
                     width: BUTTON_WIDTH,
                     height: BUTTON_WIDTH
@@ -52,6 +64,10 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
         
         do: function(delta) {
             this.tweenManager.run(delta);
+            if (this.state === PlayerButton.State.TEXT_ENTRY) {
+                this.carat += delta;
+                this.carat %= CARAT_SPEED;
+            }
         },
 
         draw: function() {
@@ -60,30 +76,63 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
                 Graphics.circle(
                     this.x, 
                     this.y, 
-                    BUTTON_WIDTH / 2,
+                    (BUTTON_WIDTH / 2) * this.scale,
                     'negative'
                 );
             } else {
                 Graphics.stretchedCircle(
                     this.x, 
                     this.y, 
-                    BUTTON_WIDTH / 2,
+                    (BUTTON_WIDTH / 2) * this.scale,
                     this.width,
                     'negative'
                 );
             }
 
-            Graphics.setAlpha(1 - this.width / ENTRY_WIDTH);
-            Graphics.text('+', this.x + this.width / 2, this.y, 20, 'menu');
+            Graphics.text(
+                this.state === PlayerButton.State.DELETE ? '-' : '+', 
+                this.x + this.width / 2, 
+                this.y, 20, 'menu', 
+                null, 
+                null, 
+                null, 
+                1 - this.width / ENTRY_WIDTH
+            );
 
-            Graphics.setAlpha(this.width / ENTRY_WIDTH);
-            Graphics.text('✓', this.x + this.width / 2, this.y, 20, 'menu');
+            Graphics.text(
+                '✓', 
+                this.x + this.width / 2, 
+                this.y, 
+                20, 
+                'menu',
+                null,
+                null,
+                null,
+                this.width / ENTRY_WIDTH
+            );
 
             if (this.text) {
-                Graphics.text(this.text, this.x, this.y, 20, 'menu');
+                Graphics.text(
+                    this.text, 
+                    Graphics.width() / 2,
+                    this.y, 
+                    20, 
+                    this.state === PlayerButton.State.DELETE ? 'negative' : 'menu'
+                );
             }
 
-            Graphics.setAlpha(1);
+            if (this.state === PlayerButton.State.TEXT_ENTRY && 
+                    this.carat < CARAT_SPEED / 2 &&
+                    !_textFull(this)) {
+                Graphics.rect(
+                    this.x + 1 + Graphics.textWidth(this.text, 20) / 2,
+                    this.y - CARAT_HEIGHT / 2,
+                    CARAT_WIDTH,
+                    CARAT_HEIGHT,
+                    null,
+                    'menu'
+                );
+            }
 
             if (DEBUG) {
                 var box = _getHitbox(this);
@@ -92,7 +141,9 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
         },
 
         addChar: function(c) {
-            this.text += c;
+            if (!_textFull(this)) {
+                this.text += c;
+            }
         },
 
         deleteChar: function() {
@@ -105,6 +156,16 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
 
             return (coords.x > box.x && coords.x < box.x + box.width &&
                 coords.y > box.y && coords.y < box.y + box.height);
+        },
+
+        clear: function() {
+            if (this.state === PlayerButton.State.DELETE) {
+                return;
+            }
+
+            this.text = '';
+            this.state = PlayerButton.State.ADD;
+            this.width = 0;
         },
 
         expand: function() {
@@ -138,7 +199,27 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
                 stepping: Tween.BezierStepping(0.25, 0.1, 0.25, 0.1)
             }).start());
 
-            this.state = PlayerButton.State.ADD;
+            this.tweenManager.add(new Tween({
+                target: this,
+                property: 'x',
+                start: Graphics.width() / 2,
+                end: ENTRY_WIDTH,
+                duration: ANIM_DURATION,
+                stepping: Tween.BezierStepping(0.25, 0.1, 0.25, 0.1)
+            }).start());
+
+            this.state = PlayerButton.State.DELETE;
+        },
+
+        moveVertical: function(amount) {
+            this.tweenManager.add(new Tween({
+                target: this,
+                property: 'y',
+                start: this.y,
+                end: this.y + amount,
+                duration: ANIM_DURATION,
+                stepping: Tween.BezierStepping(0.25, 0.1, 0.25, 0.1)
+            }).start());
         }
     };
 
