@@ -3,8 +3,9 @@
  *	game-piece that can be played to the board
  *	(c) doublespeak games 2015	
  **/
-define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'], 
-	function(Graphics, Util, TouchPrompt, Tween) {
+define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween', 
+		'app/tween-manager'], 
+	function(Graphics, Util, TouchPrompt, Tween, TweenManager) {
 
 	var RADIUS = 25
 	, CREATE_TIME = 200
@@ -27,15 +28,15 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 		this._label = null;
 		this._drawPos = null;
 		this._level = 1;
-		this._tweens = {};
+		this._tweenManager = new TweenManager();
 
-		this._tweens.appear = new Tween({
+		this._tweenManager.add(new Tween({
 			target: this,
 			property: '_scale',
 			start: 0.4,
 			end: 1,
 			duration: CREATE_TIME
-		}).start();
+		}).start());
 	}
 
 	Piece.Type = {
@@ -52,12 +53,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 				this._prompt.do(delta);
 			}
 
-			Object.keys(this._tweens).forEach(function(key) {
-				var tween = this._tweens[key];
-				if (tween.run(delta).isComplete()) {
-					delete this._tweens[key];
-				}
-			}.bind(this));
+			this._tweenManager.run(delta);
 		},
 		draw: function() {
 			if (this._real || (!this._real && this._scale > 0)) {
@@ -194,24 +190,24 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 		},
 		submit: function() {
 			this._real = false;
-			this._tweens.submit = new Tween({
+			this._tweenManager.add(new Tween({
 				target: this,
 				property: '_scale',
 				duration: CREATE_TIME,
 				start: 1,
 				end: 0				
-			}).start();
+			}).start());
 		},
 		reveal: function() {
 			this._real = true;
 			this._active = false;
-			this._tweens.submit = new Tween({
+			this._tweenManager.add(new Tween({
 				target: this,
 				property: '_scale',
 				duration: CREATE_TIME,
 				start: 0,
 				end: 1				
-			}).start();
+			}).start());
 		},
 		setLabel: function(label) {
 			this._label = label;
@@ -220,7 +216,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 			this._real = real;
 		},
 		pulse: function() {
-			this._tweens.pulseUp = new Tween({
+			this._tweenManager.add(new Tween({
 				// Bigger
 				target: this,
 				property: '_scale',
@@ -228,19 +224,19 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 				end: PULSE_MAX,
 				duration: PULSE_TIME
 			}).on('complete', function() {
-				this._tweens.pulseDown = new Tween({
+				this._tweenManager.add(new Tween({
 					// Smaller
 					target: this,
 					property: '_scale',
 					start: PULSE_MAX,
 					end: 1,
 					duration: PULSE_TIME
-				}).start();
-			}.bind(this)).start();
+				}).start());
+			}.bind(this)).start());
 		},
 		animateMove: function(from) {
 			this._drawPos = from;
-			this._tweens.move = new Tween({
+			this._tweenManager.add(new Tween({
 				target: this,
 				property: '_drawPos',
 				start: this._drawPos,
@@ -248,9 +244,8 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween'],
 				duration: MOVE_TIME,
 				mapping: Tween.PointMapping
 			}).on('complete', function() {
-				delete this._tweens.move;
 				this._drawPos = null;
-			}.bind(this)).start();
+			}.bind(this)).start());
 		},
 		levelUp: function() {
 			this._level++;
