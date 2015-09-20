@@ -4,10 +4,17 @@
  *	(c) doublespeak games 2015	
  **/
 define(['app/scenes/scene', 'app/graphics', 'app/state-machine', 
-		'app/touch-prompt', 'app/audio'], 
-		function(Scene, Graphics, StateMachine, TouchPrompt, Audio) {
+		'app/touch-prompt', 'app/audio', 'app/tournament'], 
+		function(Scene, Graphics, StateMachine, TouchPrompt, Audio, Tournament) {
 
 	var _stateMachine = new StateMachine({
+		START: {
+			BEGIN: 'PLAYER1',
+			TOURNAMENT: 'MATCH'
+		},
+		MATCH: {
+			NEXT: 'PLAYER1'
+		},
 		PLAYER1: {
 			NEXT: 'PLAYER2',
 			NEXTVSCPU: 'SCORE'
@@ -16,9 +23,10 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine',
 			NEXT: 'SCORE'
 		},
 		SCORE: {
-			NEXT: 'PLAYER1'
+			NEXT: 'PLAYER1',
+			NEXTTOURNAMENT: 'MATCH'
 		}
-	}, 'PLAYER1');
+	}, 'START');
 
 	var _frameText
 	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'negative', true);
@@ -37,7 +45,11 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine',
 			SCORE: function() {
 				background = 'background';
 				_frameText = 'Score';
-			}
+			},
+			MATCH: function() {
+				background = 'background';
+				_frameText = 'Player 1\nvs.\nPlayer 2';
+			},
 		});
 		this.background = background;
 	}
@@ -50,6 +62,11 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine',
 		},
 
 		onActivate: function() {
+			if (Tournament.isActive() && _stateMachine.can('TOURNAMENT')) {
+				_stateMachine.go('TOURNAMENT');
+			} else if (_stateMachine.can('BEGIN')) {
+				_stateMachine.go('BEGIN');
+			}
 			_setColours.call(this);
 		},
 
@@ -72,7 +89,11 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine',
 
 		onInputStart: function(coords) {
 			Audio.play('READY');
-			require('app/engine').changeScene('game-board');
+			if (_stateMachine.is('MATCH')) {
+				require('app/engine').changeScene('stage-screen');
+			} else {
+				require('app/engine').changeScene('game-board');
+			}
 		}
 	});
 });

@@ -4,8 +4,8 @@
  *  (c) doublespeak games 2015  
  **/
 define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween', 
-        'app/player-button'], 
-        function(Scene, Graphics, Audio, Tween, PlayerButton) {
+        'app/player-button', 'app/tournament'], 
+        function(Scene, Graphics, Audio, Tween, PlayerButton, Tournament) {
 
     var DEBUG = false
     ,   TOP_MENU = 20
@@ -29,7 +29,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
         width: Graphics.width() / 2,
         height: 80,
         enabled: _canStart,
-        onTrigger: function() { console.log('play'); }
+        onTrigger: _startTournament
     }];
 
     var _buttons = [new PlayerButton({
@@ -99,6 +99,13 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
 
     function _canStart() {
         return _numPlayers() > 2;
+    }
+
+    function _startTournament() {
+        Tournament.start(_buttons.map(function(button) {
+            return button.text;
+        }));
+        require('app/engine').changeScene('stage-screen');
     }
    
     return new Scene({
