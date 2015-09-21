@@ -18,7 +18,12 @@ define(function() {
     };
 
     Tournament.prototype = {
-
+        currentMatch: function() {
+            return {
+                // TODO
+                players: this.players.slice(0, 2)
+            };
+        }
     };
 
     Tournament.start = function(playerNames) {

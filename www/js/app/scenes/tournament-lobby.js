@@ -102,7 +102,9 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
     }
 
     function _startTournament() {
-        Tournament.start(_buttons.map(function(button) {
+        Tournament.start(_buttons.filter(function(button) {
+            return button.state === PlayerButton.State.DELETE;
+        }).map(function(button) {
             return button.text;
         }));
         require('app/engine').changeScene('stage-screen');

@@ -8,13 +8,13 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
     function(Util, Graphics, Tween, TweenManager) {
 
     var ANIM_DURATION = 150
-    ,   ENTRY_WIDTH = 400
+    ,   ENTRY_WIDTH = 300
     ,   BUTTON_WIDTH = 40
     ,   DEBUG = false
     ,   CARAT_SPEED = 800
     ,   CARAT_WIDTH = 3
     ,   CARAT_HEIGHT = 20
-    ,   MAX_TEXT = 16
+    ,   MAX_TEXT = 10
     ;
     
     var PlayerButton = function(options) {
@@ -38,7 +38,7 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
     };
 
     function _textFull(button) {
-        return button.text.length > MAX_TEXT;
+        return button.text.length >= MAX_TEXT;
     }
 
     function _getHitbox(button) {
@@ -204,7 +204,7 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
                 target: this,
                 property: 'x',
                 start: Graphics.width() / 2,
-                end: ENTRY_WIDTH + BUTTON_WIDTH,
+                end: (Graphics.width() + ENTRY_WIDTH) / 2,
                 duration: ANIM_DURATION,
                 stepping: Tween.BezierStepping(0.25, 0.1, 0.25, 0.1)
             }).start());

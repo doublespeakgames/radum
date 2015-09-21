@@ -29,26 +29,45 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine',
 	}, 'START');
 
 	var _frameText
+	, _frameFont
 	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'negative', true);
 
 	function _setColours() {
 		var background;
+		_frameFont = 80;
 		_stateMachine.choose({
 			PLAYER1: function() {
 				background = 'primary1';
-				_frameText = 'Player 1';
+				if (Tournament.isActive()) {
+					_frameText = Tournament.get().currentMatch().players[0].name;
+					while (Graphics.textWidth(_frameText, _frameFont) > Graphics.width()) {
+						_frameFont /= 2;
+					}
+				} else {
+					_frameText = 'Player 1';
+				}
 			},
 			PLAYER2: function() {
 				background = 'primary2';
-				_frameText = 'Player 2';
+				if (Tournament.isActive()) {
+					_frameText = Tournament.get().currentMatch().players[1].name;
+					while (Graphics.textWidth(_frameText, _frameFont) > Graphics.width()) {
+						_frameFont /= 2;
+					}
+				} else {
+					_frameText = 'Player 2';
+				}
 			},
 			SCORE: function() {
 				background = 'background';
+
 				_frameText = 'Score';
 			},
 			MATCH: function() {
+				var players = Tournament.get().currentMatch().players;
+				_frameFont = 40;
 				background = 'background';
-				_frameText = 'Player 1\nvs.\nPlayer 2';
+				_frameText = players[0].name + '\nvs.\n' + players[1].name;
 			},
 		});
 		this.background = background;
@@ -83,7 +102,11 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine',
 		},
 
 		drawFrame: function() {
-			Graphics.text(_frameText, Graphics.width() / 2, Graphics.height() / 3 - 30, 80);
+			if (_frameText) {
+				_frameText.split('\n').forEach(function(text, idx) {
+					Graphics.text(text, Graphics.width() / 2, Graphics.height() / 3 - 30 + (idx * (_frameFont + 20)), _frameFont);
+				});
+			}
 			_prompt.draw();
 		},
 
