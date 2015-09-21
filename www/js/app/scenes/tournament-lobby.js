@@ -59,13 +59,15 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
         _getInputButton().collapse();
 
         if (_canAdd()) {
-            _buttons.forEach(function(button) {
-                button.moveVertical(60);
-            });
-            _buttons.splice(0, 0, new PlayerButton({
-                x: Graphics.width() / 2,
-                y: PLAYERS_TOP + 60
-            }));
+            setTimeout(function() {
+                _buttons.forEach(function(button) {
+                    button.moveVertical(60);
+                });
+                _buttons.splice(0, 0, new PlayerButton({
+                    x: Graphics.width() / 2,
+                    y: PLAYERS_TOP + 60
+                }));
+            }, 0);
         }
     }
 
