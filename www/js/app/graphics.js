@@ -23,6 +23,8 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		_scaler = ScalerStore.get(_options.scalingMode || 'native');
 		_initCanvas();
 		window.addEventListener('resize', _initCanvas);
+
+		return Promise.resolve(true);
 	}
 
 	function _newCanvas(width, height, className) {

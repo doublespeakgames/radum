@@ -537,6 +537,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 	}
 		 	else if (_stateMachine.can('UNPAUSE')) {
 		 		_stateMachine.go('UNPAUSE');
+		 		Audio.play('READY');
 		 		if (!require('app/engine').getAI()) {
 			 		require('app/engine').changeScene('stage-screen');
 			 	} else {
