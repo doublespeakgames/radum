@@ -3,7 +3,7 @@
  *  abstraction for playing platform-agnostic audio
  *  (c) doublespeak games 2015  
  **/
-define(['app/audio-providers/debug'], function(AudioProvider) {
+define(['app/audio-providers/html-audio'], function(AudioProvider) {
     
     var _theme = 'theme';
     var _sfx = {
@@ -31,16 +31,20 @@ define(['app/audio-providers/debug'], function(AudioProvider) {
     }
 
     function _getPath(file) {
-        return 'audio/' + file + '.mp3'; // TODO: select Ogg or Mp3 (necessary?)
+        return 'audio/' + file + '.mp3'; // TODO: select Ogg or Mp3
     }
 
     function _init() {
         AudioProvider.init();
-        for (key in _sfx) {
-            AudioProvider.load(_getPath(_sfx[key]));
-        }
-        AudioProvider.load(_getPath(_theme), true);
-        AudioProvider.play(_getPath(_theme), true);
+        var loadPromises = Object.keys(_sfx).map(function(sfxKey) {
+            return AudioProvider.load(_getPath(_sfx[sfxKey]));
+        });
+        loadPromises.push(AudioProvider.load(_getPath(_theme), true));
+
+        return Promise.all(loadPromises).then(function() {
+            // TODO: Probably have to defer this pending some sort of user interaction
+            AudioProvider.play(_getPath(_theme), true);
+        });
     }
 
     return {

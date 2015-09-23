@@ -3,7 +3,8 @@
  *	simple interface for Google Analytics
  *	(c) doublespeak games 2015	
  **/
-define(['google-analytics', 'app/event-manager'], function(ga, E) {
+define(['google-analytics', 'app/event-manager', 'app/promise'], 
+	function(ga, E, Promise) {
 
 	var _initialized = false;
 
@@ -43,6 +44,8 @@ define(['google-analytics', 'app/event-manager'], function(ga, E) {
 		E.on('changeTheme', _trackEvent.bind(null, 'Menu', 'ChangeTheme'));
 		E.on('playPiece', _trackEvent.bind(null, 'Game', 'PiecePlayed'));
 		E.on('logoPressed', _trackEvent.bind(null, 'Menu', 'logoPressed'));
+
+		return Promise.resolve(true);
 	}
 
 	return {

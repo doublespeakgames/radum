@@ -39,6 +39,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 		E.fire('startTournament', {
 			fromTitle: true
 		});
+		Audio.play('READY');
 		require('app/engine').changeScene('tournament-lobby', null, true);
 	}
 
@@ -47,6 +48,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 			fromTitle: true, 
 			singlePlayer: singlePlayer 
 		});
+		Audio.play('SELECT');
 		require('app/engine').changeScene(singlePlayer ? 'game-board' : 'stage-screen', null, true);
 	}
 
@@ -54,6 +56,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 		E.fire('startTutorial', { 
 			fromTitle: true 
 		});
+		Audio.play('SELECT');
 		require('app/engine').changeScene('game-board').startTutorial();
 	}
 
@@ -78,7 +81,6 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 			_hitBoxes.forEach(function(box) {
 				if (coords.x > box.x && coords.x < box.x + box.width &&
 					coords.y > box.y && coords.y < box.y + box.height) {
-					Audio.play('SELECT');
 					box.onTrigger();
 				}
 			});

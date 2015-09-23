@@ -21,6 +21,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
         width: Graphics.width() / 2,
         height: 80,
         onTrigger: function() {
+            Audio.play('READY');
             require('app/engine').changeScene('main-menu');
         }
     },{
@@ -45,6 +46,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
     }
 
     function _newPlayer() {
+        _playSound();
         _getInputButton().expand();
         require('app/engine').toggleKeyboard(true);
     }
@@ -56,6 +58,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
 
         require('app/engine').toggleKeyboard(false);
 
+        _playSound(true);
         _getInputButton().collapse();
 
         if (_canAdd()) {
@@ -72,6 +75,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
     }
 
     function _deletePlayer(player) {
+        _playSound(true);
         var idx = _buttons.indexOf(player);
         _buttons.splice(idx, 1);
         if (_numPlayers() === MAX_PLAYERS - 1) {
@@ -104,12 +108,17 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
     }
 
     function _startTournament() {
+        Audio.play('SELECT');
         Tournament.start(_buttons.filter(function(button) {
             return button.state === PlayerButton.State.DELETE;
         }).map(function(button) {
             return button.text;
         }));
         require('app/engine').changeScene('stage-screen');
+    }
+
+    function _playSound(confirm) {
+        Audio.play((confirm ? 'CONFIRM' : 'CHOICE') + (Math.floor(Math.random() * 4) + 1));
     }
    
     return new Scene({
@@ -151,17 +160,15 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
             _hitBoxes.forEach(function(box) {
                 if (coords.x > box.x && coords.x < box.x + box.width &&
                     coords.y > box.y && coords.y < box.y + box.height) {
-                    Audio.play('SELECT');
                     box.onTrigger();
                 }
             });
 
             _buttons.forEach(function(button) {
                 if (button.isClicked(coords)) {
-                    Audio.play('SELECT');
                     switch(button.state) {
                         case PlayerButton.State.ADD:
-                            button.expand();
+                            _newPlayer();
                             break;
                         case PlayerButton.State.TEXT_ENTRY:
                             if (button.text.length > 0)

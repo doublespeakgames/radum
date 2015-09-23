@@ -136,7 +136,6 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 	}
 
 	function _init() {
-
 		if (DEBUG && window.location.search.indexOf('spawn') >= 0) {
 			// Divert to the spawning pools!
 			require(['app/spawning-pool/engine'], function(SpawningPool) {
@@ -145,8 +144,12 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 			return;
 		}
 
+		return Promise.resolve(true);
+	}
+
+	function _start() {
+
 		// Start everything
-		Graphics.init();
 		document.body.addEventListener('touchstart', _handleInputStart);
 		document.body.addEventListener('mousedown', _handleInputStart);
 		document.body.addEventListener('touchend', _handleInputStop);
@@ -198,6 +201,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 
 	return {
 		init: _init,
+		start: _start,
 		reset: _reset,
 		changeScene: _changeScene,
 		toggleKeyboard: _toggleKeyboard,
