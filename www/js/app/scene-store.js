@@ -4,8 +4,8 @@
  *	(c) doublespeak games 2015	
  **/
 define(['app/scenes/game-board', 'app/scenes/main-menu', 'app/scenes/stage-screen', 
-    'app/scenes/game-over', 'app/scenes/tournament-lobby'], 
-	function(GameBoard, MainMenu, StageScreen, GameOver, TournamentLobby) {
+    'app/scenes/game-over', 'app/scenes/tournament-lobby', 'app/scenes/loading'], 
+	function(GameBoard, MainMenu, StageScreen, GameOver, TournamentLobby, Loading) {
 
 	return {
 		get: function(sceneName) {

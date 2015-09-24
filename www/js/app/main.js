@@ -8,7 +8,9 @@ require(['app/analytics', 'app/engine', 'app/graphics', 'app/audio'],
    Promise.all([ 
     	Analytics.init(),
         Graphics.init(),
-        Audio.init(),
-    	Engine.init()
+        Engine.init(),
+        Audio.init({
+            silent: window.location.search.indexOf('silent') >= 0
+        })
     ]).then(Engine.start);
 });
