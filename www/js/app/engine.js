@@ -145,22 +145,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 			return;
 		}
 
-		return Promise.resolve(true);
-	}
-
-	function _start() {
-
-		// Start everything
-		document.body.addEventListener('touchstart', _handleInputStart);
-		document.body.addEventListener('mousedown', _handleInputStart);
-		document.body.addEventListener('touchend', _handleInputStop);
-		document.body.addEventListener('mouseup', _handleInputStop);
-		document.body.addEventListener('touchmove', _handleInputMove);
-		document.body.addEventListener('mousemove', _handleInputMove);
-		document.body.addEventListener('keydown', _handleKeyDown);
-
-		// Start the main menu
-		_changeScene('main-menu');
+		_changeScene('loading');
 
 		// Start the gameloop
 		(function gameLoop() {
@@ -198,6 +183,23 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 
 			_lastFrame = time;
 		})();
+
+		return Promise.resolve(true);
+	}
+
+	function _start() {
+
+		// Start everything
+		document.body.addEventListener('touchstart', _handleInputStart);
+		document.body.addEventListener('mousedown', _handleInputStart);
+		document.body.addEventListener('touchend', _handleInputStop);
+		document.body.addEventListener('mouseup', _handleInputStop);
+		document.body.addEventListener('touchmove', _handleInputMove);
+		document.body.addEventListener('mousemove', _handleInputMove);
+		document.body.addEventListener('keydown', _handleKeyDown);
+
+		// Start the main menu
+		_changeScene('main-menu');
 	}
 
 	return {

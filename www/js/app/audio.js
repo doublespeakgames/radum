@@ -5,6 +5,7 @@
  **/
 define(['app/audio-providers/html-audio'], function(AudioProvider) {
     
+    var _silent = false;
     var _theme = 'theme';
     var _sfx = {
         CHOICE1: 'choice1',
@@ -27,6 +28,7 @@ define(['app/audio-providers/html-audio'], function(AudioProvider) {
     };
 
     function _play(file) {
+        if (_silent) { return; }
         AudioProvider.play(_getPath(_sfx[file]));
     }
 
@@ -34,7 +36,13 @@ define(['app/audio-providers/html-audio'], function(AudioProvider) {
         return 'audio/' + file + '.mp3'; // TODO: select Ogg or Mp3
     }
 
-    function _init() {
+    function _init(options) {
+
+        _silent = options.silent;
+        if (_silent) {
+            return Promise.resolve(true);
+        }
+
         AudioProvider.init();
         var loadPromises = Object.keys(_sfx).map(function(sfxKey) {
             return AudioProvider.load(_getPath(_sfx[sfxKey]));

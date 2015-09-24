@@ -82,7 +82,12 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 	}
 
 	function _colour(cName) {
-		return _theme[cName];
+		var colourInfo = cName.split(':')
+		,	colour = colourInfo[0]
+		,	themeIndex = colourInfo[1]
+		;
+
+		return (themeIndex != null ? ThemeStore.getTheme(themeIndex) : _theme)[colour];
 	}
 
 	function _drawText(text, x, y, fontSize, colour, borderColour, align, fromBottom) {
@@ -96,15 +101,15 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		// _canvas.font = _scaler.scaleValue(fontSize) + 'px Arial, Helvetica, sans-serif';
 		_canvas.font = _scaler.scaleValue(fontSize) + 'px montserratregular';
 		if (borderColour) {
-			_canvas.fillStyle = _theme[borderColour];
+			_canvas.fillStyle = _colour(borderColour);
 			_canvas.fillText(text, _scaler.scaleValue(x + 2), _scaler.scaleValue(y + 2));
 		}
-		_canvas.fillStyle = _theme[colour];
+		_canvas.fillStyle = _colour(colour);
 		_canvas.fillText(text, point.x, point.y);
 	}
 
 	function _setBackground(colour) {
-		document.body.style.background = colour ? _theme[colour] : 'transparent';
+		document.body.style.background = colour ? _colour(colour) : 'transparent';
 	}
 
 	function _drawStretchedCircle(x, y, radius, stretchWidth, colour) {
@@ -137,7 +142,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		_canvas.lineTo(point.x - stretchWidth, point.y + radius);
 		_canvas.closePath();
 
-		_canvas.fillStyle = _theme[colour];
+		_canvas.fillStyle = _colour(colour);
 		_canvas.fill();
 	}
 
@@ -161,7 +166,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 			}
 			_canvas.beginPath();
 			_canvas.arc(point.x, point.y, _scaler.scaleValue(circleWidth), 0, 2 * Math.PI, false);
-			_canvas.fillStyle = _theme[colour];
+			_canvas.fillStyle = _colour(colour);
 			_canvas.fill();
 			if (clipToBoard) {
 				_canvas.globalCompositeOperation = 'source-over';
@@ -177,7 +182,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 			_canvas.beginPath();
 			_canvas.arc(point.x, point.y, _scaler.scaleValue(borderRadius), 0, 2 * Math.PI, false);
 			_canvas.lineWidth = _scaler.scaleValue(borderWidth);
-			_canvas.strokeStyle = _theme[borderColour];
+			_canvas.strokeStyle = _colour(borderColour);
 			_canvas.stroke();
 			if (specialBorder) {
 				_canvas.globalCompositeOperation = 'source-over';
@@ -196,7 +201,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 
 		if (fillColour) {
 			_canvas.beginPath();
-			_canvas.fillStyle = _theme[fillColour];
+			_canvas.fillStyle = _colour(fillColour);
 			_canvas.fillRect(point.x, point.y, _scaler.scaleValue(width), _scaler.scaleValue(height));
 		}
 
@@ -204,7 +209,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 
 		if (colour !== 'transparent') {
 			_canvas.beginPath();
-			_canvas.strokeStyle = _theme[colour];
+			_canvas.strokeStyle = _colour(colour);
 			_canvas.lineWidth = _scaler.scaleValue(borderWidth);
 			_canvas.rect(point.x, point.y, _scaler.scaleValue(width), _scaler.scaleValue(height));
 			_canvas.stroke();

@@ -87,13 +87,22 @@ define(function() {
 		menu: '#efecca'
 	}];
 
+	function _randomIndex() {
+		return Math.floor(Math.random() * themes.length);
+	}
+
 	return {
 		getTheme: function(themeIndex) {
 			if (themeIndex == null) {
-				themeIndex = Math.floor(Math.random() * themes.length);
+				themeIndex = _randomIndex();
 			}
 			return themes[themeIndex];
 		},
+
+		numThemes: function() {
+			return themes.length;
+		},
+
 		next: function(theme) {
 			var idx = themes.indexOf(theme);
 			if (idx < 0) {
