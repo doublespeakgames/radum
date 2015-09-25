@@ -12,7 +12,7 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
     ,   BUTTON_WIDTH = 40
     ,   DEBUG = false
     ,   CARAT_SPEED = 800
-    ,   CARAT_WIDTH = 3
+    ,   CARAT_WIDTH = 6
     ,   CARAT_HEIGHT = 20
     ,   MAX_TEXT = 10
     ;
@@ -41,24 +41,41 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
         return button.text.length >= MAX_TEXT;
     }
 
-    function _getHitbox(button) {
+    function _getHitboxes(button) {
         switch(button.state) {
             case PlayerButton.State.ADD:
-                return {
+                return [{
                     x: button.x - BUTTON_WIDTH / 2,
                     y: button.y - BUTTON_WIDTH / 2,
                     width: BUTTON_WIDTH,
-                    height: BUTTON_WIDTH
-                };
+                    height: BUTTON_WIDTH,
+                    message: 'ADD'
+                }];
             case PlayerButton.State.TEXT_ENTRY:
-            case PlayerButton.State.DELETE:
-                return {
+                return [{
+                    x: button.x - (ENTRY_WIDTH / 2) + BUTTON_WIDTH,
+                    y: button.y - BUTTON_WIDTH / 2,
+                    width: ENTRY_WIDTH - (BUTTON_WIDTH * 2),
+                    height: BUTTON_WIDTH,
+                    message: 'FOCUS'
+                }, {
                     x: button.x + (button.width - BUTTON_WIDTH) / 2,
                     y: button.y - BUTTON_WIDTH / 2,
                     width: BUTTON_WIDTH,
-                    height: BUTTON_WIDTH
-                };
+                    height: BUTTON_WIDTH,
+                    message: 'CONFIRM'
+                }];
+            case PlayerButton.State.DELETE:
+                return [{
+                    x: button.x + (button.width - BUTTON_WIDTH) / 2,
+                    y: button.y - BUTTON_WIDTH / 2,
+                    width: BUTTON_WIDTH,
+                    height: BUTTON_WIDTH,
+                    message: 'DELETE'
+                }];
             }
+
+        return [];
     }
 
     PlayerButton.prototype = {
@@ -136,8 +153,9 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
             }
 
             if (DEBUG) {
-                var box = _getHitbox(this);
-                Graphics.rect(box.x, box.y, box.width, box.height);
+                _getHitboxes(this).forEach(function(box) {
+                    Graphics.rect(box.x, box.y, box.width, box.height);
+                });
             }
         },
 
@@ -151,12 +169,19 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
             this.text = this.text.substring(0, this.text.length - 2);
         },
 
-        isClicked: function(coords) {
+        click: function(coords) {
             
-            var box = _getHitbox(this);
+            return _getHitboxes(this).reduce(function(message, box) {
+                if (message) {
+                    return message;
+                }
+                if (coords.x > box.x && coords.x < box.x + box.width &&
+                    coords.y > box.y && coords.y < box.y + box.height) {
 
-            return (coords.x > box.x && coords.x < box.x + box.width &&
-                coords.y > box.y && coords.y < box.y + box.height);
+                    return box.message;
+                }
+                return null;
+            }, null);
         },
 
         clear: function() {

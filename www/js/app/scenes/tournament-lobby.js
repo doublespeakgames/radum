@@ -165,19 +165,20 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
             });
 
             _buttons.forEach(function(button) {
-                if (button.isClicked(coords)) {
-                    switch(button.state) {
-                        case PlayerButton.State.ADD:
-                            _newPlayer();
-                            break;
-                        case PlayerButton.State.TEXT_ENTRY:
-                            if (button.text.length > 0)
-                            _confirmPlayer();
-                            break;
-                        case PlayerButton.State.DELETE:
-                            _deletePlayer(button);
-                            break;
-                    }
+                switch (button.click(coords)) {
+                    case 'ADD':
+                        _newPlayer();
+                        break;
+                    case 'CONFIRM':
+                        if (button.text.length > 0)
+                        _confirmPlayer();
+                        break;
+                    case 'DELETE':
+                        _deletePlayer(button);
+                        break;
+                    case 'FOCUS':
+                        require('app/engine').toggleKeyboard(true);
+                        break;    
                 }
             });
         },

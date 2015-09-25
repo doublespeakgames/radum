@@ -19,7 +19,6 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 	, _lastMove 
 	, _ai
 	, _keyTarget
-	, _keyboardOpen
 	;
 
 	function _setBot(bot) {
@@ -107,6 +106,10 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 		e = e || window.event;
 		e.preventDefault();
 
+		/** 
+		 * Note: This does not work in Chrome on Android due to a horrible bug
+		 * https://code.google.com/p/chromium/issues/detail?id=118639
+		 **/
 		_activeScene.onKeyDown && _activeScene.onKeyDown(e.keyCode);
 
 		if (DEBUG) {
@@ -118,20 +121,20 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 
 	function _toggleKeyboard(open) {
 
-		_keyboardOpen = open;
-
-		if (!_keyTarget) {
-			_keyTarget = document.createElement('input');
-			_keyTarget.className = 'keyboard_target';
-			_keyTarget.addEventListener('blur', function() { _keyboardOpen && _keyTarget.focus(); });
-		}	
-
-		if (open && !_keyboardOpen) {
-			document.body.appendChild(_keyTarget);
-			_keyTarget.focus();
-		} else if(!open && _keyboardOpen) {
+		if (_keyTarget) {
+			Graphics.suppressResize(false);
 			document.body.removeChild(_keyTarget);
 			_keyTarget.blur();
+			_keyTarget = null;
+		}
+
+		if (open) {
+			Graphics.suppressResize(true);
+			_keyTarget = document.createElement('input');
+			_keyTarget.className = 'keyboard_target';
+			_keyTarget.addEventListener('blur', function() { _keyTarget && _keyTarget.focus(); });
+			document.body.appendChild(_keyTarget);
+			_keyTarget.focus();
 		}
 	}
 

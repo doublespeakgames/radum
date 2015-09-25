@@ -42,7 +42,6 @@ define(['app/scalers/scaler'], function(Scaler){
 			var G = require('app/graphics')
 			, scaledHeight = Math.round(G.height() * this._scale)
 			, scaledWidth = Math.round(G.width() * this._scale)
-			, verticalOffset = Math.round(scaledHeight / 2)
 			;
 
 			if (!_scaleSheet) {
@@ -64,16 +63,15 @@ define(['app/scalers/scaler'], function(Scaler){
 				_verticalPad = scaledHeight - _verticalPad;
 			}
 
-			// Size and center the canvas
+			// Size and position the canvas
 			canvas.width = scaledWidth;
 			canvas.height = scaledHeight;
 			_addStyleRule(_scaleSheet, '.radum-canvas', 
 				'width:' + scaledWidth + 'px;' + 
 				'height:' + scaledHeight + 'px;' +
 				'position: absolute;' +
-				'top: 50%;' +
+				'top: ' + (G.realHeight() - scaledHeight) + 'px;' +
 				'left: 50%;' +
-				'margin-top: -' + verticalOffset + 'px;' +
 				'margin-left: -' + Math.round(scaledWidth / 2) + 'px;'
 			);
 		},

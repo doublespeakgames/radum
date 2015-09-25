@@ -16,11 +16,13 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 	, _scaler = null
 	, _theme = ThemeStore.getTheme()
 	, _globalAlpha = 1
+	, _suppressResize = false
 	;
 
 	function _init(options) {
 		_options = Util.merge(_options, options);
 		_scaler = ScalerStore.get(_options.scalingMode || 'native');
+		_suppressResize = false;
 		_initCanvas();
 		window.addEventListener('resize', _initCanvas);
 
@@ -41,6 +43,10 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		var widthScale = window.innerWidth / _options.width
 		, heightScale = window.innerHeight / _options.height		
 		;
+
+		if (_suppressResize) {
+			return;
+		}
 
 		if (!_canvas) {
 			// Create the context to draw the game
@@ -265,6 +271,10 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		_theme = ThemeStore.next(_theme);
 	}
 
+	function _doSuppressResize(suppress) {
+		_suppressResize = suppress;
+	}
+
 	return {
 		init: _init,
 		setAlpha: _setAlpha,
@@ -285,6 +295,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		toggleMenu: _toggleMenu,
 		colour: _colour,
 		stretchedCircle: _drawStretchedCircle,
-		changeTheme: _changeTheme
+		changeTheme: _changeTheme,
+		suppressResize: _doSuppressResize
 	};
 });
