@@ -16,11 +16,13 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 	, _scaler = null
 	, _theme = ThemeStore.getTheme()
 	, _globalAlpha = 1
+	, _suppressResize = false
 	;
 
 	function _init(options) {
 		_options = Util.merge(_options, options);
 		_scaler = ScalerStore.get(_options.scalingMode || 'native');
+		_suppressResize = false;
 		_initCanvas();
 		window.addEventListener('resize', _initCanvas);
 
@@ -41,6 +43,10 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		var widthScale = window.innerWidth / _options.width
 		, heightScale = window.innerHeight / _options.height		
 		;
+
+		if (_suppressResize) {
+			return;
+		}
 
 		if (!_canvas) {
 			// Create the context to draw the game
@@ -90,10 +96,16 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		return (themeIndex != null ? ThemeStore.getTheme(themeIndex) : _theme)[colour];
 	}
 
-	function _drawText(text, x, y, fontSize, colour, borderColour, align, fromBottom) {
-		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
+	function _textWidth(text, fontSize) {
+		_canvas.font = fontSize + 'px montserratregular';
+		return _canvas.measureText(text).width;
+	}
 
-		_canvas.globalAlpha = this._globalAlpha;
+	function _drawText(text, x, y, fontSize, colour, borderColour, align, fromBottom, alpha) {
+		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
+		alpha = alpha == null ? 1 : alpha;
+
+		_canvas.globalAlpha = alpha * this._globalAlpha;
 		colour = colour || 'negative';
 		// General text rules
 		_canvas.textAlign = align || 'center';
@@ -106,19 +118,24 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		}
 		_canvas.fillStyle = _colour(colour);
 		_canvas.fillText(text, point.x, point.y);
+
+		_canvas.globalAlpha = this._globalAlpha;
 	}
 
 	function _setBackground(colour) {
 		document.body.style.background = colour ? _colour(colour) : 'transparent';
 	}
 
-	function _drawStretchedCircle(x, y, radius, stretchWidth, colour) {
+	function _drawStretchedCircle(x, y, radius, stretchWidth, colour, alpha) {
 		var point = _scaler.scalePoint({x: x, y: y})
 		,   oY = radius * 0.1
 		,	oX = radius * 4.0 / 3.0
 		;
 
+		alpha = alpha == null ? 1 : alpha;
 		stretchWidth = _scaler.scaleValue(stretchWidth / 2);
+
+		_canvas.globalAlpha = alpha * this._globalAlpha;
 
 		_canvas.beginPath();
 		_canvas.moveTo(point.x - stretchWidth, point.y + radius);
@@ -144,6 +161,8 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 
 		_canvas.fillStyle = _colour(colour);
 		_canvas.fill();
+
+		_canvas.globalAlpha = this._globalAlpha;
 	}
 
 	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder, clipToBoard, fromBottom, fixedPos) {
@@ -252,6 +271,10 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		_theme = ThemeStore.next(_theme);
 	}
 
+	function _doSuppressResize(suppress) {
+		_suppressResize = suppress;
+	}
+
 	return {
 		init: _init,
 		setAlpha: _setAlpha,
@@ -266,11 +289,13 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		setBackground: _setBackground,
 		clipToBoard: _clipToBoard,
 		text: _drawText,
+		textWidth: _textWidth,
 		circle: _drawCircle,
 		rect: _drawRect,
 		toggleMenu: _toggleMenu,
 		colour: _colour,
 		stretchedCircle: _drawStretchedCircle,
-		changeTheme: _changeTheme
+		changeTheme: _changeTheme,
+		suppressResize: _doSuppressResize
 	};
 });
