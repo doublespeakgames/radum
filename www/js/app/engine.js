@@ -132,7 +132,6 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 			Graphics.suppressResize(true);
 			_keyTarget = document.createElement('input');
 			_keyTarget.className = 'keyboard_target';
-			_keyTarget.addEventListener('blur', function() { _keyTarget && _keyTarget.focus(); });
 			document.body.appendChild(_keyTarget);
 			_keyTarget.focus();
 		}
