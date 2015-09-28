@@ -34,6 +34,8 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 			_activeScene.reset();
 		}
 
+		_ai = null;		
+
 		_changeScene('main-menu');
 	}
 
