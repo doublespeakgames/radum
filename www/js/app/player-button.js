@@ -117,19 +117,18 @@ define(['app/util', 'app/graphics', 'app/tween', 'app/tween-manager'],
                 1 - this.width / ENTRY_WIDTH
             );
 
-            Graphics.text(
-                '✓', 
-                this.x + this.width / 2, 
-                this.y, 
-                20, 
-                'menu',
-                null,
-                null,
-                null,
-                this.width / ENTRY_WIDTH
-            );
-
             if (this.text) {
+                Graphics.text(
+                    '✓', 
+                    this.x + this.width / 2, 
+                    this.y, 
+                    20, 
+                    'menu',
+                    null,
+                    null,
+                    null,
+                    this.width / ENTRY_WIDTH
+                );
                 Graphics.text(
                     this.text, 
                     Graphics.width() / 2,

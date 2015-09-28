@@ -8,7 +8,7 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 	function(E, Scene, Graphics, TouchPrompt, Audio) {
 
 	var _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'negative', true)
-	_scores = [0, 0]
+	,	_scores = [0, 0]
 	;
 
 	return new Scene({
@@ -21,6 +21,10 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 			});
 			Audio.play('FINAL');
 			_scores = scores;
+
+			if (Tournament.isActive()) {
+				Tournament.get().endMatch(scores);
+			}
 		},
 
 		doFrame: function(delta) {
@@ -41,7 +45,12 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 			});
 
 			Audio.play('READY');
-			require('app/engine').changeScene(require('app/engine').getAI() ? 'game-board' : 'stage-screen');	
+
+			if (Tournament.isComplete()) {
+				require('app/engine').changeScene('tournament-rank');
+			} else {
+				require('app/engine').changeScene(require('app/engine').getAI() ? 'game-board' : 'stage-screen');	
+			}
 		}
 	});
 });

@@ -92,6 +92,8 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine',
 		onDeactivate: function() {
 			if (require('app/engine').getAI() && _stateMachine.can('NEXTVSCPU')) {
 				_stateMachine.go('NEXTVSCPU');
+			} else if (Tournament.isActive() && _stateMachine.can('NEXTTOURNAMENT')) {
+				_stateMachine.go('NEXTTOURNAMENT');
 			} else {
 				_stateMachine.go('NEXT');
 			}

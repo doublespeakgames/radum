@@ -11,7 +11,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 
 
 	var SUBMIT_DELAY = 400
-	, MOVES = 6
+	, MOVES = 1//6
 	, MOVE_TRANSITION_DURATION = 200
 	, SCORE_DEADZONE = 5
 	, DEBUG_AI = false
