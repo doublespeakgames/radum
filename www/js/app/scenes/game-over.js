@@ -35,13 +35,20 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 		},
 
 		onInputStart: function(coords) {
+			var engine = require('app/engine');
+
 			E.fire('gameStart', { 
 				fromTitle: false,
 				singlePlayer: !!require('app/engine').getAI()
 			});
 
 			Audio.play('READY');
-			require('app/engine').changeScene(require('app/engine').getAI() ? 'game-board' : 'stage-screen');	
+
+			if (engine.getAI()) {
+				engine.changeScene('game-board');
+			} else {
+				engine.changeScene('stage-screen', 'PLAYER1');
+			}
 		}
 	});
 });

@@ -539,7 +539,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 		_stateMachine.go('UNPAUSE');
 		 		Audio.play('READY');
 		 		if (!require('app/engine').getAI()) {
-			 		require('app/engine').changeScene('stage-screen');
+			 		require('app/engine').changeScene('stage-screen', 'PLAYER1');
 			 	} else {
 			 		this.onActivate();
 			 	}
@@ -583,7 +583,8 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 			 			if (require('app/engine').getAI()) {
 			 				this.onActivate();
 			 			} else {
-				 			require('app/engine').changeScene('stage-screen');
+				 			require('app/engine').changeScene('stage-screen',
+				 				_activePlayer === 1 ? 'PLAYER2' : 'SCORE');
 				 		}
 			 		}.bind(this), SUBMIT_DELAY);
 			 	}

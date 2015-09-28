@@ -30,11 +30,18 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 	}];
 
 	function _startGame(singlePlayer) {
+		var engine = require('app/engine');
+
 		E.fire('startGame', { 
 			fromTitle: true, 
 			singlePlayer: singlePlayer 
 		});
-		require('app/engine').changeScene(singlePlayer ? 'game-board' : 'stage-screen', null, true);
+
+		if (singlePlayer) {
+			engine.changeScene('game-board', null, true);
+		} else {
+			engine.changeScene('stage-screen', 'PLAYER1', true);
+		}
 	}
 
 	function _startTutorial() {
