@@ -4,8 +4,8 @@
  *	(c) doublespeak games 2015	
  **/
 define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 
-		'app/ai/weighted', 'app/tutorial'], 
-		function(Util, EM, Graphics, SceneStore, Bot, Tutorial) {
+		'app/ai/weighted', 'app/tutorial', 'app/tournament'], 
+		function(Util, EM, Graphics, SceneStore, Bot, Tutorial, Tournament) {
 	
 	var CROSSFADE_TIME = 300
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
@@ -32,6 +32,12 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 	function _reset() {
 		if (_activeScene) {
 			_activeScene.reset();
+		}
+
+		_ai = null;
+
+		if (Tournament.isActive()) {
+			Tournament.destroyTournament()
 		}
 
 		_changeScene('main-menu');

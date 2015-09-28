@@ -4,8 +4,8 @@
  *	(c) doublespeak games 2015	
  **/
 define(['app/scenes/scene', 'app/graphics', 'app/state-machine', 
-		'app/touch-prompt', 'app/audio', 'app/tournament'], 
-		function(Scene, Graphics, StateMachine, TouchPrompt, Audio, Tournament) {
+		'app/touch-prompt', 'app/audio', 'app/tournament', 'app/event-manager'], 
+		function(Scene, Graphics, StateMachine, TouchPrompt, Audio, Tournament, E) {
 
 	var _stateMachine = new StateMachine({
 		START: {
@@ -23,7 +23,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine',
 			NEXT: 'SCORE'
 		},
 		SCORE: {
-			NEXT: 'PLAYER1',
+			NEXT: 'START',
 			NEXTTOURNAMENT: 'MATCH'
 		}
 	}, 'START');
@@ -73,6 +73,10 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine',
 		this.background = background;
 	}
 
+	 E.on('quitToMain', function() {
+	 	_stateMachine.reset();
+	 });
+
 	return new Scene({
 
 		reset: function() {
@@ -93,7 +97,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine',
 			if (require('app/engine').getAI() && _stateMachine.can('NEXTVSCPU')) {
 				_stateMachine.go('NEXTVSCPU');
 			} else if (Tournament.isActive() && _stateMachine.can('NEXTTOURNAMENT')) {
-				_stateMachine.go('NEXTTOURNAMENT');
+				_stateMachine.reset(); //Ugh. I hate how I designed this.
 			} else {
 				_stateMachine.go('NEXT');
 			}
