@@ -53,10 +53,6 @@ define(['app/scenes/scene', 'app/graphics', 'app/touch-prompt',
 		}
 	}
 
-	 E.on('quitToMain', function() {
-	 	_stateMachine.reset();
-	 });
-
 	return new Scene({
 
 		onActivate: _setMode,
