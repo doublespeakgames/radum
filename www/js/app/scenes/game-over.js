@@ -39,6 +39,8 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 		},
 
 		onInputStart: function(coords) {
+			var engine = require('app/engine');
+
 			E.fire('gameStart', { 
 				fromTitle: false,
 				singlePlayer: !!require('app/engine').getAI()
@@ -48,8 +50,12 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 
 			if (Tournament.isComplete()) {
 				require('app/engine').changeScene('tournament-rank');
+			} else if (Tournament.isActive()) {
+				require('app/engine').changeScene('stage-screen', 'MATCH');
+			} else if (engine.getAI()) {
+				engine.changeScene('game-board');
 			} else {
-				require('app/engine').changeScene(require('app/engine').getAI() ? 'game-board' : 'stage-screen');	
+				engine.changeScene('stage-screen', 'PLAYER1');
 			}
 		}
 	});

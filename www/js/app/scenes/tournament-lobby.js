@@ -114,7 +114,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
         }).map(function(button) {
             return button.text;
         }));
-        require('app/engine').changeScene('stage-screen');
+        require('app/engine').changeScene('stage-screen', 'MATCH');
     }
 
     function _playSound(confirm) {
