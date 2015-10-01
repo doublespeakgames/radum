@@ -21,6 +21,9 @@ define(function() {
             this.tweens = this.tweens.filter(function(tween) {
                 return !tween.isComplete();
             });
+        },
+        busy: function() {
+            return this.tweens.length > 0;
         }
     };
 

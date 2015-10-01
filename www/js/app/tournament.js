@@ -5,6 +5,11 @@
  **/
 define(function() {
 
+    var WIN_POINTS = 2
+    ,   LOSE_POINTS = 0
+    ,   DRAW_POINTS = 1
+    ;
+
     var _activeTournament = null;
 
     function _generateMatches(players) {
@@ -43,8 +48,15 @@ define(function() {
         endMatch: function(scores) {
             var players = this.currentMatch().players;
 
-            // TODO: Assign points
-
+            if (scores[0] > scores[1]) {
+                players[0].points += WIN_POINTS;
+            } else if (scores[1] > scores[0]) {
+                players[1].points += WIN_POINTS;
+            } else {
+                players[0] += 1;
+                players[1] += 1;
+            }
+            
             this.currentMatchIndex++;
         },
 
