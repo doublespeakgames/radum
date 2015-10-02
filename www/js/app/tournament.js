@@ -3,7 +3,8 @@
  *  manages match-ups, standings, etc for tournaments
  *  (c) doublespeak games 2015  
  **/
-define(['app/tournaments/round-robin'], function(RoundRobin) {
+define(['app/tournaments/round-robin', 'app/tournaments/swiss'], 
+        function(RoundRobin, Swiss) {
 
     var WIN_POINTS = 2
     ,   LOSE_POINTS = 0
@@ -21,8 +22,8 @@ define(['app/tournaments/round-robin'], function(RoundRobin) {
             };
         });
 
-        // TODO: Select between tournament types
-        this.tournamentType = RoundRobin;
+        // Switch to Swiss with more players to reduce the number of matches
+        this.tournamentType = this.players.length <= 4 ? RoundRobin : Swiss;
 
         this.tournamentType.init(this.players);
         this.match = this.tournamentType.nextMatch();
