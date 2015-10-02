@@ -11,6 +11,8 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 
     var DURATION = 300
     ,   LINE_HEIGHT = 40
+    ,   X_BUFFER = 100
+    ,   FONT_SIZE = 25
     ;
 
     var _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'negative', true)
@@ -65,7 +67,7 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 
     // TODO: REmove me!
     window.test = function() {
-        Tournament.start(['Three', 'Four', 'One', 'Two']);
+        Tournament.start(['WWWWWWWWWW', 'Four', 'One', 'Two']);
         var p = Tournament.get().players;
         p[0].points = 3;
         p[1].points = 4;
@@ -87,11 +89,11 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
                     points: player.points,
                     x: Graphics.width() / 2,
                     y: Graphics.height() / 2,
-                    size: 30,
+                    size: FONT_SIZE,
                     opacity: 0
                 };
             }).sort(function(a, b) {
-                return b.points - a.points;
+                return a.points - b.points;
             });
 
             _waiting = false;
@@ -108,14 +110,26 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
             
             _standings.forEach(function(standing) {
                 Graphics.text(
-                    standing.name + '  ' + standing.points, 
-                    standing.x, 
+                    standing.name,
+                    X_BUFFER,
                     standing.y, 
                     standing.size, 
                     'negative',
                     null, 
-                    'center', 
+                    'left', 
                     false, 
+                    standing.opacity
+                );
+
+                Graphics.text(
+                    standing.points,
+                    Graphics.width() - X_BUFFER,
+                    standing.y,
+                    standing.size,
+                    'negative',
+                    null,
+                    'right',
+                    false,
                     standing.opacity
                 );
             });

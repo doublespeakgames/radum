@@ -3,7 +3,7 @@
  *  manages match-ups, standings, etc for tournaments
  *  (c) doublespeak games 2015  
  **/
-define(function() {
+define(['app/tournaments/round-robin'], function(RoundRobin) {
 
     var WIN_POINTS = 2
     ,   LOSE_POINTS = 0
@@ -11,22 +11,6 @@ define(function() {
     ;
 
     var _activeTournament = null;
-
-    function _generateMatches(players) {
-        var matches = [];
-
-        // Everyone plays everyone once
-        // TODO: Better tournament matching
-        players.forEach(function(player1, idx) {
-            players.slice(idx + 1).forEach(function(player2) {
-                matches.push({
-                    players: [ player1, player2 ]
-                });
-            });
-        });
-
-        return matches;
-    }
 
     Tournament = function(options) {
         this.players = options.players.map(function(playerName, idx) {
@@ -36,13 +20,17 @@ define(function() {
                 points: 0
             };
         });
-        this.matches = _generateMatches(this.players);
-        this.currentMatchIndex = 0;
+
+        // TODO: Select between tournament types
+        this.tournamentType = RoundRobin;
+
+        this.tournamentType.init(this.players);
+        this.match = this.tournamentType.nextMatch();
     };
 
     Tournament.prototype = {
         currentMatch: function() {
-            return this.matches[this.currentMatchIndex];
+            return this.match;
         },
 
         endMatch: function(scores) {
@@ -53,15 +41,15 @@ define(function() {
             } else if (scores[1] > scores[0]) {
                 players[1].points += WIN_POINTS;
             } else {
-                players[0] += 1;
-                players[1] += 1;
+                players[0].points += 1;
+                players[1].points += 1;
             }
-            
-            this.currentMatchIndex++;
+
+            this.match = this.tournamentType.nextMatch();
         },
 
         isComplete: function() {
-            return this.currentMatchIndex >= this.matches.length;
+            return !this.match;
         }
     };
 
