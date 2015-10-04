@@ -6,17 +6,19 @@
 define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'], 
 		function(Util, ThemeStore, ScalerStore, Tween) {
 	
+	var COLOR_TRANSITION_REGEX = /(.+)->(.+);(\d+)/;
+
 	var _canvas
-	, _canvasEl
-	, _options = {
-		width: 480,
-		height: 640,
-		scalingMode: 'javascript'
-	}
-	, _scaler = null
-	, _theme = ThemeStore.getTheme()
-	, _globalAlpha = 1
-	, _suppressResize = false
+	, 	_canvasEl
+	, 	_options = {
+			width: 480,
+			height: 640,
+			scalingMode: 'javascript'
+		}
+	, 	_scaler = null
+	, 	_theme = ThemeStore.getTheme()
+	, 	_globalAlpha = 1
+	, 	_suppressResize = false
 	;
 
 	function _init(options) {
@@ -87,13 +89,62 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		return _options.height;
 	}
 
+	function _blendColours(start, end, progress) {
+
+		if (progress === 0) {
+			return start;
+		}
+
+		if (progress === 100) {
+			return end;
+		}
+
+		start = _hexToRgb(start);
+		end = _hexToRgb(end);
+		progress /= 100;
+
+		return _rgbToHex(
+			start.r + Math.round((end.r - start.r) * progress),
+			start.g + Math.round((end.g - start.g) * progress),
+			start.b + Math.round((end.b - start.b) * progress)
+		);
+	}
+
+	function _hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
+    function _componentToHex(c) {
+	    var hex = c.toString(16);
+	    return hex.length == 1 ? "0" + hex : hex;
+	}
+
+	function _rgbToHex(r, g, b) {
+	    return "#" + _componentToHex(r) + _componentToHex(g) + _componentToHex(b);
+	}
+
 	function _colour(cName) {
 		var colourInfo = cName.split(':')
 		,	colour = colourInfo[0]
 		,	themeIndex = colourInfo[1]
+		,	theme = themeIndex != null ? ThemeStore.getTheme(themeIndex) : _theme
+		,	transitionMatch = COLOR_TRANSITION_REGEX.exec(colour)
 		;
 
-		return (themeIndex != null ? ThemeStore.getTheme(themeIndex) : _theme)[colour];
+		if (transitionMatch) {
+			return _blendColours(
+				theme[transitionMatch[1]], 
+				theme[transitionMatch[2]],
+				parseInt(transitionMatch[3], 10)
+			);
+		}
+
+		return theme[colour];
 	}
 
 	function _textWidth(text, fontSize) {

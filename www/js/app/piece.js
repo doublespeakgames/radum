@@ -28,6 +28,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween',
 		this._label = null;
 		this._drawPos = null;
 		this._level = 1;
+		this._colourTransition = 100;
 		this._tweenManager = new TweenManager();
 
 		this._tweenManager.add(new Tween({
@@ -66,7 +67,9 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween',
 						break;
 					case Piece.Type.SENTRY:
 						colour = 'primary' + this._player;
-						border = 'secondary' + this._player;
+						border = 'primary' + this._player + 
+							'->secondary' + this._player +
+							';' + this._colourTransition;
 						break;
 				}
 
@@ -188,8 +191,16 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween',
 		ownerNumber: function() {
 			return this._player;
 		},
-		setType: function(type) {
-			this._type = type;
+		makeSentry: function() {
+			this._type = Piece.Type.SENTRY;
+			this._tweenManager.add(new Tween({
+				target: this,
+				property: '_colourTransition',
+				start: 0,
+				end: 100,
+				duration: CREATE_TIME,
+				mapping: Tween.IntegerMapping
+			}).start());
 		},
 		submit: function() {
 			this._real = false;

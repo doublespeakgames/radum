@@ -104,7 +104,7 @@
 	 		// Reset pieces for the next turn
  			this.playedPieces.forEach(function(piece) {
 	 			if (piece.isa(Piece.Type.FOOTPRINT)) {
-	 				piece.setType(Piece.Type.SENTRY);
+	 				piece.makeSentry();
 	 			}
  			});
 

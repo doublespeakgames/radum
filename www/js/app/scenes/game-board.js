@@ -225,7 +225,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
  		// Reset pieces for the next turn
  		_playedPieces.forEach(function(piece) {
  			if (piece.isa(Piece.Type.FOOTPRINT)) {
- 				piece.setType(Piece.Type.SENTRY);
+ 				piece.makeSentry();
  			}
  			piece.removeLabel();
  		});
