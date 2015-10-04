@@ -17,13 +17,13 @@ define(['app/util', 'app/bezier-easing'], function(Util, BezierEasing) {
      * stepping     Function that maps time [0, 1] to progress [0, 1]. 
      *              Defaults to linear.
      * mapping      Function that maps progress [0, 1] to output.
-     *              Defaults to Integer
+     *              Defaults to Float
      * loop         Whether to loop the tween. Defaults to false.
      */
     var Tween = function(options) {
         this._options = Util.merge({
             stepping: Tween.LinearStepping(),
-            mapping: Tween.DecimalMapping,
+            mapping: Tween.FloatMapping,
             loop: false
         }, options);
         this.time = 0;
@@ -96,8 +96,11 @@ define(['app/util', 'app/bezier-easing'], function(Util, BezierEasing) {
     };
 
     /* Mappings */
-    Tween.DecimalMapping = function(start, end, progress) {
+    Tween.FloatMapping = function(start, end, progress) {
         return start + ((end - start) * progress);
+    };
+    Tween.IntegerMapping = function(start, end, progress) {
+        return Math.round(start + (end - start) * progress);
     };
     Tween.PointMapping = function(start, end, progress) {
         return {
