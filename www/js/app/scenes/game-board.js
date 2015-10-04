@@ -215,13 +215,17 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		return _activePlayer === 1 ? 2 : 1;
 	}
 
-	function _resetTurn() {
-		// Remove score horizons
+	function _removeHorizons() {
 		_scoreHorizons.forEach(function(horizon) {
 			horizon.fadeout().then(function() {
 				_scoreHorizons.length = 0;
 			});
 		});
+	}
+
+	function _resetTurn() {
+		_removeHorizons();
+
  		// Reset pieces for the next turn
  		_playedPieces.forEach(function(piece) {
  			if (piece.isa(Piece.Type.FOOTPRINT)) {
@@ -270,16 +274,23 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		}, {
 			message: ['Drag the piece to the', 'highlighted zone'],
 			advanceTest: function () { return Util.distance(_activePiece.getCoords(), {x:150,y:220}) < 15; },
-			onDraw: function() {
-				Graphics.circle(150, 220, 40, 'primary1', null, null, 0.3);
+			onActivate: function() {
+				this._horizon = new ScoreHorizon(1, { x: 150, y: 220 }, null, 40).stop().fadein();
+				_scoreHorizons.push(this._horizon);
+			},
+			onAdvance: function() {
+				var horizon = this._horizon;
+				horizon.fadeout().then(function() {
+					var idx = _scoreHorizons.indexOf(horizon);
+					if (idx >= 0) {
+						_scoreHorizons.splice(idx, 1);	
+					}
+				});
 			}
 		}, {
 			message: [(TOUCH ? 'Tap' : 'Click') + ' the piece', 'to confirm'],
 			advanceTest: function () { return !_activePiece && _moveTransition <= 0; },
 			reverseTest: function() { return _activePiece && Util.distance(_activePiece.getCoords(), {x:150,y:220}) >= 15; },
-			onDraw: function() {
-				Graphics.circle(150, 220, 40, 'primary1', null, null, 0.3);
-			},
 			canSubmit: true
 		}, {
 			message: ['Let\'s see where your', 'opponent played'],
@@ -304,16 +315,23 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		}, {
 			message: ['Put a piece in', 'the highlighted area'],
 			advanceTest: function () { return _activePiece != null && Util.distance(_activePiece.getCoords(), {x:120,y:300}) < 15; },
-			onDraw: function() {
-				Graphics.circle(120, 300, 40, 'primary1', null, null, 0.3);
+			onActivate: function() {
+				this._horizon = new ScoreHorizon(1, { x: 120, y: 300 }, null, 40).stop().fadein();
+				_scoreHorizons.push(this._horizon);
+			},
+			onAdvance: function() {
+				var horizon = this._horizon;
+				horizon.fadeout().then(function() {
+					var idx = _scoreHorizons.indexOf(horizon);
+					if (idx >= 0) {
+						_scoreHorizons.splice(idx, 1);	
+					}
+				});
 			}
 		}, {
 			message: ['Confirm the move'],
 			advanceTest: function() { return !_activePiece && _moveTransition <= 0; },
 			reverseTest: function() { return _activePiece && Util.distance(_activePiece.getCoords(), {x:120,y:300}) >= 15; },
-			onDraw: function() {
-				Graphics.circle(120, 300, 40, 'primary1', null, null, 0.3);
-			},
 			canSubmit: true
 		}, {
 			message: ['Sentries are triggered', 'by whomever plays', 'closer to them'],
@@ -352,18 +370,29 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 				_stateMachine.go('NEXTTURN');
 			}
 		}, {
+			advanceTest: function() {
+				return _scoreHorizons.length === 0;
+			}
+		}, {
 			message: ['Put a piece in', 'the highlighted area'],
 			advanceTest: function () { return _activePiece != null && Util.distance(_activePiece.getCoords(), {x:360,y:290}) < 15; },
-			onDraw: function() {
-				Graphics.circle(360, 290, 40, 'primary1', null, null, 0.3);
+			onActivate: function() {
+				this._horizon = new ScoreHorizon(1, { x: 360, y: 290 }, null, 40).stop().fadein();
+				_scoreHorizons.push(this._horizon);
+			},
+			onAdvance: function() {
+				var horizon = this._horizon;
+				horizon.fadeout().then(function() {
+					var idx = _scoreHorizons.indexOf(horizon);
+					if (idx >= 0) {
+						_scoreHorizons.splice(idx, 1);	
+					}
+				});
 			}
 		}, {
 			message: ['Confirm the move'],
 			advanceTest: function() { return !_activePiece && _moveTransition <= 0; },
 			reverseTest: function() { return _activePiece && Util.distance(_activePiece.getCoords(), {x:360,y:290}) >= 15; },
-			onDraw: function() {
-				Graphics.circle(360, 290, 40, 'primary1', null, null, 0.3);
-			},
 			canSubmit: true
 		}, {
 			message: ['Watch what happens', 'this time'],

@@ -37,12 +37,14 @@ define(['app/graphics', 'app/touch-prompt'], function(Graphics, TouchPrompt) {
 		_currentStage++;
 		_transition = 0;
 		_lastStage.onAdvance && _lastStage.onAdvance();
+		_stage() && _stage().onActivate && _stage().onActivate();
 	}
 
 	function _reverse() {
 		_lastStage = _stage();
 		_currentStage--;
 		_transition = 0;
+		_stage() && _stage().onActivate && _stage().onActivate();
 	}
 
 	function _do(delta) {
@@ -56,17 +58,13 @@ define(['app/graphics', 'app/touch-prompt'], function(Graphics, TouchPrompt) {
 	}
 
 	function _stage() {
-		return _stages[_currentStage];
+		return _stages ? _stages[_currentStage] : null;
 	}
 
 	function _draw() {
 
 		if (!_stage()) {
 			return;
-		}
-
-		if (_stage().onDraw) {
-			_stage().onDraw();
 		}
 
 		if (_lastStage && _transition < 1 && _lastStage.message) {
