@@ -86,6 +86,17 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween',
 					drawY, 
 					radius * this._scale, 
 					colour, 
+					null,
+					null,
+					this._colourTransition / 100,
+					this._type === Piece.Type.TARGET,
+					this._type === Piece.Type.TARGET_FORECAST);
+
+				Graphics.circle(
+					drawX, 
+					drawY, 
+					radius * this._scale, 
+					null, 
 					border,
 					BORDER_WIDTH * this._scale,
 					alpha,
