@@ -59,7 +59,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 	, _scores = [0, 0]
 	, _movesLeft = [MOVES, MOVES]
 	, _paused = false
-	, _soundScheme = 1;
+	, _soundScheme = 1
 	;
 
 	function _score() {
@@ -217,7 +217,11 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 
 	function _resetTurn() {
 		// Remove score horizons
- 		_scoreHorizons.length = 0;
+		_scoreHorizons.forEach(function(horizon) {
+			horizon.fadeout().then(function() {
+				_scoreHorizons.length = 0;
+			});
+		});
  		// Reset pieces for the next turn
  		_playedPieces.forEach(function(piece) {
  			if (piece.isa(Piece.Type.FOOTPRINT)) {
