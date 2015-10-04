@@ -96,7 +96,10 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween',
 						this._coords.y - 1, 
 						FONT_SIZE * this._scale, 
 						this._label.colour,
-						'negative'
+						'negative',
+						'center',
+						false,
+						this._labelOpacity
 					);
 				}
 
@@ -211,6 +214,18 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween',
 		},
 		setLabel: function(label) {
 			this._label = label;
+			this._labelOpacity = 1;
+		},
+		removeLabel: function() {
+			this._tweenManager.add(new Tween({
+				target: this,
+				property: '_labelOpacity',
+				start: 1,
+				end: 0,
+				duration: CREATE_TIME
+			}).on('complete', function() {
+				this._label = null;
+			}.bind(this)).start());
 		},
 		setReal: function(real) {
 			this._real = real;

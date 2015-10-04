@@ -227,7 +227,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
  			if (piece.isa(Piece.Type.FOOTPRINT)) {
  				piece.setType(Piece.Type.SENTRY);
  			}
- 			piece.setLabel(null);
+ 			piece.removeLabel();
  		});
 
  		// Get the sound scheme for each player
