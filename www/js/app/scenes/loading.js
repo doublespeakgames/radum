@@ -41,7 +41,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
         _tweenManager.add(new Tween({
             target: circle,
             property: 'radius',
-            start: 0,
+            start: RADIUS_MIN,
             end: Graphics.width(),
             duration: 1000,
             stepping: Tween.BezierStepping(0.42, 0, 1, 1)
