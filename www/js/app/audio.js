@@ -51,7 +51,7 @@ define(['app/audio-providers/html-audio'], function(AudioProvider) {
 
         return Promise.all(loadPromises).then(function() {
             // TODO: Probably have to defer this pending some sort of user interaction
-            AudioProvider.play(_getPath(_theme), true);
+            AudioProvider.startMusic();
         });
     }
 

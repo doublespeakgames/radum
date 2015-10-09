@@ -5,15 +5,10 @@ define(['app/promise'], function(Promise) {
     ,   _music
     ;
     
-    function _createSoundSource(fileName, isMusic) {
+    function _createSoundSource(fileName) {
         var source = _context.createBufferSource();
         source.buffer = _audioBuffers[fileName];
         source.connect(_context.destination);
-        if(isMusic) {
-            // Loop
-            source.loop = true;
-            _music = source;
-        }
         
         return source;
     }
@@ -34,6 +29,19 @@ define(['app/promise'], function(Promise) {
                 });
             };
             request.send();
+        });
+    }
+
+    function _loadMusic(fileName) {
+        return new Promise(function(resolve, reject) {
+            _music = document.createElement('audio');
+            _music.addEventListener('canplay', function() { 
+                resolve(true); 
+            });
+            _music.setAttribute('src', fileName);
+            _music.setAttribute('loop', true);
+            _music.setAttribute('preload', 'auto');
+            _music.load();
         });
     }
     
@@ -65,9 +73,9 @@ define(['app/promise'], function(Promise) {
 
             function handleVisibilityChange() {
                 if (document[hidden]) {
-                    // TODO: Pause music
+                    _music.pause();
                 } else {
-                    // TODO: Resume music
+                    _music.play();
                 }
             }
 
@@ -76,24 +84,28 @@ define(['app/promise'], function(Promise) {
         
         load: function(fileName, isMusic) {
             if (isMusic) {
-                // TODO: Use an Audio element to efficiently stream music
-                return _loadSound(fileName);
+                // Use an HTML audio because it loads fast and can be paused
+                return _loadMusic(fileName);
             } else {
                 // Use the Web Audio API so we can layer sound effects
                 return _loadSound(fileName);
             }
         },
 
-        play: function(fileName, isMusic) {
+        play: function(fileName) {
             if(!_isSoundReady(fileName)) {
                 throw "Attempting to play unloaded file " + fileName;
             }
 
-            if (isMusic) {
-                music = fileName;
+            _createSoundSource(fileName).start();
+        },
+
+        startMusic: function() {
+            if (!_music) {
+                throw "Attempting to play unloaded music.";
             }
 
-            _createSoundSource(fileName, isMusic).start();
+            _music.play();
         }
     };
     return HtmlAudioProvider;
