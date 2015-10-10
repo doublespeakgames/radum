@@ -522,15 +522,17 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 			}
 		 },
 
-		 onActivate: function() {
+		 onActivate: function(tutorial) {
 		 	var engine = require('app/engine');
 		 	_toggleMenu(true);
 
 		 	if (_stateMachine.can('START')) {
 		 		_resetGame();
 		 		_stateMachine.go('START');
-		 		if (!engine.getAI()) {
+		 		if (!engine.getAI() && !tutorial) {
 		 			return ['stage-screen', 'PLAYER1'];
+		 		} else if(tutorial) {
+		 			_startTutorial();
 		 		}
 		 	}
 		 	else if (_activePlayer === 1 && engine.getAI() && _stateMachine.can('SCORE')) {
