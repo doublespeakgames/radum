@@ -8,13 +8,15 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 	function(E, Scene, Graphics, TouchPrompt, Audio) {
 
 	var _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'negative', true)
-	_scores = [0, 0]
+	,	_scores = [0, 0]
+	,	_gamesComplete = 0
 	;
 
 	return new Scene({
 		background: 'background',
 
 		onActivate: function(scores) {
+			_gamesComplete++;
 			E.fire('gameOver', {
 				scores: scores,
 				singlePlayer: !!require('app/engine').getAI()
@@ -35,7 +37,9 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 		},
 
 		onInputStart: function(coords) {
-			var engine = require('app/engine');
+			var engine = require('app/engine')
+			,	next
+			;
 
 			E.fire('gameStart', { 
 				fromTitle: false,
@@ -45,9 +49,15 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 			Audio.play('READY');
 
 			if (engine.getAI()) {
-				engine.changeScene('game-board');
+				next = engine.changeScene.bind(null, 'game-board');
 			} else {
-				engine.changeScene('stage-screen', 'PLAYER1');
+				next = engine.changeScene.bind(null, 'stage-screen', 'PLAYER1');
+			}
+
+			if (_gamesComplete % 3 === 0) {
+				engine.changeScene('nag', next);
+			} else {
+				next();
 			}
 		}
 	});

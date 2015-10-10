@@ -23,6 +23,9 @@ define(function() {
         },
         clear: function() {
             this.tweens.length = 0;
+        },
+        empty: function() {
+            return this.tweens.length === 0;
         }
     };
 

@@ -88,6 +88,9 @@ define(['app/util', 'app/bezier-easing'], function(Util, BezierEasing) {
             return t;
         };
     };
+    Tween.EaseOut = function() {
+        return Tween.BezierStepping(0, 0, .58, 1);
+    };
     Tween.BezierStepping = function(a, b, c, d) {
         var easing = BezierEasing(a, b, c, d);
         return function(t) {

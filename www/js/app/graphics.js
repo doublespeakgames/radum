@@ -286,6 +286,19 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		}
 	}
 
+	function _drawSvg(svg, x, y, size, colour) {
+        var src = 'data:image/svg+xml;utf8,' + 
+                svg.replace(/{fill}/g, _colour(colour))
+                   .replace(/{size}/g, _scaler.scaleValue(size))
+        ,   img = new Image()
+        ,	point = _scaler.scalePoint({x: x, y: y})
+        ;
+
+        img.src = src;
+        
+		_canvas.drawImage(img, point.x - (img.width / 2), point.y - (img.height / 2));
+	}
+
 	function _setAlpha(alpha) {
 		this._globalAlpha = alpha;
 		_canvas.globalAlpha = alpha;
@@ -343,6 +356,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
 		textWidth: _textWidth,
 		circle: _drawCircle,
 		rect: _drawRect,
+		svg: _drawSvg,
 		toggleMenu: _toggleMenu,
 		colour: _colour,
 		stretchedCircle: _drawStretchedCircle,
