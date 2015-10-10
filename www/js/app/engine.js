@@ -4,8 +4,8 @@
  *	(c) doublespeak games 2015	
  **/
 define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 
-		'app/ai/weighted', 'app/tutorial'], 
-		function(Util, EM, Graphics, SceneStore, Bot, Tutorial) {
+		'app/ai/weighted', 'app/tutorial', 'app/audio'], 
+		function(Util, EM, Graphics, SceneStore, Bot, Tutorial, Audio) {
 	
 	var CROSSFADE_TIME = 300
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
@@ -19,6 +19,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 	, _lastMove 
 	, _ai
 	, _keyTarget
+	, _inputReceived = false
 	;
 
 	function _setBot(bot) {
@@ -76,6 +77,13 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 			Tutorial.advance();
 		} else {
 			_activeScene.onInputStart(Graphics.getScaler().scaleCoords({x: e.pageX, y: e.pageY}), e);
+		}
+
+		if (!_inputReceived) {
+			// Mobile browsers won't play HTML audio unless it's
+			// started from user interaction. Make sure the music is playing.
+			Audio.startMusic();
+			_inputReceived = true;
 		}
 	}, 200);
 

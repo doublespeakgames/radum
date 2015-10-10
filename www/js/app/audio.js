@@ -50,13 +50,13 @@ define(['app/audio-providers/html-audio'], function(AudioProvider) {
         loadPromises.push(AudioProvider.load(_getPath(_theme), true));
 
         return Promise.all(loadPromises).then(function() {
-            // TODO: Probably have to defer this pending some sort of user interaction
             AudioProvider.startMusic();
         });
     }
 
     return {
         init: _init,
-        play: _play
+        play: _play,
+        startMusic: function() { AudioProvider.startMusic(); }
     };
 });
