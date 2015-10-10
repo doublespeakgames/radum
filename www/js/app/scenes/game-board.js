@@ -117,11 +117,6 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 				scoring.shift()
 
 				if (score.player) {
-					if (score.piece.pointValue() > 0) {
-						Audio.play('SCORE' + Math.ceil(Math.random() * 3));
-					} else {
-						Audio.play('SCORE' + Math.ceil(Math.random() * 3) + 3);
-					}
 					score.piece.pulse();
 				}
 
@@ -137,8 +132,10 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 						colour: 'secondary' + scoringPlayer
 					});
 					score.piece.resetLevel();
+					Audio.play('SCORE' + Math.ceil(Math.random() * 3));
 				} else if(score.player) {
 					score.piece.levelUp();
+					Audio.play('SCORE' + (Math.ceil(Math.random() * 3) + 3));
 				}
 
 				if (scoring.length === 0) {
