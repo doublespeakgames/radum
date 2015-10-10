@@ -38,7 +38,7 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 
 		onInputStart: function(coords) {
 			var engine = require('app/engine')
-			,	next
+			,	next = engine.changeScene.bind(null, 'game-board')
 			;
 
 			E.fire('gameStart', { 
@@ -47,12 +47,6 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 			});
 
 			Audio.play('READY');
-
-			if (engine.getAI()) {
-				next = engine.changeScene.bind(null, 'game-board');
-			} else {
-				next = engine.changeScene.bind(null, 'stage-screen', 'PLAYER1');
-			}
 
 			if (_gamesComplete % 3 === 0) {
 				engine.changeScene('nag', next);

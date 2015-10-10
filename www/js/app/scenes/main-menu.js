@@ -37,11 +37,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 			singlePlayer: singlePlayer 
 		});
 
-		if (singlePlayer) {
-			engine.changeScene('game-board', null, true);
-		} else {
-			engine.changeScene('stage-screen', 'PLAYER1', true);
-		}
+		engine.changeScene('game-board', null, true);
 	}
 
 	function _startTutorial() {
@@ -65,6 +61,10 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 					Graphics.rect(box.x, box.y, box.width, box.height, 'negative');
 				});
 			}
+		},
+
+		onActivate: function() {
+			require('app/engine').setBot(null);
 		},
 
 		onInputStart: function(coords) {

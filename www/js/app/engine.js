@@ -41,18 +41,31 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 	}
 
 	function _changeScene(sceneName, param, resetFirst) {
-
-		if (_activeScene) {
-			_lastScene = _activeScene;
-			_lastScene.onDeactivate();
-		}
+		var toScene
+		,	fromScene
+		,	forward
+		;
 
 		_sceneCrossfade = 0;
-		_activeScene = SceneStore.get(sceneName);
+		toScene = SceneStore.get(sceneName);
 		if (resetFirst) {
-			_activeScene.reset();
+			toScene.reset();
 		}
-		_activeScene.activate(param);
+
+		var forward = toScene.activate(param);
+		if (forward) {
+			toScene.onDeactivate();
+			return _changeScene.apply(null, forward);
+		}
+
+		if (_activeScene) {
+			fromScene = _activeScene;
+			fromScene.onDeactivate();
+		}
+
+		_activeScene = toScene;
+		_lastScene = fromScene;
+
 		return _activeScene;
 	}
 

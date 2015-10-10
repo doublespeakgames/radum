@@ -11,7 +11,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 
 
 	var SUBMIT_DELAY = 400
-	, MOVES = 6
+	, MOVES = 2//6
 	, MOVE_TRANSITION_DURATION = 200
 	, SCORE_DEADZONE = 5
 	, DEBUG_AI = false
@@ -19,6 +19,9 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 	;
 
 	var _stateMachine = new StateMachine({
+		STARTGAME: {
+			START: 'IDLE'
+		},
 		IDLE: {
 			PLAYPIECE: 'MOVED',
 			CLICKPIECE: 'PRIMED'
@@ -40,15 +43,12 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		},
 		PAUSED: {
 			UNPAUSE: 'UPKEEP',
-			GAMEOVER: 'ENDGAME'
+			GAMEOVER: 'STARTGAME'
 		},
 		UPKEEP: {
 			NEXTTURN: 'IDLE'
-		},
-		ENDGAME: {
-			NEWGAME: 'IDLE'
 		}
-	}, 'IDLE');
+	}, 'STARTGAME');
 
 	var _activePiece = null
 	, _playedPieces = []
@@ -523,15 +523,19 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 },
 
 		 onActivate: function() {
+		 	var engine = require('app/engine');
 		 	_toggleMenu(true);
 
-		 	if (_stateMachine.can('NEWGAME')) {
+		 	if (_stateMachine.can('START')) {
 		 		_resetGame();
-		 		_stateMachine.go('NEWGAME');
+		 		_stateMachine.go('START');
+		 		if (!engine.getAI()) {
+		 			return ['stage-screen', 'PLAYER1'];
+		 		}
 		 	}
-		 	else if (_activePlayer === 1 && require('app/engine').getAI() && _stateMachine.can('SCORE')) {
+		 	else if (_activePlayer === 1 && engine.getAI() && _stateMachine.can('SCORE')) {
 		 		// Get the bot to place a piece
-		 		_playedPieces.push(require('app/engine').getAI().play(_playedPieces, MOVES - _movesLeft[1]));
+		 		_playedPieces.push(engine.getAI().play(_playedPieces, MOVES - _movesLeft[1]));
 		 		_movesLeft[1]--;
 		 		_activePlayer = 1;
 		 		_score();
@@ -547,8 +551,8 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 	}
 
 	 		// Calculate AI scores
-	 		if (DEBUG_AI && require('app/engine').getAI()) {
-	 			require('app/engine').getAI().think(_playedPieces, MOVES - _movesLeft[1]);
+	 		if (DEBUG_AI && engine.getAI()) {
+	 			engine.getAI().think(_playedPieces, MOVES - _movesLeft[1]);
 	 		}
 		 },
 
@@ -563,7 +567,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 
 		 	if (_movesLeft[_getNextPlayer() - 1] === 0 && _stateMachine.can('GAMEOVER')) {
 	 			require('app/engine').changeScene('game-over', _scores);
-	 			_stateMachine.go('GAMEOVER')
+	 			_stateMachine.go('GAMEOVER');
 		 	}
 		 	else if (_stateMachine.can('UNPAUSE')) {
 		 		_stateMachine.go('UNPAUSE');

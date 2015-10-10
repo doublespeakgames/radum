@@ -16,7 +16,10 @@ define(['app/util', 'app/graphics'],
 		onActivate: function() {},
 		onDeactivate: function() {},
 		activate: function(param) {
-			this.onActivate(param);
+			var newScene = this.onActivate(param);
+			if (newScene) {
+				return newScene;
+			}
 			Graphics.setBackground(this.background);
 		},
 		doFrame: function(delta) {},
