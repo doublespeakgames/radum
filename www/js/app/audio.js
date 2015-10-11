@@ -57,6 +57,6 @@ define(['app/audio-providers/html-audio'], function(AudioProvider) {
     return {
         init: _init,
         play: _play,
-        startMusic: function() { AudioProvider.startMusic(); }
+        startMusic: function() { if (!_silent) AudioProvider.startMusic(); }
     };
 });

@@ -3,11 +3,14 @@ define(['app/promise'], function(Promise) {
     var _context = null
     ,   _audioBuffers = {}
     ,   _music
+    ,   _musicSource
+    ,   _musicStarted
+    ,   _musicPaused
     ;
     
-    function _createSoundSource(fileName) {
+    function _createSoundSource(buffer) {
         var source = _context.createBufferSource();
-        source.buffer = _audioBuffers[fileName];
+        source.buffer = buffer;
         source.connect(_context.destination);
         
         return source;
@@ -33,15 +36,8 @@ define(['app/promise'], function(Promise) {
     }
 
     function _loadMusic(fileName) {
-        return new Promise(function(resolve, reject) {
-            _music = document.createElement('audio');
-            _music.addEventListener('canplay', function() { 
-                resolve(true); 
-            });
-            _music.setAttribute('src', fileName);
-            _music.setAttribute('loop', true);
-            _music.setAttribute('preload', 'auto');
-            _music.load();
+        return _loadSound(fileName).then(function(){
+            _music = fileName;
         });
     }
     
@@ -72,10 +68,20 @@ define(['app/promise'], function(Promise) {
             }
 
             function handleVisibilityChange() {
+                if (!_music) { return; }
+
                 if (document[hidden]) {
-                    _music.pause();
+                    // Pause by recording our position in the music buffer
+                    // then destroying it.
+                    _musicPaused = (Date.now() - _musicStarted) / 1000;
+                    _musicPaused %= _audioBuffers[_music].duration;
+                    _musicSource.stop();
+                    _musicSource = null;
                 } else {
-                    _music.play();
+                    // Resume by starting a new music buffer, offset by the
+                    // pause position.
+                    HtmlAudioProvider.startMusic(_musicPaused);
+                    _musicPaused = null;
                 }
             }
 
@@ -85,6 +91,7 @@ define(['app/promise'], function(Promise) {
         load: function(fileName, isMusic) {
             if (isMusic) {
                 // Use an HTML audio because it loads fast and can be paused
+                // ... or maybe not, 'cause it sucks.
                 return _loadMusic(fileName);
             } else {
                 // Use the Web Audio API so we can layer sound effects
@@ -97,15 +104,19 @@ define(['app/promise'], function(Promise) {
                 throw "Attempting to play unloaded file " + fileName;
             }
 
-            _createSoundSource(fileName).start();
+            _createSoundSource(_audioBuffers[fileName]).start();
         },
 
-        startMusic: function() {
+        startMusic: function(offset) {
             if (!_music) {
                 throw "Attempting to play unloaded music.";
             }
-
-            _music.play();
+            offset = offset || 0;
+            if (_musicSource) { _musicSource.stop(); }
+            _musicSource = _createSoundSource(_audioBuffers[_music]);
+            _musicSource.loop = true;
+            _musicSource.start(0, offset);
+            _musicStarted = Date.now() - (offset * 1000);
         }
     };
     return HtmlAudioProvider;
