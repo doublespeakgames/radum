@@ -40,6 +40,23 @@ define(['app/promise'], function(Promise) {
             _music = fileName;
         });
     }
+
+    // Screw you, Apple.
+    function _makeItWorkOnIPhone() {
+
+        // create empty buffer
+        var buffer = _context.createBuffer(1, 1, 22050);
+        var source = _context.createBufferSource();
+        source.buffer = buffer;
+
+        // connect to output (your speakers)
+        source.connect(_context.destination);
+
+        // play the file
+        source.start();
+
+        document.body.removeEventListener('touchend', _makeItWorkOnIPhone);
+    }
     
     var HtmlAudioProvider = {
         init: function() {
@@ -86,6 +103,8 @@ define(['app/promise'], function(Promise) {
             }
 
             document.addEventListener(visibilityChange, handleVisibilityChange, false);
+
+            document.body.addEventListener('touchend', _makeItWorkOnIPhone);
         },
         
         load: function(fileName, isMusic) {

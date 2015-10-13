@@ -90,7 +90,8 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 		} else {
 			_activeScene.onInputStart(Graphics.getScaler().scaleCoords({x: e.pageX, y: e.pageY}), e);
 		}
-	}, 200);
+
+	}, 10);
 
 	var _handleInputStop = Util.timeGate(function(e) {
 		if (_inputLocked()) {
