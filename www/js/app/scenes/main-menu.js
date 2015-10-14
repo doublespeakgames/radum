@@ -44,7 +44,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 		E.fire('startTutorial', { 
 			fromTitle: true 
 		});
-		require('app/engine').changeScene('game-board', true);
+		require('app/engine').changeScene('game-board', true, true);
 	}
 
 	return new Scene({
