@@ -214,15 +214,19 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween',
 				mapping: Tween.IntegerMapping
 			}).start());
 		},
-		submit: function() {
+		submit: function(noAnimation) {
 			this._real = false;
-			this._tweenManager.add(new Tween({
-				target: this,
-				property: '_scale',
-				duration: CREATE_TIME,
-				start: 1,
-				end: 0				
-			}).start());
+			if (noAnimation) {
+				this._tweenManager.clear();
+			} else {
+				this._tweenManager.add(new Tween({
+					target: this,
+					property: '_scale',
+					duration: CREATE_TIME,
+					start: 1,
+					end: 0				
+				}).start());
+			}
 		},
 		reveal: function() {
 			this._real = true;

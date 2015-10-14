@@ -142,7 +142,7 @@ define(['app/util', 'app/piece'], function(Util, Piece) {
 			piece = new Piece(this._best.coords, Piece.Type.FOOTPRINT, this._playerNum);
 		}
 
-		piece.setReal(false);
+		piece.submit(true);
 		return piece;
 	}
 	

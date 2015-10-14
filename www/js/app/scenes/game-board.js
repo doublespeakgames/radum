@@ -554,7 +554,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 		_playedPieces.push(engine.getAI().play(_playedPieces, MOVES - _movesLeft[1]));
 		 		_movesLeft[1]--;
 		 		_activePlayer = 1;
-		 		_score();
+		 		setTimeout(_score, 0); // Let gameloop tick first so our animations don't look janky
 		 	}
 		 	else if (_activePlayer === 1 && _stateMachine.can('NEXTPLAYER')) {
 		 		_activePlayer = 2;
