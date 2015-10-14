@@ -11,14 +11,18 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 
 
 	var SUBMIT_DELAY = 400
-	, MOVES = 6
+	, MOVES = 2//6
 	, MOVE_TRANSITION_DURATION = 200
 	, SCORE_DEADZONE = 5
 	, DEBUG_AI = false
 	, TOUCH = 'ontouchstart' in document.documentElement
+	, SUBMIT_TIMEOUT = 300
 	;
 
 	var _stateMachine = new StateMachine({
+		STARTGAME: {
+			START: 'IDLE'
+		},
 		IDLE: {
 			PLAYPIECE: 'MOVED',
 			CLICKPIECE: 'PRIMED'
@@ -40,15 +44,12 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		},
 		PAUSED: {
 			UNPAUSE: 'UPKEEP',
-			GAMEOVER: 'ENDGAME'
+			GAMEOVER: 'STARTGAME'
 		},
 		UPKEEP: {
 			NEXTTURN: 'IDLE'
-		},
-		ENDGAME: {
-			NEWGAME: 'IDLE'
 		}
-	}, 'IDLE');
+	}, 'STARTGAME');
 
 	var _activePiece = null
 	, _playedPieces = []
@@ -60,6 +61,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 	, _movesLeft = [MOVES, MOVES]
 	, _paused = false
 	, _soundScheme = 1
+	, _submitTimeout = null
 	;
 
 	function _score() {
@@ -117,11 +119,6 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 				scoring.shift()
 
 				if (score.player) {
-					if (score.piece.pointValue() > 0) {
-						Audio.play('SCORE' + Math.ceil(Math.random() * 3));
-					} else {
-						Audio.play('SCORE' + Math.ceil(Math.random() * 3) + 3);
-					}
 					score.piece.pulse();
 				}
 
@@ -137,8 +134,10 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 						colour: 'secondary' + scoringPlayer
 					});
 					score.piece.resetLevel();
+					Audio.play('SCORE' + Math.ceil(Math.random() * 3));
 				} else if(score.player) {
 					score.piece.levelUp();
+					Audio.play('SCORE' + (Math.ceil(Math.random() * 3) + 3));
 				}
 
 				if (scoring.length === 0) {
@@ -439,6 +438,18 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 			}
 		}]);
 	}
+
+	function _doMove(coords) {
+
+		if (!_activePiece) { return; }
+
+		if (!Physics.doCollisions(coords, _playedPieces)) {
+ 			// Couldn't find a valid place
+ 			return;
+ 		}
+ 		_activePiece.move(coords);
+ 		_stateMachine.go('MOVE');
+	}
 	
 	return new Scene({
 		 background: 'negative',
@@ -525,16 +536,22 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 			}
 		 },
 
-		 onActivate: function() {
+		 onActivate: function(tutorial) {
+		 	var engine = require('app/engine');
 		 	_toggleMenu(true);
 
-		 	if (_stateMachine.can('NEWGAME')) {
+		 	if (_stateMachine.can('START')) {
 		 		_resetGame();
-		 		_stateMachine.go('NEWGAME');
+		 		_stateMachine.go('START');
+		 		if (!engine.getAI() && !tutorial) {
+		 			return ['stage-screen', 'PLAYER1'];
+		 		} else if(tutorial) {
+		 			_startTutorial();
+		 		}
 		 	}
-		 	else if (_activePlayer === 1 && require('app/engine').getAI() && _stateMachine.can('SCORE')) {
+		 	else if (_activePlayer === 1 && engine.getAI() && _stateMachine.can('SCORE')) {
 		 		// Get the bot to place a piece
-		 		_playedPieces.push(require('app/engine').getAI().play(_playedPieces, MOVES - _movesLeft[1]));
+		 		_playedPieces.push(engine.getAI().play(_playedPieces, MOVES - _movesLeft[1]));
 		 		_movesLeft[1]--;
 		 		_activePlayer = 1;
 		 		_score();
@@ -550,8 +567,8 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 	}
 
 	 		// Calculate AI scores
-	 		if (DEBUG_AI && require('app/engine').getAI()) {
-	 			require('app/engine').getAI().think(_playedPieces, MOVES - _movesLeft[1]);
+	 		if (DEBUG_AI && engine.getAI()) {
+	 			engine.getAI().think(_playedPieces, MOVES - _movesLeft[1]);
 	 		}
 		 },
 
@@ -564,9 +581,14 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 	// Pass the event on to the menu bar, if necessary
 		 	if (e && MenuBar.handleEvent(e)) { return; }
 
+		 	if (_submitTimeout) {
+		 		clearTimeout(_submitTimeout);
+		 		_submitTimeout = null;
+		 	}
+
 		 	if (_movesLeft[_getNextPlayer() - 1] === 0 && _stateMachine.can('GAMEOVER')) {
 	 			require('app/engine').changeScene('game-over', _scores);
-	 			_stateMachine.go('GAMEOVER')
+	 			_stateMachine.go('GAMEOVER');
 		 	}
 		 	else if (_stateMachine.can('UNPAUSE')) {
 		 		_stateMachine.go('UNPAUSE');
@@ -580,6 +602,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 	else if ((!Tutorial.isActive() || Tutorial.canSubmit()) && _stateMachine.can('CLICKPIECE') && 
 		 			_activePiece && _activePiece.contains(coords)) {
 		 		_stateMachine.go('CLICKPIECE');
+		 		_submitTimeout = setTimeout(_doMove.bind(null, coords), SUBMIT_TIMEOUT);
 		 	}
 		 	else if (_stateMachine.can('PLAYPIECE')) {
 		 		if (!Physics.doCollisions(coords, _playedPieces)) {
@@ -597,6 +620,12 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 },
 
 		 onInputStop: function()  {
+
+		 	if (_submitTimeout) {
+		 		clearTimeout(_submitTimeout);
+		 		_submitTimeout = null;
+		 	}
+
 		 	if (_stateMachine.can('SUBMIT')) {
 		 		// Submit the active piece
 		 		_activePiece.submit();
@@ -628,13 +657,14 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 },
 
 		 onInputMove: function(coords) {
+
+		 	if (_submitTimeout) {
+		 		clearTimeout(_submitTimeout);
+		 		_submitTimeout = null;
+		 	}
+
 		 	if (_stateMachine.can('MOVE') && _activePiece) {
-		 		if (!Physics.doCollisions(coords, _playedPieces)) {
-		 			// Couldn't find a valid place
-		 			return;
-		 		}
-		 		_activePiece.move(coords);
-		 		_stateMachine.go('MOVE');
+		 		_doMove(coords);
 		 	}
 		 },
 

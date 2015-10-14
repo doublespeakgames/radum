@@ -10,9 +10,8 @@ define(function() {
     };
 
     TweenManager.prototype = {
-        add: function(tween) {
-            this.tweens.push(tween);
-            return tween;
+        add: function() {
+            this.tweens.push.apply(this.tweens, arguments);
         },
         run: function(delta) {
             this.tweens.forEach(function(tween) {
@@ -24,6 +23,12 @@ define(function() {
         },
         busy: function() {
             return this.tweens.length > 0;
+        },
+        clear: function() {
+            this.tweens.length = 0;
+        },
+        empty: function() {
+            return this.tweens.length === 0;
         }
     };
 

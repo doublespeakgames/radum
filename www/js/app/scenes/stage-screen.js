@@ -72,11 +72,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/touch-prompt',
 
 		onInputStart: function(coords) {
 			Audio.play('READY');
-			if (_mode === 'MATCH') {
-				require('app/engine').changeScene('stage-screen', 'PLAYER1');
-			} else {
-				require('app/engine').changeScene('game-board');
-			}
+			require('app/engine').changeScene('game-board');
 		}
 	});
 });

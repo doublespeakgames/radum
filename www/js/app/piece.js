@@ -15,6 +15,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween',
 	, BORDER_WIDTH = 4
 	, FONT_SIZE = 36
 	, MAX_LEVEL = 3
+	, HOT_ZONE = 1
 	;
 
 	function Piece(coords, type, player) {
@@ -84,7 +85,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween',
 				Graphics.circle(
 					drawX, 
 					drawY, 
-					radius * this._scale, 
+					(radius - 1) * this._scale, 
 					colour, 
 					null,
 					null,
@@ -157,7 +158,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween',
 		},
 		contains: function(coords, pieceCollision) {
 			return Math.sqrt(Math.pow(this._coords.x - coords.x, 2) + 
-				Math.pow(this._coords.y - coords.y, 2)) <= (pieceCollision ? RADIUS * 2 : RADIUS * 0.75);
+				Math.pow(this._coords.y - coords.y, 2)) <= (pieceCollision ? RADIUS * 2 : RADIUS * HOT_ZONE);
 		},
 		getReboundVector: function(coords) {
 			var distance = Util.distance(this._coords, coords)

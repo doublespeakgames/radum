@@ -9,12 +9,14 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 
 	var _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'negative', true)
 	,	_scores = [0, 0]
+	,	_gamesComplete = 0
 	;
 
 	return new Scene({
 		background: 'background',
 
 		onActivate: function(scores) {
+			_gamesComplete++;
 			E.fire('gameOver', {
 				scores: scores,
 				singlePlayer: !!require('app/engine').getAI()
@@ -39,7 +41,9 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 		},
 
 		onInputStart: function(coords) {
-			var engine = require('app/engine');
+			var engine = require('app/engine')
+			,	next = engine.changeScene.bind(null, 'game-board')
+			;
 
 			E.fire('gameStart', { 
 				fromTitle: false,
@@ -49,13 +53,15 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 			Audio.play('READY');
 
 			if (Tournament.isComplete()) {
-				require('app/engine').changeScene('tournament-rank');
+				next = engine.changeScene.bind(null, 'tournament-rank');
 			} else if (Tournament.isActive()) {
-				require('app/engine').changeScene('stage-screen', 'MATCH');
-			} else if (engine.getAI()) {
-				engine.changeScene('game-board');
+				next = engine.changeScene.bind(null, 'stage-screen', 'MATCH');
+			}
+
+			if (_gamesComplete % 3 === 0) {
+				engine.changeScene('nag', next);
 			} else {
-				engine.changeScene('stage-screen', 'PLAYER1');
+				next();
 			}
 		}
 	});

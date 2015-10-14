@@ -52,20 +52,15 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 		});
 
 		Audio.play('SELECT');
-
-		if (singlePlayer) {
-			engine.changeScene('game-board', null, true);
-		} else {
-			engine.changeScene('stage-screen', 'PLAYER1', true);
-		}
+		engine.changeScene('game-board', null, true);
 	}
 
 	function _startTutorial() {
 		E.fire('startTutorial', { 
 			fromTitle: true 
 		});
-		Audio.play('SELECT');
-		require('app/engine').changeScene('game-board').startTutorial();
+		
+		require('app/engine').changeScene('game-board', true, true);
 	}
 
 	return new Scene({
@@ -83,6 +78,10 @@ define(['app/scenes/scene', 'app/graphics', 'app/event-manager',
 					Graphics.rect(box.x, box.y, box.width, box.height, 'negative');
 				});
 			}
+		},
+
+		onActivate: function() {
+			require('app/engine').setBot(null);
 		},
 
 		onInputStart: function(coords) {

@@ -4,8 +4,8 @@
  *	(c) doublespeak games 2015	
  **/
 define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 
-		'app/ai/weighted', 'app/tutorial', 'app/tournament'], 
-		function(Util, EM, Graphics, SceneStore, Bot, Tutorial, Tournament) {
+		'app/ai/weighted', 'app/tutorial', 'app/tournament', 'app/audio'], 
+		function(Util, EM, Graphics, SceneStore, Bot, Tutorial, Tournament, Audio) {
 	
 	var CROSSFADE_TIME = 300
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
@@ -44,18 +44,31 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 	}
 
 	function _changeScene(sceneName, param, resetFirst) {
-
-		if (_activeScene) {
-			_lastScene = _activeScene;
-			_lastScene.onDeactivate();
-		}
+		var toScene
+		,	fromScene
+		,	forward
+		;
 
 		_sceneCrossfade = 0;
-		_activeScene = SceneStore.get(sceneName);
+		toScene = SceneStore.get(sceneName);
 		if (resetFirst) {
-			_activeScene.reset();
+			toScene.reset();
 		}
-		_activeScene.activate(param);
+
+		var forward = toScene.activate(param);
+		if (forward) {
+			toScene.onDeactivate();
+			return _changeScene.apply(null, forward);
+		}
+
+		if (_activeScene) {
+			fromScene = _activeScene;
+			fromScene.onDeactivate();
+		}
+
+		_activeScene = toScene;
+		_lastScene = fromScene;
+
 		return _activeScene;
 	}
 
@@ -81,7 +94,8 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 		} else {
 			_activeScene.onInputStart(Graphics.getScaler().scaleCoords({x: e.pageX, y: e.pageY}), e);
 		}
-	}, 200);
+
+	}, 10);
 
 	var _handleInputStop = Util.timeGate(function(e) {
 		if (_inputLocked()) {

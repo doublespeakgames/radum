@@ -2,8 +2,8 @@
  *	Radum
  *	(c) doublespeak games 2015	
  **/
-require(['app/analytics', 'app/engine', 'app/graphics', 'app/audio'], 
-		function(Analytics, Engine, Graphics, Audio) {
+require(['app/analytics', 'app/engine', 'app/graphics', 'app/audio', 'app/event-manager'], 
+		function(Analytics, Engine, Graphics, Audio, E) {
            
    Promise.all([ 
     	Analytics.init(),
@@ -12,5 +12,5 @@ require(['app/analytics', 'app/engine', 'app/graphics', 'app/audio'],
         Audio.init({
             silent: window.location.search.indexOf('silent') >= 0
         })
-    ]).then(Engine.start);
+    ]).then(E.fire.bind(null, 'loading-complete'));
 });
