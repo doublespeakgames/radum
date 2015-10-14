@@ -13,10 +13,6 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
 		changeTheme: {
 			text: 'change theme',
 			action: function() { E.fire('changeTheme'); Graphics.changeTheme(); _initColours(); Graphics.setBackground('negative'); }
-		},
-		getApp: {
-			text: 'get the app',
-			action: function() {  var e = require('app/engine'); _toggleMenu(); e.changeScene('nag', e.changeScene.bind(null, 'main-menu')); }
 		}
 	};
 

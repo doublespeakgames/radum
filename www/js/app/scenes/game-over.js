@@ -9,14 +9,12 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 
 	var _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'negative', true)
 	,	_scores = [0, 0]
-	,	_gamesComplete = 0
 	;
 
 	return new Scene({
 		background: 'background',
 
 		onActivate: function(scores) {
-			_gamesComplete++;
 			E.fire('gameOver', {
 				scores: scores,
 				singlePlayer: !!require('app/engine').getAI()
@@ -58,11 +56,7 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 				next = engine.changeScene.bind(null, 'stage-screen', 'MATCH');
 			}
 
-			if (_gamesComplete % 3 === 0) {
-				engine.changeScene('nag', next);
-			} else {
-				next();
-			}
+			next();
 		}
 	});
 });
