@@ -16,6 +16,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 	, SCORE_DEADZONE = 5
 	, DEBUG_AI = false
 	, TOUCH = 'ontouchstart' in document.documentElement
+	, SUBMIT_TIMEOUT = 300
 	;
 
 	var _stateMachine = new StateMachine({
@@ -60,6 +61,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 	, _movesLeft = [MOVES, MOVES]
 	, _paused = false
 	, _soundScheme = 1
+	, _submitTimeout = null
 	;
 
 	function _score() {
@@ -436,6 +438,18 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 			}
 		}]);
 	}
+
+	function _doMove(coords) {
+
+		if (!_activePiece) { return; }
+
+		if (!Physics.doCollisions(coords, _playedPieces)) {
+ 			// Couldn't find a valid place
+ 			return;
+ 		}
+ 		_activePiece.move(coords);
+ 		_stateMachine.go('MOVE');
+	}
 	
 	return new Scene({
 		 background: 'negative',
@@ -567,6 +581,11 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 	// Pass the event on to the menu bar, if necessary
 		 	if (e && MenuBar.handleEvent(e)) { return; }
 
+		 	if (_submitTimeout) {
+		 		clearTimeout(_submitTimeout);
+		 		_submitTimeout = null;
+		 	}
+
 		 	if (_movesLeft[_getNextPlayer() - 1] === 0 && _stateMachine.can('GAMEOVER')) {
 	 			require('app/engine').changeScene('game-over', _scores);
 	 			_stateMachine.go('GAMEOVER');
@@ -583,6 +602,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 	else if ((!Tutorial.isActive() || Tutorial.canSubmit()) && _stateMachine.can('CLICKPIECE') && 
 		 			_activePiece && _activePiece.contains(coords)) {
 		 		_stateMachine.go('CLICKPIECE');
+		 		_submitTimeout = setTimeout(_doMove.bind(null, coords), SUBMIT_TIMEOUT);
 		 	}
 		 	else if (_stateMachine.can('PLAYPIECE')) {
 		 		if (!Physics.doCollisions(coords, _playedPieces)) {
@@ -600,6 +620,12 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 },
 
 		 onInputStop: function()  {
+
+		 	if (_submitTimeout) {
+		 		clearTimeout(_submitTimeout);
+		 		_submitTimeout = null;
+		 	}
+
 		 	if (_stateMachine.can('SUBMIT')) {
 		 		// Submit the active piece
 		 		_activePiece.submit();
@@ -631,13 +657,14 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 },
 
 		 onInputMove: function(coords) {
+
+		 	if (_submitTimeout) {
+		 		clearTimeout(_submitTimeout);
+		 		_submitTimeout = null;
+		 	}
+
 		 	if (_stateMachine.can('MOVE') && _activePiece) {
-		 		if (!Physics.doCollisions(coords, _playedPieces)) {
-		 			// Couldn't find a valid place
-		 			return;
-		 		}
-		 		_activePiece.move(coords);
-		 		_stateMachine.go('MOVE');
+		 		_doMove(coords);
 		 	}
 		 },
 
