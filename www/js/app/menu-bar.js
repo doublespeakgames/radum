@@ -16,7 +16,14 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
 		},
 		getApp: {
 			text: 'get the app',
-			action: function() {  var e = require('app/engine'); _toggleMenu(); e.changeScene('nag', e.changeScene.bind(null, 'main-menu')); }
+			action: function() {  
+				var e = require('app/engine'); 
+				_toggleMenu(); 
+				e.changeScene('nag', {
+					callback: e.changeScene.bind(null, 'main-menu'),
+					manual: true
+				}); 
+			}
 		}
 	};
 

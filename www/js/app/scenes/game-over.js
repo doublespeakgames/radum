@@ -49,7 +49,7 @@ define(['app/event-manager', 'app/scenes/scene', 'app/graphics',
 			Audio.play('READY');
 
 			if (_gamesComplete % 3 === 0) {
-				engine.changeScene('nag', next);
+				engine.changeScene('nag', { callback: next, manual: false });
 			} else {
 				next();
 			}

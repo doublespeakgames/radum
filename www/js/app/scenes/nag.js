@@ -4,8 +4,8 @@
  *  (c) doublespeak games 2015  
  **/
 define(['app/scenes/scene', 'app/graphics', 'app/touch-prompt', 'app/audio',
-        'app/tween-manager', 'app/tween'], 
-        function(Scene, Graphics, TouchPrompt, Audio, TweenManager, Tween) {
+        'app/tween-manager', 'app/tween', 'app/event-manager'], 
+        function(Scene, Graphics, TouchPrompt, Audio, TweenManager, Tween, E) {
     
     var DEBUG = false
     ,   BULLET_TOP = 280
@@ -29,13 +29,19 @@ define(['app/scenes/scene', 'app/graphics', 'app/touch-prompt', 'app/audio',
         y: LINKS_TOP - LINKS_SIZE / 2,
         width: LINKS_SIZE,
         height: LINKS_SIZE,
-        onTrigger: function() { console.log('APPLE'); }
+        onTrigger: function() { 
+            console.log('APPLE'); 
+            E.fire('storeClicked', { store: 'apple' });
+        }
     },{
         x: Graphics.width() / 2 + LINKS_OFFSET - LINKS_SIZE / 2,
         y: LINKS_TOP - LINKS_SIZE / 2,
         width: LINKS_SIZE,
         height: LINKS_SIZE,
-        onTrigger: function() { console.log('DROID'); }
+        onTrigger: function() { 
+            console.log('DROID'); 
+            E.fire('storeClicked', { store: 'android' });
+        }
     }];
 
     var _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'negative', true)
@@ -99,10 +105,12 @@ define(['app/scenes/scene', 'app/graphics', 'app/touch-prompt', 'app/audio',
             _callback();
         },
 
-        onActivate: function(callback) {
+        onActivate: function(opts) {
 
-            _callback = callback;
+            _callback = opts.callback;
             _bullets.length = 0;
+
+            E.fire('nag', { manual: opts.manual });
 
             BULLET_TEXT.forEach(function(text, index) {
                 var bullet = { text: text, progress: 0 }
