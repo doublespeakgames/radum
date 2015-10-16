@@ -218,6 +218,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween',
 			this._real = false;
 			if (noAnimation) {
 				this._tweenManager.clear();
+				this._scale = 0;
 			} else {
 				this._tweenManager.add(new Tween({
 					target: this,
