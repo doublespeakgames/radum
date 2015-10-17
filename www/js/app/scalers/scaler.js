@@ -11,8 +11,9 @@ define(['app/util'], function(Util) {
 	}
 
 	Scaler.prototype = {
-		setScale: function(scale) {
+		setScale: function(scale, pixelRatio) {
 			this._scale = scale;
+			this._pixelRatio = pixelRatio || 1;
 		},
 		scaleValue: function(value) { return value; },
 		scaleCoords: function(coords) { return coords; },

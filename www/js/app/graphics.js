@@ -43,7 +43,9 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	function _initCanvas() {
 
 		var widthScale = window.innerWidth / _options.width
-		, heightScale = window.innerHeight / _options.height		
+		,	heightScale = window.innerHeight / _options.height
+		,	devicePixelRatio
+		,	canvasPixelRatio
 		;
 
 		if (_suppressResize) {
@@ -59,8 +61,19 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 			_canvas.save();
 		}
 
+		devicePixelRatio = window.devicePixelRatio || 1,
+        canvasPixelRatio = _canvas.webkitBackingStorePixelRatio ||
+			               _canvas.mozBackingStorePixelRatio ||
+			               _canvas.msBackingStorePixelRatio ||
+			               _canvas.oBackingStorePixelRatio ||
+			               _canvas.backingStorePixelRatio || 1;
+        _pixelRatio = devicePixelRatio / canvasPixelRatio;
+
 		// Apply proper scale
-		_scaler.setScale(widthScale < heightScale ? widthScale : heightScale);
+		_scaler.setScale(
+			widthScale < heightScale ? widthScale : heightScale, 
+			_pixelRatio
+		);
 		_scaler.scaleCanvas(_canvasEl);
 	}
 
@@ -219,7 +232,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder, clipToBoard, fromBottom, fixedPos) {
 		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
 		if (fixedPos) {
-			point.y = _canvasEl.height - y;
+			point.y = _canvasEl.height / _pixelRatio - y;
 		}
 
 		alpha = alpha == null ? 1 : alpha;

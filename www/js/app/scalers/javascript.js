@@ -64,8 +64,9 @@ define(['app/scalers/scaler'], function(Scaler){
 			}
 
 			// Size and position the canvas
-			canvas.width = scaledWidth;
-			canvas.height = scaledHeight;
+			canvas.width = scaledWidth * this._pixelRatio;
+			canvas.height = scaledHeight * this._pixelRatio;
+			canvas.getContext("2d").setTransform(this._pixelRatio, 0, 0, this._pixelRatio, 0, 0);
 			_addStyleRule(_scaleSheet, '.radum-canvas', 
 				'width:' + scaledWidth + 'px;' + 
 				'height:' + scaledHeight + 'px;' +
