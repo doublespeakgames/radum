@@ -107,6 +107,7 @@ canvas {
     top: 5px;
     left: 5px;
     height: 30px;
+    width: 40px;
     cursor: pointer;
 }
 

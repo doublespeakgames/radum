@@ -4,8 +4,8 @@
  *	(c) doublespeak games 2015	
  **/
 define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 
-		'app/ai/weighted', 'app/tutorial', 'app/audio'], 
-		function(Util, EM, Graphics, SceneStore, Bot, Tutorial, Audio) {
+		'app/ai/weighted', 'app/tutorial', 'app/audio', 'app/promise'], 
+		function(Util, EM, Graphics, SceneStore, Bot, Tutorial, Audio, Promise) {
 	
 	var CROSSFADE_TIME = 300
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}

@@ -3,7 +3,7 @@
  *  abstraction for playing platform-agnostic audio
  *  (c) doublespeak games 2015  
  **/
-define(['app/audio-providers/html-audio'], function(AudioProvider) {
+define(['app/audio-providers/html-audio', 'app/promise'], function(AudioProvider, Promise) {
     
     var _silent = false;
     var _theme = 'theme';
@@ -38,12 +38,11 @@ define(['app/audio-providers/html-audio'], function(AudioProvider) {
 
     function _init(options) {
 
-        _silent = options.silent;
+        _silent = options.silent || !AudioProvider.init();
         if (_silent) {
             return Promise.resolve(true);
         }
 
-        AudioProvider.init();
         var loadPromises = Object.keys(_sfx).map(function(sfxKey) {
             return AudioProvider.load(_getPath(_sfx[sfxKey]));
         });

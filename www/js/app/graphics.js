@@ -3,8 +3,8 @@
  *	simple canvas-based graphics library
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'], 
-		function(Util, ThemeStore, ScalerStore, Tween) {
+define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/promise'], 
+		function(Util, ThemeStore, ScalerStore, Tween, Promise) {
 	
 	var COLOR_TRANSITION_REGEX = /(.+)->(.+);(\d+)/;
 
@@ -292,11 +292,11 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'],
         ;
 
         size = _scaler.scaleValue(size);
-        img.src = 'data:image/svg+xml;utf8,' + 
-                escape(svg.replace(/{fill}/g, _colour(colour))
-                   .replace(/{size}/g, size))
         img.height = size;
         img.width = size;
+        img.src = 'data:image/svg+xml,' + 
+                escape(svg.replace(/{fill}/g, _colour(colour))
+                   .replace(/{size}/g, size));
         
 		_canvas.drawImage(img, point.x - (img.width / 2), point.y - (img.height / 2));
 	}

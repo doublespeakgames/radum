@@ -105,6 +105,8 @@ define(['app/promise'], function(Promise) {
             document.addEventListener(visibilityChange, handleVisibilityChange, false);
 
             document.body.addEventListener('touchend', _makeItWorkOnIPhone);
+
+            return true;
         },
         
         load: function(fileName, isMusic) {
