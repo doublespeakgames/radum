@@ -3,25 +3,32 @@
  *	simple canvas-based graphics library
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, ThemeStore, ScalerStore) {
+define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween'], 
+		function(Util, ThemeStore, ScalerStore, Tween) {
 	
+	var COLOR_TRANSITION_REGEX = /(.+)->(.+);(\d+)/;
+
 	var _canvas
-	, _canvasEl
-	, _options = {
-		width: 480,
-		height: 640,
-		scalingMode: 'javascript'
-	}
-	, _scaler = null
-	, _theme = ThemeStore.getTheme()
-	, _globalAlpha = 1
+	, 	_canvasEl
+	, 	_options = {
+			width: 480,
+			height: 640,
+			scalingMode: 'javascript'
+		}
+	, 	_scaler = null
+	, 	_theme = ThemeStore.getTheme()
+	, 	_globalAlpha = 1
+	, 	_suppressResize = false
 	;
 
 	function _init(options) {
 		_options = Util.merge(_options, options);
 		_scaler = ScalerStore.get(_options.scalingMode || 'native');
+		_suppressResize = false;
 		_initCanvas();
 		window.addEventListener('resize', _initCanvas);
+
+		return Promise.resolve(true);
 	}
 
 	function _newCanvas(width, height, className) {
@@ -38,6 +45,10 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		var widthScale = window.innerWidth / _options.width
 		, heightScale = window.innerHeight / _options.height		
 		;
+
+		if (_suppressResize) {
+			return;
+		}
 
 		if (!_canvas) {
 			// Create the context to draw the game
@@ -58,7 +69,8 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 	}
 
 	function _clear() {
-		_canvas.clearRect(0, 0, _scaler.scaleValue(_options.width), _scaler.scaleValue(_options.height));
+		var p = _scaler.scalePoint({ x: _options.width, y: 0 }, true);
+		_canvas.clearRect(0, 0, p.x, p.y);
 	}
 
 	function _getWindowWidth() {
@@ -77,12 +89,74 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		return _options.height;
 	}
 
-	function _colour(cName) {
-		return _theme[cName];
+	function _blendColours(start, end, progress) {
+
+		if (progress === 0) {
+			return start;
+		}
+
+		if (progress === 100) {
+			return end;
+		}
+
+		start = _hexToRgb(start);
+		end = _hexToRgb(end);
+		progress /= 100;
+
+		return _rgbToHex(
+			start.r + Math.round((end.r - start.r) * progress),
+			start.g + Math.round((end.g - start.g) * progress),
+			start.b + Math.round((end.b - start.b) * progress)
+		);
 	}
 
-	function _drawText(text, x, y, fontSize, colour, borderColour, align) {
-		_canvas.globalAlpha = this._globalAlpha;
+	function _hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
+    function _componentToHex(c) {
+	    var hex = c.toString(16);
+	    return hex.length == 1 ? "0" + hex : hex;
+	}
+
+	function _rgbToHex(r, g, b) {
+	    return "#" + _componentToHex(r) + _componentToHex(g) + _componentToHex(b);
+	}
+
+	function _colour(cName) {
+		var colourInfo = cName.split(':')
+		,	colour = colourInfo[0]
+		,	themeIndex = colourInfo[1]
+		,	theme = themeIndex != null ? ThemeStore.getTheme(themeIndex) : _theme
+		,	transitionMatch = COLOR_TRANSITION_REGEX.exec(colour)
+		;
+
+		if (transitionMatch) {
+			return _blendColours(
+				theme[transitionMatch[1]], 
+				theme[transitionMatch[2]],
+				parseInt(transitionMatch[3], 10)
+			);
+		}
+
+		return theme[colour];
+	}
+
+	function _textWidth(text, fontSize) {
+		_canvas.font = fontSize + 'px montserratregular';
+		return _canvas.measureText(text).width;
+	}
+
+	function _drawText(text, x, y, fontSize, colour, borderColour, align, fromBottom, alpha) {
+		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
+		alpha = alpha == null ? 1 : alpha;
+
+		_canvas.globalAlpha = alpha * this._globalAlpha;
 		colour = colour || 'negative';
 		// General text rules
 		_canvas.textAlign = align || 'center';
@@ -90,18 +164,64 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		// _canvas.font = _scaler.scaleValue(fontSize) + 'px Arial, Helvetica, sans-serif';
 		_canvas.font = _scaler.scaleValue(fontSize) + 'px montserratregular';
 		if (borderColour) {
-			_canvas.fillStyle = _theme[borderColour];
+			_canvas.fillStyle = _colour(borderColour);
 			_canvas.fillText(text, _scaler.scaleValue(x + 2), _scaler.scaleValue(y + 2));
 		}
-		_canvas.fillStyle = _theme[colour];
-		_canvas.fillText(text, _scaler.scaleValue(x), _scaler.scaleValue(y));
+		_canvas.fillStyle = _colour(colour);
+		_canvas.fillText(text, point.x, point.y);
+
+		_canvas.globalAlpha = this._globalAlpha;
 	}
 
 	function _setBackground(colour) {
-		document.body.style.background = colour ? _theme[colour] : 'transparent';
+		document.body.style.background = colour ? _colour(colour) : 'transparent';
 	}
 
-	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder, clipToBoard) {
+	function _drawStretchedCircle(x, y, radius, stretchWidth, colour, alpha) {
+		var point = _scaler.scalePoint({x: x, y: y})
+		,   oY = radius * 0.1
+		,	oX = radius * 4.0 / 3.0
+		;
+
+		alpha = alpha == null ? 1 : alpha;
+		stretchWidth = _scaler.scaleValue(stretchWidth / 2);
+
+		_canvas.globalAlpha = alpha * this._globalAlpha;
+
+		_canvas.beginPath();
+		_canvas.moveTo(point.x - stretchWidth, point.y + radius);
+		_canvas.bezierCurveTo(
+			point.x - stretchWidth - oX,
+			point.y + radius - oY,
+			point.x - stretchWidth - oX,
+			point.y - radius + oY,
+			point.x - stretchWidth, 
+			point.y - radius
+		);
+		_canvas.lineTo(point.x + stretchWidth, point.y - radius);
+		_canvas.bezierCurveTo(
+			point.x + stretchWidth + oX, 
+			point.y - radius + oY,
+			point.x + stretchWidth + oX,
+			point.y + radius - oY,
+			point.x + stretchWidth, 
+			point.y + radius
+		);
+		_canvas.lineTo(point.x - stretchWidth, point.y + radius);
+		_canvas.closePath();
+
+		_canvas.fillStyle = _colour(colour);
+		_canvas.fill();
+
+		_canvas.globalAlpha = this._globalAlpha;
+	}
+
+	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder, clipToBoard, fromBottom, fixedPos) {
+		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
+		if (fixedPos) {
+			point.y = _canvasEl.height - y;
+		}
+
 		alpha = alpha == null ? 1 : alpha;
 		borderWidth = borderWidth == null ? 4 : borderWidth;
 
@@ -115,8 +235,8 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 				_canvas.globalCompositeOperation = 'source-atop';
 			}
 			_canvas.beginPath();
-			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(circleWidth), 0, 2 * Math.PI, false);
-			_canvas.fillStyle = _theme[colour];
+			_canvas.arc(point.x, point.y, _scaler.scaleValue(circleWidth), 0, 2 * Math.PI, false);
+			_canvas.fillStyle = _colour(colour);
 			_canvas.fill();
 			if (clipToBoard) {
 				_canvas.globalCompositeOperation = 'source-over';
@@ -130,9 +250,9 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 			}
 			borderRadius = borderRadius < 0 ? 0 : borderRadius;
 			_canvas.beginPath();
-			_canvas.arc(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(borderRadius), 0, 2 * Math.PI, false);
+			_canvas.arc(point.x, point.y, _scaler.scaleValue(borderRadius), 0, 2 * Math.PI, false);
 			_canvas.lineWidth = _scaler.scaleValue(borderWidth);
-			_canvas.strokeStyle = _theme[borderColour];
+			_canvas.strokeStyle = _colour(borderColour);
 			_canvas.stroke();
 			if (specialBorder) {
 				_canvas.globalCompositeOperation = 'source-over';
@@ -141,7 +261,9 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		_canvas.globalAlpha = this._globalAlpha;
 	}
 
-	function _drawRect(x, y, width, height, colour, fillColour, borderWidth, opacity) {
+	function _drawRect(x, y, width, height, colour, fillColour, borderWidth, opacity, fromBottom) {
+		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
+
 		colour = colour || 'negative';
 		borderWidth = borderWidth || 2;
 		opacity = opacity == null ? 1 : opacity;
@@ -149,17 +271,32 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 
 		if (fillColour) {
 			_canvas.beginPath();
-			_canvas.fillStyle = _theme[fillColour];
-			_canvas.fillRect(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(width), _scaler.scaleValue(height));
+			_canvas.fillStyle = _colour(fillColour);
+			_canvas.fillRect(point.x, point.y, _scaler.scaleValue(width), _scaler.scaleValue(height));
 		}
 
 		_canvas.globalAlpha = this._globalAlpha;
 
-		_canvas.beginPath();
-		_canvas.strokeStyle = _theme[colour];
-		_canvas.lineWidth = _scaler.scaleValue(borderWidth);
-		_canvas.rect(_scaler.scaleValue(x), _scaler.scaleValue(y), _scaler.scaleValue(width), _scaler.scaleValue(height));
-		_canvas.stroke();
+		if (colour !== 'transparent') {
+			_canvas.beginPath();
+			_canvas.strokeStyle = _colour(colour);
+			_canvas.lineWidth = _scaler.scaleValue(borderWidth);
+			_canvas.rect(point.x, point.y, _scaler.scaleValue(width), _scaler.scaleValue(height));
+			_canvas.stroke();
+		}
+	}
+
+	function _drawSvg(svg, x, y, size, colour) {
+        var src = 'data:image/svg+xml;utf8,' + 
+                svg.replace(/{fill}/g, _colour(colour))
+                   .replace(/{size}/g, _scaler.scaleValue(size))
+        ,   img = new Image()
+        ,	point = _scaler.scalePoint({x: x, y: y})
+        ;
+
+        img.src = src;
+        
+		_canvas.drawImage(img, point.x - (img.width / 2), point.y - (img.height / 2));
 	}
 
 	function _setAlpha(alpha) {
@@ -198,6 +335,10 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		_theme = ThemeStore.next(_theme);
 	}
 
+	function _doSuppressResize(suppress) {
+		_suppressResize = suppress;
+	}
+
 	return {
 		init: _init,
 		setAlpha: _setAlpha,
@@ -212,10 +353,14 @@ define(['app/util', 'app/theme-store', 'app/scaler-store'], function(Util, Theme
 		setBackground: _setBackground,
 		clipToBoard: _clipToBoard,
 		text: _drawText,
+		textWidth: _textWidth,
 		circle: _drawCircle,
 		rect: _drawRect,
+		svg: _drawSvg,
 		toggleMenu: _toggleMenu,
 		colour: _colour,
-		changeTheme: _changeTheme
+		stretchedCircle: _drawStretchedCircle,
+		changeTheme: _changeTheme,
+		suppressResize: _doSuppressResize
 	};
 });

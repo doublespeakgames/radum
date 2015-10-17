@@ -1,58 +1,59 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<!-- 
-			Radüm (v0.1)
-			====================
+    <head>
+        <!-- 
+            Radüm (v0.9)
+            ====================
 			
-			An abstract strategy game for two from doublespeak games.
-			http://www.doublespeakgames.com
+            An abstract strategy game for two from doublespeak games.
+            http://www.doublespeakgames.com
 
-			Code, game design and graphics by Michael Townsend
-			Aethetics inspired by Olo (http://www.ologame.com)
-			Mechanics inspired by Polarity (http://www.boardgamegeek.com/boardgame/380/polarity)
-		 -->
-		<title>Rad&uuml;m</title>
-		<meta name="viewport" content="width=device-width, user-scalable=no">
-		<meta itemprop="description" name="description" property="og:description" content="An abstract strategy game for two.">
-		<meta itemprop="image" property="og:image" content="img/badge.png" />
-		<meta itemprop="name" property="og:title" content="Rad&uuml;m" />
-		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="mobile-web-app-capable" content="yes" />
-		<link rel="shortcut icon" href="favicon.ico">
-		<link rel="image_src" href="img/badge.png" />
-		<link rel="apple-touch-icon" href="img/badge.png" />
-		<link rel="stylesheet" href="css/main.css">
-		<script type="text/javascript" data-main="js/app" src="js/lib/require.js"></script>
-		<script type="text/javascript">
-			window.onload = function tryStart() {
-				// This is to ensure fonts are loaded prior to initializing the screen
-				if (window.startGame) {
-					startGame();
-				} else {
-					setTimeout(tryStart, 50);
-				}
-			}
-		</script>
-	</head>
-	<body>
-		<div style="visibility:hidden;">This text is required or onload will fire before the font is loaded. Hooray!</div>
+            Code, game design and graphics by Michael Townsend
+            Audio by Andrew Thomas (http://soundcloud.com/tetranoise)
+            Logo by Grant Jeffery (http://rule2.the-back-row.com/)
+            Themes by Radiant Design (http://www.radiantdesignstudio.com/)
 
-
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   version="1.1"
-   viewBox="0 0 41.75 32.84375"
-   id="logo">
-  <path
-     d="m 18.024533,28.5722 c 2.532365,-2.243 5.064679,-4.4861 7.596993,-6.7292 4.907813,0 9.815625,0 14.723438,0 0,-6.8136 0,-13.6272 0,-20.4408 -12.976656,0 -25.953312,0 -38.9299676,0 0,6.8136 0,13.6272 0,20.4408 3.2917905,0 6.5835811,0 9.8753716,0 -0.643311,2.2431 -1.286622,4.4861 -1.9299604,6.7292 2.5323644,-2.243 5.0646784,-4.4861 7.5969924,-6.7292 0.999066,0 1.998131,0 2.997197,0 -0.643345,2.2431 -1.286691,4.4861 -1.930064,6.7292 z"
-     style="stroke-width:2.0;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none" />
-</svg>
-
-<!-- 102.842 -->
-	</body>
+            Aethetics inspired by Olo (http://www.ologame.com)
+            Mechanics inspired by Polarity (http://www.boardgamegeek.com/boardgame/380/polarity)
+         -->
+        <title>Rad&uuml;m</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <meta itemprop="description" name="description" property="og:description" content="An abstract strategy game for two.">
+        <meta itemprop="image" property="og:image" content="img/badge.png" />
+        <meta itemprop="name" property="og:title" content="Rad&uuml;m" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="shortcut icon" href="favicon.ico">
+        <link rel="image_src" href="img/badge.png" />
+        <link rel="apple-touch-icon" href="img/touch-icon.png" />
+        <link rel="stylesheet" href="css/main.css">
+        <script type="text/javascript" data-main="js/app" src="js/lib/require.js"></script>
+        <script type="text/javascript">
+            window.onload = function tryStart() {
+                // This is to ensure fonts are loaded prior to initializing the screen
+                if (window.startGame) {
+                	startGame();
+                } else {
+                	setTimeout(tryStart, 50);
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div style="visibility:hidden;">Radum is an abstract pass-and-play strategy game for two.</div>
+        <svg
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xmlns:cc="http://creativecommons.org/ns#"
+           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+           xmlns:svg="http://www.w3.org/2000/svg"
+           xmlns="http://www.w3.org/2000/svg"
+           version="1.1"
+           viewBox="0 0 41.75 32.84375"
+           id="logo">
+          <path
+             d="m 18.024533,28.5722 c 2.532365,-2.243 5.064679,-4.4861 7.596993,-6.7292 4.907813,0 9.815625,0 14.723438,0 0,-6.8136 0,-13.6272 0,-20.4408 -12.976656,0 -25.953312,0 -38.9299676,0 0,6.8136 0,13.6272 0,20.4408 3.2917905,0 6.5835811,0 9.8753716,0 -0.643311,2.2431 -1.286622,4.4861 -1.9299604,6.7292 2.5323644,-2.243 5.0646784,-4.4861 7.5969924,-6.7292 0.999066,0 1.998131,0 2.997197,0 -0.643345,2.2431 -1.286691,4.4861 -1.930064,6.7292 z"
+             style="stroke-width:2.0;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none" />
+        </svg>
+    </body>
 </html>

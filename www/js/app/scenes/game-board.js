@@ -3,11 +3,11 @@
  *  scene for the main game board
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine', 
-		'app/piece', 'app/touch-prompt', 'app/score-horizon', 'app/tutorial',
-		'app/physics', 'app/menu-bar'], 
-		function(Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, 
-			ScoreHorizon, Tutorial, Physics, MenuBar) {
+define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',  
+		'app/state-machine', 'app/piece', 'app/touch-prompt', 'app/score-horizon', 
+		'app/tutorial', 'app/physics', 'app/menu-bar', 'app/audio'], 
+		function(E, Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, 
+			ScoreHorizon, Tutorial, Physics, MenuBar, Audio) {
 
 
 	var SUBMIT_DELAY = 400
@@ -16,9 +16,13 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 	, SCORE_DEADZONE = 5
 	, DEBUG_AI = false
 	, TOUCH = 'ontouchstart' in document.documentElement
+	, SUBMIT_TIMEOUT = 300
 	;
 
 	var _stateMachine = new StateMachine({
+		STARTGAME: {
+			START: 'IDLE'
+		},
 		IDLE: {
 			PLAYPIECE: 'MOVED',
 			CLICKPIECE: 'PRIMED'
@@ -40,25 +44,24 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		},
 		PAUSED: {
 			UNPAUSE: 'UPKEEP',
-			GAMEOVER: 'ENDGAME'
+			GAMEOVER: 'STARTGAME'
 		},
 		UPKEEP: {
 			NEXTTURN: 'IDLE'
-		},
-		ENDGAME: {
-			NEWGAME: 'IDLE'
 		}
-	}, 'IDLE');
+	}, 'STARTGAME');
 
 	var _activePiece = null
 	, _playedPieces = []
 	, _moveTransition = 0
-	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: Graphics.height() - 70}, 'menu')
+	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'menu', true)
 	, _activePlayer = 1
 	, _scoreHorizons = []
 	, _scores = [0, 0]
 	, _movesLeft = [MOVES, MOVES]
 	, _paused = false
+	, _soundScheme = 1
+	, _submitTimeout = null
 	;
 
 	function _score() {
@@ -72,18 +75,22 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 
 		// Make the footprints real
 		_playedPieces.forEach(function(piece) {
-			if (piece.isa(Piece.Type.FOOTPRINT)) {			
-				piece.setReal(true);
-				piece.setActive(false);
+			if (piece.isa(Piece.Type.FOOTPRINT)) {
+				piece.reveal();
 				players.push(piece);
 			}
 		});
 
 		// Handle footprint collision
 		if (players[0].collidesWith(players[1])) {
-			players[0].savePos();
-			players[1].savePos();
+			var oldPos = [
+				players[0].getCoords(true),
+				players[1].getCoords(true)
+			];
 			Physics.doFootprintCollisions(players[0], players[1], _playedPieces);
+
+			players[0].animateMove(oldPos[0]);
+			players[1].animateMove(oldPos[1]);
 		}
 
 		// Score the board
@@ -127,8 +134,10 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 						colour: 'secondary' + scoringPlayer
 					});
 					score.piece.resetLevel();
+					Audio.play('SCORE' + Math.ceil(Math.random() * 3));
 				} else if(score.player) {
 					score.piece.levelUp();
+					Audio.play('SCORE' + (Math.ceil(Math.random() * 3) + 3));
 				}
 
 				if (scoring.length === 0) {
@@ -205,16 +214,27 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		return _activePlayer === 1 ? 2 : 1;
 	}
 
+	function _removeHorizons() {
+		_scoreHorizons.forEach(function(horizon) {
+			horizon.fadeout().then(function() {
+				_scoreHorizons.length = 0;
+			});
+		});
+	}
+
 	function _resetTurn() {
-		// Remove score horizons
- 		_scoreHorizons.length = 0;
+		_removeHorizons();
+
  		// Reset pieces for the next turn
  		_playedPieces.forEach(function(piece) {
  			if (piece.isa(Piece.Type.FOOTPRINT)) {
- 				piece.setType(Piece.Type.SENTRY);
+ 				piece.makeSentry();
  			}
- 			piece.setLabel(null);
+ 			piece.removeLabel();
  		});
+
+ 		// Get the sound scheme for each player
+ 		_soundScheme = Math.ceil(Math.random() * 4);
 
  		_stateMachine.go('NEXTTURN');
 	}
@@ -236,6 +256,12 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		Graphics.toggleMenu(active);
 	}
 
+	function _getSoundNumber(playerNum) {
+		if (playerNum == null) playerNum = _activePlayer;
+
+		return ((playerNum + _soundScheme) % 4) + 1;
+	}
+
 	function _startTutorial() {
 		Tutorial.init([{
 			message: ['Radüm is a game about', 'distance']
@@ -247,16 +273,23 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		}, {
 			message: ['Drag the piece to the', 'highlighted zone'],
 			advanceTest: function () { return Util.distance(_activePiece.getCoords(), {x:150,y:220}) < 15; },
-			onDraw: function() {
-				Graphics.circle(150, 220, 40, 'primary1', null, null, 0.3);
+			onActivate: function() {
+				this._horizon = new ScoreHorizon(1, { x: 150, y: 220 }, null, 40).stop().fadein();
+				_scoreHorizons.push(this._horizon);
+			},
+			onAdvance: function() {
+				var horizon = this._horizon;
+				horizon.fadeout().then(function() {
+					var idx = _scoreHorizons.indexOf(horizon);
+					if (idx >= 0) {
+						_scoreHorizons.splice(idx, 1);	
+					}
+				});
 			}
 		}, {
 			message: [(TOUCH ? 'Tap' : 'Click') + ' the piece', 'to confirm'],
 			advanceTest: function () { return !_activePiece && _moveTransition <= 0; },
 			reverseTest: function() { return _activePiece && Util.distance(_activePiece.getCoords(), {x:150,y:220}) >= 15; },
-			onDraw: function() {
-				Graphics.circle(150, 220, 40, 'primary1', null, null, 0.3);
-			},
 			canSubmit: true
 		}, {
 			message: ['Let\'s see where your', 'opponent played'],
@@ -281,16 +314,23 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		}, {
 			message: ['Put a piece in', 'the highlighted area'],
 			advanceTest: function () { return _activePiece != null && Util.distance(_activePiece.getCoords(), {x:120,y:300}) < 15; },
-			onDraw: function() {
-				Graphics.circle(120, 300, 40, 'primary1', null, null, 0.3);
+			onActivate: function() {
+				this._horizon = new ScoreHorizon(1, { x: 120, y: 300 }, null, 40).stop().fadein();
+				_scoreHorizons.push(this._horizon);
+			},
+			onAdvance: function() {
+				var horizon = this._horizon;
+				horizon.fadeout().then(function() {
+					var idx = _scoreHorizons.indexOf(horizon);
+					if (idx >= 0) {
+						_scoreHorizons.splice(idx, 1);	
+					}
+				});
 			}
 		}, {
 			message: ['Confirm the move'],
 			advanceTest: function() { return !_activePiece && _moveTransition <= 0; },
 			reverseTest: function() { return _activePiece && Util.distance(_activePiece.getCoords(), {x:120,y:300}) >= 15; },
-			onDraw: function() {
-				Graphics.circle(120, 300, 40, 'primary1', null, null, 0.3);
-			},
 			canSubmit: true
 		}, {
 			message: ['Sentries are triggered', 'by whomever plays', 'closer to them'],
@@ -329,18 +369,29 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 				_stateMachine.go('NEXTTURN');
 			}
 		}, {
+			advanceTest: function() {
+				return _scoreHorizons.length === 0;
+			}
+		}, {
 			message: ['Put a piece in', 'the highlighted area'],
 			advanceTest: function () { return _activePiece != null && Util.distance(_activePiece.getCoords(), {x:360,y:290}) < 15; },
-			onDraw: function() {
-				Graphics.circle(360, 290, 40, 'primary1', null, null, 0.3);
+			onActivate: function() {
+				this._horizon = new ScoreHorizon(1, { x: 360, y: 290 }, null, 40).stop().fadein();
+				_scoreHorizons.push(this._horizon);
+			},
+			onAdvance: function() {
+				var horizon = this._horizon;
+				horizon.fadeout().then(function() {
+					var idx = _scoreHorizons.indexOf(horizon);
+					if (idx >= 0) {
+						_scoreHorizons.splice(idx, 1);	
+					}
+				});
 			}
 		}, {
 			message: ['Confirm the move'],
 			advanceTest: function() { return !_activePiece && _moveTransition <= 0; },
 			reverseTest: function() { return _activePiece && Util.distance(_activePiece.getCoords(), {x:360,y:290}) >= 15; },
-			onDraw: function() {
-				Graphics.circle(360, 290, 40, 'primary1', null, null, 0.3);
-			},
 			canSubmit: true
 		}, {
 			message: ['Watch what happens', 'this time'],
@@ -386,6 +437,18 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 				_stateMachine.reset();
 			}
 		}]);
+	}
+
+	function _doMove(coords) {
+
+		if (!_activePiece) { return; }
+
+		if (!Physics.doCollisions(coords, _playedPieces)) {
+ 			// Couldn't find a valid place
+ 			return;
+ 		}
+ 		_activePiece.move(coords);
+ 		_stateMachine.go('MOVE');
 	}
 	
 	return new Scene({
@@ -473,19 +536,25 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 			}
 		 },
 
-		 onActivate: function() {
+		 onActivate: function(tutorial) {
+		 	var engine = require('app/engine');
 		 	_toggleMenu(true);
 
-		 	if (_stateMachine.can('NEWGAME')) {
+		 	if (_stateMachine.can('START')) {
 		 		_resetGame();
-		 		_stateMachine.go('NEWGAME');
+		 		_stateMachine.go('START');
+		 		if (!engine.getAI() && !tutorial) {
+		 			return ['stage-screen', 'PLAYER1'];
+		 		} else if(tutorial) {
+		 			_startTutorial();
+		 		}
 		 	}
-		 	else if (_activePlayer === 1 && require('app/engine').getAI() && _stateMachine.can('SCORE')) {
+		 	else if (_activePlayer === 1 && engine.getAI() && _stateMachine.can('SCORE')) {
 		 		// Get the bot to place a piece
-		 		_playedPieces.push(require('app/engine').getAI().play(_playedPieces, MOVES - _movesLeft[1]));
+		 		_playedPieces.push(engine.getAI().play(_playedPieces, MOVES - _movesLeft[1]));
 		 		_movesLeft[1]--;
 		 		_activePlayer = 1;
-		 		_score();
+		 		setTimeout(_score, 0); // Let gameloop tick first so our animations don't look janky
 		 	}
 		 	else if (_activePlayer === 1 && _stateMachine.can('NEXTPLAYER')) {
 		 		_activePlayer = 2;
@@ -498,8 +567,8 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 	}
 
 	 		// Calculate AI scores
-	 		if (DEBUG_AI && require('app/engine').getAI()) {
-	 			require('app/engine').getAI().think(_playedPieces, MOVES - _movesLeft[1]);
+	 		if (DEBUG_AI && engine.getAI()) {
+	 			engine.getAI().think(_playedPieces, MOVES - _movesLeft[1]);
 	 		}
 		 },
 
@@ -512,17 +581,28 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 	// Pass the event on to the menu bar, if necessary
 		 	if (e && MenuBar.handleEvent(e)) { return; }
 
+		 	if (_submitTimeout) {
+		 		clearTimeout(_submitTimeout);
+		 		_submitTimeout = null;
+		 	}
+
 		 	if (_movesLeft[_getNextPlayer() - 1] === 0 && _stateMachine.can('GAMEOVER')) {
 	 			require('app/engine').changeScene('game-over', _scores);
-	 			_stateMachine.go('GAMEOVER')
+	 			_stateMachine.go('GAMEOVER');
 		 	}
 		 	else if (_stateMachine.can('UNPAUSE')) {
-		 		require('app/engine').changeScene('stage-screen');
 		 		_stateMachine.go('UNPAUSE');
+		 		Audio.play('READY');
+		 		if (!require('app/engine').getAI()) {
+			 		require('app/engine').changeScene('stage-screen', 'PLAYER1');
+			 	} else {
+			 		this.onActivate();
+			 	}
 		 	}
 		 	else if ((!Tutorial.isActive() || Tutorial.canSubmit()) && _stateMachine.can('CLICKPIECE') && 
 		 			_activePiece && _activePiece.contains(coords)) {
 		 		_stateMachine.go('CLICKPIECE');
+		 		_submitTimeout = setTimeout(_doMove.bind(null, coords), SUBMIT_TIMEOUT);
 		 	}
 		 	else if (_stateMachine.can('PLAYPIECE')) {
 		 		if (!Physics.doCollisions(coords, _playedPieces)) {
@@ -531,6 +611,7 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 		}
 		 		if (!_activePiece) {
 		 			_activePiece = new Piece(coords, Piece.Type.FOOTPRINT, _activePlayer);
+		 			Audio.play('CHOICE' + _getSoundNumber());
 		 		} else {
 		 			_activePiece.move(coords);
 		 		}
@@ -539,20 +620,35 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 },
 
 		 onInputStop: function()  {
+
+		 	if (_submitTimeout) {
+		 		clearTimeout(_submitTimeout);
+		 		_submitTimeout = null;
+		 	}
+
 		 	if (_stateMachine.can('SUBMIT')) {
 		 		// Submit the active piece
-		 		_activePiece.setReal(false);
+		 		_activePiece.submit();
 		 		_moveTransition = 1;
 
 		 		_playedPieces.push(_activePiece);
 		 		_activePiece = null;
 		 		_movesLeft[_activePlayer - 1]--;
 		 		_stateMachine.go('SUBMIT');
+		 		Audio.play('CONFIRM' + _getSoundNumber());
 
 		 		if (!Tutorial.isActive()) {
+			 		E.fire('playPiece', {
+		 				playerNumber: _activePlayer		 			
+		 			});
 			 		setTimeout(function() {
-			 			require('app/engine').changeScene('stage-screen');
-			 		}, SUBMIT_DELAY);
+			 			if (require('app/engine').getAI()) {
+			 				this.onActivate();
+			 			} else {
+				 			require('app/engine').changeScene('stage-screen',
+				 				_activePlayer === 1 ? 'PLAYER2' : 'SCORE');
+				 		}
+			 		}.bind(this), SUBMIT_DELAY);
 			 	}
 		 	}
 		 	else if (_stateMachine.can('STOP')) {
@@ -561,13 +657,14 @@ define(['app/util', 'app/scenes/scene', 'app/graphics', 'app/state-machine',
 		 },
 
 		 onInputMove: function(coords) {
+
+		 	if (_submitTimeout) {
+		 		clearTimeout(_submitTimeout);
+		 		_submitTimeout = null;
+		 	}
+
 		 	if (_stateMachine.can('MOVE') && _activePiece) {
-		 		if (!Physics.doCollisions(coords, _playedPieces)) {
-		 			// Couldn't find a valid place
-		 			return;
-		 		}
-		 		_activePiece.move(coords);
-		 		_stateMachine.go('MOVE');
+		 		_doMove(coords);
 		 	}
 		 },
 

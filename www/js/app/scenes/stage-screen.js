@@ -3,61 +3,34 @@
  *	scene for the different stage notification prompts
  *	(c) doublespeak games 2015	
  **/
-define(['app/scenes/scene', 'app/graphics', 'app/state-machine', 'app/touch-prompt'], function(Scene, Graphics, StateMachine, TouchPrompt) {
-
-	var _stateMachine = new StateMachine({
-		PLAYER1: {
-			NEXT: 'PLAYER2',
-			NEXTVSCPU: 'SCORE'
-		},
-		PLAYER2: {
-			NEXT: 'SCORE'
-		},
-		SCORE: {
-			NEXT: 'PLAYER1'
-		}
-	}, 'PLAYER1');
+define(['app/scenes/scene', 'app/graphics', 
+		'app/touch-prompt', 'app/audio'], 
+		function(Scene, Graphics, TouchPrompt, Audio) {
 
 	var _frameText
-	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: Graphics.height() - 70}, 'negative');
+	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'negative', true);
 
-	function _setColours() {
+	function _setMode(mode) {
 		var background;
-		_stateMachine.choose({
-			PLAYER1: function() {
-				background = 'primary1';
+		switch(mode) {
+			case 'PLAYER1':
+				this.background = 'primary1';
 				_frameText = 'Player 1';
-			},
-			PLAYER2: function() {
-				background = 'primary2';
+				break;
+			case 'PLAYER2':
+				this.background = 'primary2';
 				_frameText = 'Player 2';
-			},
-			SCORE: function() {
-				background = 'background';
+				break;
+			case 'SCORE':
+				this.background = 'background';
 				_frameText = 'Score';
-			}
-		});
-		this.background = background;
+				break;
+		}
 	}
 
 	return new Scene({
 
-		reset: function() {
-			_stateMachine.reset();
-			_setColours.call(this);
-		},
-
-		onActivate: function() {
-			_setColours.call(this);
-		},
-
-		onDeactivate: function() {
-			if (require('app/engine').getAI() && _stateMachine.can('NEXTVSCPU')) {
-				_stateMachine.go('NEXTVSCPU');
-			} else {
-				_stateMachine.go('NEXT');
-			}
-		},
+		onActivate: _setMode,
 
 		doFrame: function(delta) {
 			_prompt.do(delta);
@@ -69,6 +42,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/state-machine', 'app/touch-prom
 		},
 
 		onInputStart: function(coords) {
+			Audio.play('READY');
 			require('app/engine').changeScene('game-board');
 		}
 	});

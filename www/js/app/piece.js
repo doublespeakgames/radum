@@ -3,16 +3,19 @@
  *	game-piece that can be played to the board
  *	(c) doublespeak games 2015	
  **/
-define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util, TouchPrompt) {
+define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween', 
+		'app/tween-manager'], 
+	function(Graphics, Util, TouchPrompt, Tween, TweenManager) {
 
 	var RADIUS = 25
 	, CREATE_TIME = 200
 	, MOVE_TIME = 400
-	, PULSE_TIME = 400
+	, PULSE_TIME = 200
 	, PULSE_MAX = 1.5
 	, BORDER_WIDTH = 4
 	, FONT_SIZE = 36
 	, MAX_LEVEL = 3
+	, HOT_ZONE = 1
 	;
 
 	function Piece(coords, type, player) {
@@ -20,14 +23,22 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		this._type = type;
 		this._player = player;
 		this._real = true;
-		this._transitionScale = 0.4;
-		this._transitionMove = 1;
+		this._scale = 0.4;
 		this._prompt = new TouchPrompt(coords, 'primary' + player);
 		this._active = type === Piece.Type.FOOTPRINT;
-		this._pulsing = 0;
 		this._label = null;
-		this._savedPos = null;
+		this._drawPos = null;
 		this._level = 1;
+		this._colourTransition = 100;
+		this._tweenManager = new TweenManager();
+
+		this._tweenManager.add(new Tween({
+			target: this,
+			property: '_scale',
+			start: 0.4,
+			end: 1,
+			duration: CREATE_TIME
+		}).start());
 	}
 
 	Piece.Type = {
@@ -39,54 +50,15 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 
 	Piece.prototype = {
 		do: function(delta) {
-			if (this._savedPos && (this._savedPos.x !== this._coords.x || this._savedPos.y !== this._coords.y)) {
-				if (this._transitionMove === 1) {
-					// Start the animation
-					this._transitionMove = 0;
-				}
-				this._transitionMove += delta / MOVE_TIME;
-				this._transitionMove = this._transitionMove > 1 ? 1 : this._transitionMove;
 
-				if (this._transitionMove === 1) {
-					this._savedPos = null;
-				}
-			}
-
-			if (this._pulsing > 0 && this._transitionScale < PULSE_MAX) {
-				this._transitionScale += delta / PULSE_TIME;
-				if (this._transitionScale >= PULSE_MAX) {
-					this._transitionScale = PULSE_MAX;
-					this._pulsing = -1;
-				}
-			}
-			else if(this._pulsing < 0 && this._transitionScale > 1 ) {
-				this._transitionScale -= delta / PULSE_TIME;
-				if (this._transitionScale <= 1) {
-					this._transitionScale = 1;
-					this._pulsing = 0;
-				}
-			}
-			else if (this._transitionScale < 1 && this._real) {
-				this._transitionScale += delta / CREATE_TIME;
-				this._transitionScale = this._transitionScale > 1 ? 1 : this._transitionScale;
-				if (this._transitionScale === 1 && this._realCallback) {
-					this._realCallback();
-					this._realCallback = null;
-				}
-			} 
-			else if (this._transitionScale > 0 && !this._real) {
-				this._transitionScale -= delta / CREATE_TIME;
-				this._transitionScale = this._transitionScale < 0 ? 0 : this._transitionScale;
-				if (this._transitionScale === 0 && this._realCallback) {
-					this._realCallback();
-					this._realCallback = null;
-				}
-			} else if (this._real && this._type === Piece.Type.FOOTPRINT && this._active) {
+			if (this._real && this._type === Piece.Type.FOOTPRINT && this._active) {
 				this._prompt.do(delta);
 			}
+
+			this._tweenManager.run(delta);
 		},
 		draw: function() {
-			if (this._real || (!this._real && this._transitionScale > 0)) {
+			if (this._real || (!this._real && this._scale > 0)) {
 				var colour, border, alpha = 1, radius = RADIUS, drawX, drawY;
 				switch(this._type) {
 					case Piece.Type.FOOTPRINT:
@@ -96,21 +68,15 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 						break;
 					case Piece.Type.SENTRY:
 						colour = 'primary' + this._player;
-						border = 'secondary' + this._player;
+						border = 'primary' + this._player + 
+							'->secondary' + this._player +
+							';' + this._colourTransition;
 						break;
-					case Piece.Type.TARGET:
-						colour = 'negative';
-						border = 'background';
-						break;
-					case Piece.Type.TARGET_FORECAST:
-						colour = 'negative';
-						alpha = 0.5;
-						break
 				}
 
-				if (this._savedPos && (this._savedPos.x !== this._coords.x || this._savedPos.y !== this._coords.y)) {
-					drawX = this._savedPos.x + this._transitionMove * (this._coords.x - this._savedPos.x);
-					drawY = this._savedPos.y + this._transitionMove * (this._coords.y - this._savedPos.y);
+				if (this._drawPos) {
+					drawX = this._drawPos.x;
+					drawY = this._drawPos.y;
 				} else {
 					drawX = this._coords.x;
 					drawY = this._coords.y;
@@ -119,10 +85,21 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 				Graphics.circle(
 					drawX, 
 					drawY, 
-					radius * this._transitionScale, 
+					(radius - 1) * this._scale, 
 					colour, 
+					null,
+					null,
+					this._colourTransition / 100,
+					this._type === Piece.Type.TARGET,
+					this._type === Piece.Type.TARGET_FORECAST);
+
+				Graphics.circle(
+					drawX, 
+					drawY, 
+					radius * this._scale, 
+					null, 
 					border,
-					BORDER_WIDTH * this._transitionScale,
+					BORDER_WIDTH * this._scale,
 					alpha,
 					this._type === Piece.Type.TARGET,
 					this._type === Piece.Type.TARGET_FORECAST);
@@ -132,9 +109,12 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 						this._label.text, 
 						this._coords.x - 1, 
 						this._coords.y - 1, 
-						FONT_SIZE * this._transitionScale, 
+						FONT_SIZE * this._scale, 
 						this._label.colour,
-						'negative'
+						'negative',
+						'center',
+						false,
+						this._labelOpacity
 					);
 				}
 
@@ -142,7 +122,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 					Graphics.circle(
 						drawX,
 						drawY,
-						radius * 0.7 * this._transitionScale,
+						radius * 0.7 * this._scale,
 						null,
 						'secondary' + this._player,
 						3
@@ -153,7 +133,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 					Graphics.circle(
 						drawX,
 						drawY,
-						radius * 0.4 * this._transitionScale,
+						radius * 0.4 * this._scale,
 						null,
 						'secondary' + this._player,
 						3
@@ -178,7 +158,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		},
 		contains: function(coords, pieceCollision) {
 			return Math.sqrt(Math.pow(this._coords.x - coords.x, 2) + 
-				Math.pow(this._coords.y - coords.y, 2)) <= (pieceCollision ? RADIUS * 2 : RADIUS / 2);
+				Math.pow(this._coords.y - coords.y, 2)) <= (pieceCollision ? RADIUS * 2 : RADIUS * HOT_ZONE);
 		},
 		getReboundVector: function(coords) {
 			var distance = Util.distance(this._coords, coords)
@@ -204,7 +184,14 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 			}
 			return {x: 0, y: 0};
 		},
-		getCoords: function() {
+		getCoords: function(clone) {
+			if (clone) {
+				return {
+					x: this._coords.x,
+					y: this._coords.y
+				};
+			}
+
 			return this._coords;
 		},
 		isReal: function() {
@@ -216,30 +203,92 @@ define(['app/graphics', 'app/util', 'app/touch-prompt'], function(Graphics, Util
 		ownerNumber: function() {
 			return this._player;
 		},
-		setType: function(type) {
-			this._type = type;
+		makeSentry: function() {
+			this._type = Piece.Type.SENTRY;
+			this._tweenManager.add(new Tween({
+				target: this,
+				property: '_colourTransition',
+				start: 0,
+				end: 100,
+				duration: CREATE_TIME,
+				mapping: Tween.IntegerMapping
+			}).start());
 		},
-		setReal: function(real, callback) {
-			this._real = real;
-			if (this._realCallback) {
-				this._realCallback(true);
+		submit: function(noAnimation) {
+			this._real = false;
+			if (noAnimation) {
+				this._tweenManager.clear();
+				this._scale = 0;
+			} else {
+				this._tweenManager.add(new Tween({
+					target: this,
+					property: '_scale',
+					duration: CREATE_TIME,
+					start: 1,
+					end: 0				
+				}).start());
 			}
-			this._realCallback = callback
 		},
-		setActive: function(active) {
-			this._active = this._type === Piece.Type.FOOTPRINT && active;
+		reveal: function() {
+			this._real = true;
+			this._active = false;
+			this._tweenManager.add(new Tween({
+				target: this,
+				property: '_scale',
+				duration: CREATE_TIME,
+				start: 0,
+				end: 1				
+			}).start());
 		},
 		setLabel: function(label) {
 			this._label = label;
+			this._labelOpacity = 1;
 		},
-		appear: function() {
-			this._transitionScale = 0;
+		removeLabel: function() {
+			this._tweenManager.add(new Tween({
+				target: this,
+				property: '_labelOpacity',
+				start: 1,
+				end: 0,
+				duration: CREATE_TIME
+			}).on('complete', function() {
+				this._label = null;
+			}.bind(this)).start());
+		},
+		setReal: function(real) {
+			this._real = real;
 		},
 		pulse: function() {
-			this._pulsing = 1;
+			this._tweenManager.add(new Tween({
+				// Bigger
+				target: this,
+				property: '_scale',
+				start: 1,
+				end: PULSE_MAX,
+				duration: PULSE_TIME
+			}).on('complete', function() {
+				this._tweenManager.add(new Tween({
+					// Smaller
+					target: this,
+					property: '_scale',
+					start: PULSE_MAX,
+					end: 1,
+					duration: PULSE_TIME
+				}).start());
+			}.bind(this)).start());
 		},
-		savePos: function() {
-			this._savedPos = { x: this._coords.x, y: this._coords.y };
+		animateMove: function(from) {
+			this._drawPos = from;
+			this._tweenManager.add(new Tween({
+				target: this,
+				property: '_drawPos',
+				start: this._drawPos,
+				end: this._coords,
+				duration: MOVE_TIME,
+				mapping: Tween.PointMapping
+			}).on('complete', function() {
+				this._drawPos = null;
+			}.bind(this)).start());
 		},
 		levelUp: function() {
 			this._level++;

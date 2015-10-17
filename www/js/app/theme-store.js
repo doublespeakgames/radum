@@ -62,10 +62,10 @@ define(function() {
 		negative: '#56626b',
 		menu: '#6c9380'
 	},{
-		primary1: '#ffc9b1',
-		secondary1: '#fde8de',
-		primary2: '#ffc6d7',
-		secondary2: '#fbe7ed',
+		primary1: '#fff68f',
+		secondary1: '#fffac7',
+		primary2: '#a2fbb9',
+		secondary2: '#d0fddc',
 		background:  '#78c0f9',
 		negative: '#fe86a4',
 		menu: '#ffffff'
@@ -87,13 +87,22 @@ define(function() {
 		menu: '#efecca'
 	}];
 
+	function _randomIndex() {
+		return Math.floor(Math.random() * themes.length);
+	}
+
 	return {
 		getTheme: function(themeIndex) {
 			if (themeIndex == null) {
-				themeIndex = Math.floor(Math.random() * themes.length);
+				themeIndex = _randomIndex();
 			}
 			return themes[themeIndex];
 		},
+
+		numThemes: function() {
+			return themes.length;
+		},
+
 		next: function(theme) {
 			var idx = themes.indexOf(theme);
 			if (idx < 0) {

@@ -3,8 +3,9 @@
  *	handles game loop and input
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app/ai/weighted', 'app/tutorial'], 
-		function(Util, EM, Graphics, SceneStore, Bot, Tutorial) {
+define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 
+		'app/ai/weighted', 'app/tutorial', 'app/audio'], 
+		function(Util, EM, Graphics, SceneStore, Bot, Tutorial, Audio) {
 	
 	var CROSSFADE_TIME = 300
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
@@ -17,6 +18,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 	, _lastScene
 	, _lastMove 
 	, _ai
+	, _keyTarget
 	;
 
 	function _setBot(bot) {
@@ -32,22 +34,37 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 			_activeScene.reset();
 		}
 
+		_ai = null;		
+
 		_changeScene('main-menu');
 	}
 
 	function _changeScene(sceneName, param, resetFirst) {
-
-		if (_activeScene) {
-			_lastScene = _activeScene;
-			_lastScene.onDeactivate();
-		}
+		var toScene
+		,	fromScene
+		,	forward
+		;
 
 		_sceneCrossfade = 0;
-		_activeScene = SceneStore.get(sceneName);
+		toScene = SceneStore.get(sceneName);
 		if (resetFirst) {
-			_activeScene.reset();
+			toScene.reset();
 		}
-		_activeScene.activate(param);
+
+		var forward = toScene.activate(param);
+		if (forward) {
+			toScene.onDeactivate();
+			return _changeScene.apply(null, forward);
+		}
+
+		if (_activeScene) {
+			fromScene = _activeScene;
+			fromScene.onDeactivate();
+		}
+
+		_activeScene = toScene;
+		_lastScene = fromScene;
+
 		return _activeScene;
 	}
 
@@ -73,7 +90,8 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 		} else {
 			_activeScene.onInputStart(Graphics.getScaler().scaleCoords({x: e.pageX, y: e.pageY}), e);
 		}
-	}, 200);
+
+	}, 10);
 
 	var _handleInputStop = Util.timeGate(function(e) {
 		if (_inputLocked()) {
@@ -100,8 +118,42 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 		_activeScene.onInputMove(Graphics.getScaler().scaleCoords({x: e.clientX, y: e.clientY}), e);
 	}, 10);
 
-	function _init() {
+	function _handleKeyDown(e) {
+		e = e || window.event;
+		e.preventDefault();
 
+		/** 
+		 * Note: This does not work in Chrome on Android due to a horrible bug
+		 * https://code.google.com/p/chromium/issues/detail?id=118639
+		 **/
+		_activeScene.onKeyDown && _activeScene.onKeyDown(e.keyCode);
+
+		if (DEBUG) {
+			console.log('KEYDOWN: ' + e.keyCode);
+		}
+
+		return false;
+	}
+
+	function _toggleKeyboard(open) {
+
+		if (_keyTarget) {
+			Graphics.suppressResize(false);
+			document.body.removeChild(_keyTarget);
+			_keyTarget.blur();
+			_keyTarget = null;
+		}
+
+		if (open) {
+			Graphics.suppressResize(true);
+			_keyTarget = document.createElement('input');
+			_keyTarget.className = 'keyboard_target';
+			document.body.appendChild(_keyTarget);
+			_keyTarget.focus();
+		}
+	}
+
+	function _init() {
 		if (DEBUG && window.location.search.indexOf('spawn') >= 0) {
 			// Divert to the spawning pools!
 			require(['app/spawning-pool/engine'], function(SpawningPool) {
@@ -110,17 +162,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 			return;
 		}
 
-		// Start everything
-		Graphics.init();
-		document.body.addEventListener('touchstart', _handleInputStart);
-		document.body.addEventListener('mousedown', _handleInputStart);
-		document.body.addEventListener('touchend', _handleInputStop);
-		document.body.addEventListener('mouseup', _handleInputStop);
-		document.body.addEventListener('touchmove', _handleInputMove);
-		document.body.addEventListener('mousemove', _handleInputMove);
-
-		// Start the main menu
-		_changeScene('main-menu');
+		_changeScene('loading');
 
 		// Start the gameloop
 		(function gameLoop() {
@@ -130,6 +172,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 
 			Util.requestFrame(gameLoop);
 			Graphics.clear();
+			
 			if (_lastScene) {
 				Graphics.setAlpha(1 - _sceneCrossfade);
 				_lastScene.doFrame(delta);
@@ -157,12 +200,31 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 'app
 
 			_lastFrame = time;
 		})();
+
+		return Promise.resolve(true);
+	}
+
+	function _start() {
+
+		// Start everything
+		document.body.addEventListener('touchstart', _handleInputStart);
+		document.body.addEventListener('mousedown', _handleInputStart);
+		document.body.addEventListener('touchend', _handleInputStop);
+		document.body.addEventListener('mouseup', _handleInputStop);
+		document.body.addEventListener('touchmove', _handleInputMove);
+		document.body.addEventListener('mousemove', _handleInputMove);
+		document.body.addEventListener('keydown', _handleKeyDown);
+
+		// Start the main menu
+		_changeScene('main-menu');
 	}
 
 	return {
 		init: _init,
+		start: _start,
 		reset: _reset,
 		changeScene: _changeScene,
+		toggleKeyboard: _toggleKeyboard,
 		setBot: _setBot,
 		getAI: _getAI,
 		BOARD_CENTER: BOARD_CENTER,

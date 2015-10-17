@@ -3,16 +3,27 @@
  *  in-game options menu
  *	(c) doublespeak games 2015	
  **/
-define(['app/util', 'app/graphics'], function(Util, Graphics) {
+define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Graphics) {
 	
 	var MENU_ITEMS = {
 		mainMenu: {
 			text: 'main menu',
-			action: function() { require('app/engine').reset(); _toggleMenu(); }
+			action: function() { E.fire('quitToMain'); require('app/engine').reset(); _toggleMenu(); }
 		},
 		changeTheme: {
 			text: 'change theme',
-			action: function() { Graphics.changeTheme(); _initColours(); Graphics.setBackground('negative'); }
+			action: function() { E.fire('changeTheme'); Graphics.changeTheme(); _initColours(); Graphics.setBackground('negative'); }
+		},
+		getApp: {
+			text: 'get the app',
+			action: function() {  
+				var e = require('app/engine'); 
+				_toggleMenu(); 
+				e.changeScene('nag', {
+					callback: e.changeScene.bind(null, 'main-menu'),
+					manual: true
+				}); 
+			}
 		}
 	};
 
@@ -104,6 +115,9 @@ define(['app/util', 'app/graphics'], function(Util, Graphics) {
 	}
 
 	function _toggleMenu() {
+		E.fire('toggleMenu', {
+			opening: _menuBar.className !== 'open'
+		});
 		_menuBar.className = _menuBar.className === 'open' ? '' : 'open';
 	}
 
@@ -118,6 +132,7 @@ define(['app/util', 'app/graphics'], function(Util, Graphics) {
 		} else if(e.target.getAttribute('id') === 'logo' || 
 			(e.target.parentNode && e.target.parentNode.getAttribute('id') === 'logo')) {
 			window.open('http://www.doublespeakgames.com');
+			E.fire('logoPressed');
 			return true;
 		}
 		return false;
