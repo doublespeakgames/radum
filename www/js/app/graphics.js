@@ -82,7 +82,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	}
 
 	function _clear() {
-		var p = _scaler.scalePoint({ x: _options.width, y: 0 }, true);
+		var p = _scaler.getCorner();
 		_canvas.clearRect(0, 0, p.x, p.y);
 	}
 
@@ -166,19 +166,21 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	}
 
 	function _drawText(text, x, y, fontSize, colour, borderColour, align, fromBottom, alpha) {
-		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
+		var point = _scaler.scalePoint({x: x, y: y}, fromBottom)
+		,	bPoint = _scaler.scalePoint({x: x + 2, y: y + 2}, fromBottom)
+		;
+
 		alpha = alpha == null ? 1 : alpha;
 
 		_canvas.globalAlpha = alpha * this._globalAlpha;
 		colour = colour || 'negative';
 		// General text rules
 		_canvas.textAlign = align || 'center';
-		_canvas.textBaseline = 'middle';
-		// _canvas.font = _scaler.scaleValue(fontSize) + 'px Arial, Helvetica, sans-serif';
+		_canvas.textBaseline = 'middle';		
 		_canvas.font = _scaler.scaleValue(fontSize) + 'px montserratregular';
 		if (borderColour) {
 			_canvas.fillStyle = _colour(borderColour);
-			_canvas.fillText(text, _scaler.scaleValue(x + 2), _scaler.scaleValue(y + 2));
+			_canvas.fillText(text, bPoint.x, bPoint.y);
 		}
 		_canvas.fillStyle = _colour(colour);
 		_canvas.fillText(text, point.x, point.y);
@@ -324,10 +326,12 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 		, boardRadius = require('app/engine').BOARD_RADIUS
 		;
 
+		boardCenter = _scaler.scalePoint(boardCenter);
+
 		_canvas.beginPath();
 		_canvas.arc(
-			_scaler.scaleValue(boardCenter.x), 
-			_scaler.scaleValue(boardCenter.y),
+			boardCenter.x, 
+			boardCenter.y,
 			_scaler.scaleValue(boardRadius),
 			0, 2 * Math.PI, false
 		);

@@ -94,6 +94,10 @@ define(['app/scalers/scaler'], function(Scaler){
 			}
 
 			return point;
+		},
+
+		getCorner: function() {
+			return this.scalePoint({ x: require('app/graphics').width(), y: 0 }, true);
 		}
 	});
 });
