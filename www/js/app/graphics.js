@@ -13,7 +13,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	, 	_options = {
 			width: 480,
 			height: 640,
-			scalingMode: 'javascript'
+			scalingMode: 'cocoon'
 		}
 	, 	_scaler = null
 	, 	_theme = ThemeStore.getTheme()
@@ -232,10 +232,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	}
 
 	function _drawCircle(x, y, radius, colour, borderColour, borderWidth, alpha, specialBorder, clipToBoard, fromBottom, fixedPos) {
-		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
-		if (fixedPos) {
-			point.y = _canvasEl.height / _pixelRatio - y;
-		}
+		var point = _scaler.scalePoint({x: x, y: y}, fromBottom, fixedPos);
 
 		alpha = alpha == null ? 1 : alpha;
 		borderWidth = borderWidth == null ? 4 : borderWidth;
