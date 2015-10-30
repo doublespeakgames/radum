@@ -55,7 +55,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 		if (!_canvas) {
 			// Create the context to draw the game
 			_canvasEl = _newCanvas(_options.width, _options.height, 'radum-canvas');
-			document.body.appendChild(_canvasEl);
+			document.body.insertBefore(_canvasEl, document.body.firstChild);
 			_canvas = _canvasEl.getContext('2d');
 
 			_canvas.save();

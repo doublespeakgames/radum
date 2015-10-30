@@ -35,10 +35,6 @@ define(['app/scalers/scaler'], function(Scaler){
             canvas.height = _scaledHeight;
 
             console.log('CANVAS SIZE: ' + canvas.width + ', ' + canvas.height);
-
-            canvas.style.position = 'absolute';
-            canvas.style.top = '0';
-            canvas.style.left = '0';
         },
 
         scaleValue: function(value) { 
