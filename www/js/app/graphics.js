@@ -13,7 +13,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	, 	_options = {
 			width: 480,
 			height: 640,
-			scalingMode: 'cocoon'
+			scalingMode: 'javascript'
 		}
 	, 	_scaler = null
 	, 	_theme = ThemeStore.getTheme()
