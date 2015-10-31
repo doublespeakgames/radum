@@ -1,3 +1,8 @@
+/**
+ *  HTML Audio Provider
+ *  interface for playing audio using the Web Audio Api
+ *  (c) doublespeak games 2015  
+ **/
 define(['app/promise'], function(Promise) {
     
     var _context = null
