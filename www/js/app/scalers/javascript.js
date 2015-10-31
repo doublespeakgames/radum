@@ -7,6 +7,8 @@ define(['app/scalers/scaler'], function(Scaler){
 
 	var _scaleSheet = null
 	, _verticalPad = 0
+	, _scaledWidth
+	, _scaledHeight
 	; 
 
 	function _addStyleRule(sheet, selector, rules) {
@@ -39,10 +41,10 @@ define(['app/scalers/scaler'], function(Scaler){
 		},
 
 		scaleCanvas: function(canvas) {
-			var G = require('app/graphics')
-			, scaledHeight = Math.round(G.height() * this._scale)
-			, scaledWidth = Math.round(G.width() * this._scale)
-			;
+			var G = require('app/graphics');
+
+			_scaledHeight = Math.round(G.height() * this._scale)
+			_scaledWidth = Math.round(G.width() * this._scale)
 
 			if (!_scaleSheet) {
 				// Create stylesheet
@@ -57,23 +59,23 @@ define(['app/scalers/scaler'], function(Scaler){
 			}
 
 			// Pad the vertical to the bottom
-			if (G.realHeight() > scaledHeight) {
-				_verticalPad = scaledHeight;
-				scaledHeight += (G.realHeight() - scaledHeight) / 2;
-				_verticalPad = scaledHeight - _verticalPad;
+			if (G.realHeight() > _scaledHeight) {
+				_verticalPad = _scaledHeight;
+				_scaledHeight += (G.realHeight() - _scaledHeight) / 2;
+				_verticalPad = _scaledHeight - _verticalPad;
 			}
 
 			// Size and position the canvas
-			canvas.width = scaledWidth * this._pixelRatio;
-			canvas.height = scaledHeight * this._pixelRatio;
+			canvas.width = _scaledWidth * this._pixelRatio;
+			canvas.height = _scaledHeight * this._pixelRatio;
 			canvas.getContext("2d").setTransform(this._pixelRatio, 0, 0, this._pixelRatio, 0, 0);
 			_addStyleRule(_scaleSheet, '.radum-canvas', 
-				'width:' + scaledWidth + 'px;' + 
-				'height:' + scaledHeight + 'px;' +
+				'width:' + _scaledWidth + 'px;' + 
+				'height:' + _scaledHeight + 'px;' +
 				'position: absolute;' +
-				'top: ' + (G.realHeight() - scaledHeight) + 'px;' +
+				'top: ' + (G.realHeight() - _scaledHeight) + 'px;' +
 				'left: 50%;' +
-				'margin-left: -' + Math.round(scaledWidth / 2) + 'px;'
+				'margin-left: -' + Math.round(_scaledWidth / 2) + 'px;'
 			);
 		},
 
@@ -81,7 +83,14 @@ define(['app/scalers/scaler'], function(Scaler){
 			return Math.round(value * this._scale); 
 		},
 
-		scalePoint: function(point, fromBottom) {
+		scalePoint: function(point, fromBottom, fixed) {
+
+			if (fixed) {
+				return {
+					x: this.scaleValue(point.x),
+					y: _scaledHeight - point.y
+				};
+			}
 
 			point = {
 				x: this.scaleValue(point.x),
