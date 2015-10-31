@@ -29,24 +29,38 @@ define(['app/audio-providers/html-audio', 'app/promise'], function(AudioProvider
 
     function _play(file) {
         if (_silent) { return; }
-        AudioProvider.play(_getPath(_sfx[file]));
+        AudioProvider.play(_getPath(_sfx[file], _format));
     }
 
-    function _getPath(file) {
-        return 'audio/' + file + '.mp3'; // TODO: select Ogg or Mp3
+    function _getFormat() {
+        var a = new Audio();
+        if (!!(a.canPlayType && a.canPlayType('audio/ogg;').replace(/no/, ''))) {
+            return "ogg";
+        }
+        if (!!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''))) {
+            return "mp3";
+        }
+        // Shouldn't need more formats
+        return null;
+    }
+
+    function _getPath(file, format) {
+        return 'audio/' + file + '.' + format;
     }
 
     function _init(options) {
 
-        _silent = options.silent || !AudioProvider.init();
+        _format = _getFormat();
+
+        _silent = options.silent || !_format || !AudioProvider.init();
         if (_silent) {
             return Promise.resolve(true);
         }
 
         var loadPromises = Object.keys(_sfx).map(function(sfxKey) {
-            return AudioProvider.load(_getPath(_sfx[sfxKey]));
+            return AudioProvider.load(_getPath(_sfx[sfxKey], _format));
         });
-        loadPromises.push(AudioProvider.load(_getPath(_theme), true));
+        loadPromises.push(AudioProvider.load(_getPath(_theme, _format), true));
 
         return Promise.all(loadPromises).then(function() {
             AudioProvider.startMusic();
