@@ -253,7 +253,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		if (!MenuBar.isLoaded()) {
 			MenuBar.init();
 		}
-		Graphics.toggleMenu(active);
+		MenuBar.toggle(active);
 	}
 
 	function _getSoundNumber(playerNum) {

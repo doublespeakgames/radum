@@ -81,9 +81,14 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 		return _scaler;
 	}
 
-	function _clear() {
+	function _clear(colour) {
 		var p = _scaler.getCorner();
-		_canvas.clearRect(0, 0, p.x, p.y);
+		if (colour) {
+			_canvas.fillStyle = _colour(colour);
+			_canvas.fillRect(0, 0, p.x, p.y);
+		} else {
+			_canvas.clearRect(0, 0, p.x, p.y);
+		}
 	}
 
 	function _getWindowWidth() {

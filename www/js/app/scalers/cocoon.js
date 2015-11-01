@@ -5,8 +5,6 @@
  **/
 define(['app/scalers/scaler'], function(Scaler){
 
-    var TARGET_SCALE = 2; // Bring us to 1280x960 native
-
     var _verticalPad = 0
     ,   _horizontalPad = 0
     ,   _scaledHeight
@@ -16,6 +14,8 @@ define(['app/scalers/scaler'], function(Scaler){
     return new Scaler({
         scaleCoords: function(coords) {
             var G = require('app/graphics');
+
+            coords.y -= _verticalPad / 2;
 
             // Scale
             coords.x /= this._scale;
@@ -27,8 +27,16 @@ define(['app/scalers/scaler'], function(Scaler){
         scaleCanvas: function(canvas) {
             var G = require('app/graphics');
 
-            _scaledHeight = Math.round(G.height() * this._scale)
-            _scaledWidth = Math.round(G.width() * this._scale)
+            var aspectRatio = G.realHeight() / G.realWidth();
+
+            _scaledHeight = Math.round(G.height() * this._scale);
+            _scaledWidth = Math.round(G.width() * this._scale);
+
+            var targetHeight = _scaledWidth * aspectRatio;
+            if (targetHeight > _scaledHeight) {
+                _verticalPad = targetHeight - _scaledHeight;
+                _scaledHeight += _verticalPad;
+            }
 
             // Size and position the canvas
             canvas.width = _scaledWidth;
@@ -44,24 +52,21 @@ define(['app/scalers/scaler'], function(Scaler){
         scalePoint: function(point, fromBottom, fixed) {
 
             if (fixed) {
-                console.log('FIXED ' + this.scaleValue(point.x) + ', ' + (_scaledHeight - point.y));
                 return {
                     x: this.scaleValue(point.x),
                     y: _scaledHeight - point.y
                 };
+            } else if (fromBottom) {
+                return {
+                    x: this.scaleValue(point.x),
+                    y: _scaledHeight - this.scaleValue(point.y)
+                };
+            } else {
+                return {
+                    x: this.scaleValue(point.x),
+                    y: this.scaleValue(point.y) + (_verticalPad / 2)
+                };
             }
-
-            point = {
-                x: this.scaleValue(point.x),
-                y: this.scaleValue(point.y)
-            };
-
-            // Support positioning from bottom
-            if (fromBottom) {
-                point.y = _scaledHeight - _verticalPad - point.y;
-            }
-
-            return point;
         },
 
         getCorner: function() {
@@ -69,9 +74,10 @@ define(['app/scalers/scaler'], function(Scaler){
             return this.scalePoint({ x: G.width(), y: 0 }, true);
         },
 
-        setScale: function() {
-            // Disregard everything and do what I want!
-            this._scale = TARGET_SCALE;
+        setScale: function(scale, pixelRatio) {
+            // Let CocoonJS handle the scaling, but make sure we're
+            // accounting for pixel density.
+            this._scale = pixelRatio;
         }
     });
 });

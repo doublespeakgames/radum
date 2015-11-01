@@ -5,6 +5,8 @@
  **/
 define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Graphics) {
 	
+	var CANVAS_MENU = false;
+
 	var MENU_ITEMS = {
 		mainMenu: {
 			text: 'main menu',
@@ -32,6 +34,11 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
 	;
 
 	function _init() {
+		if (CANVAS_MENU) {
+			// TODO
+			return;
+		}
+
 		// Create menu
 		var el = _menuBar = document.createElement('div');
 		el.setAttribute('id', 'menu-bar');
@@ -142,6 +149,13 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
 		init: _init,
 		isLoaded: function() {
 			return !!_menuBar;
+		},
+		toggle: function(active) {
+			if (CANVAS_MENU) {
+				// TODO
+				return;
+			}
+			require('app/graphics').toggleMenu(active);
 		},
 		handleEvent: _handleEvent
 	};
