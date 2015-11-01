@@ -80,12 +80,8 @@ define(['app/scalers/scaler'], function(Scaler){
             this._scale = pixelRatio;
         },
 
-        scaledWidth: function() {
-            return _scaledWidth;
-        },
-
-        scaledHeight: function() {
-            return _scaledHeight;
+        logicalBottom: function() {
+            return require('app/graphics').height() + (_verticalPad / this._scale);
         }
     });
 });
