@@ -78,6 +78,14 @@ define(['app/scalers/scaler'], function(Scaler){
             // Let CocoonJS handle the scaling, but make sure we're
             // accounting for pixel density.
             this._scale = pixelRatio;
+        },
+
+        scaledWidth: function() {
+            return _scaledWidth;
+        },
+
+        scaledHeight: function() {
+            return _scaledHeight;
         }
     });
 });

@@ -1,11 +1,9 @@
 /**
- *	Menu Bar
- *  in-game options menu
+ *	HTML Menu Bar
+ *  in-game options menu, built in HTML/CSS
  *	(c) doublespeak games 2015	
  **/
 define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Graphics) {
-	
-	var CANVAS_MENU = false;
 
 	var MENU_ITEMS = {
 		mainMenu: {
@@ -34,10 +32,6 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
 	;
 
 	function _init() {
-		if (CANVAS_MENU) {
-			// TODO
-			return;
-		}
 
 		// Create menu
 		var el = _menuBar = document.createElement('div');
@@ -128,7 +122,7 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
 		_menuBar.className = _menuBar.className === 'open' ? '' : 'open';
 	}
 
-	function _handleEvent(e) {
+	function _handleEvent(coords, e) {
 		if (e.target.getAttribute('id') === 'burger-button' || 
 			(e.target.parentNode && e.target.parentNode.getAttribute('id') === 'burger-button')) {
 			_toggleMenu();
@@ -147,14 +141,12 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
 
 	return {
 		init: _init,
+		do: function() { /* Nothing */ },
+		draw: function() { /* Nothing */},
 		isLoaded: function() {
 			return !!_menuBar;
 		},
 		toggle: function(active) {
-			if (CANVAS_MENU) {
-				// TODO
-				return;
-			}
 			require('app/graphics').toggleMenu(active);
 		},
 		handleEvent: _handleEvent

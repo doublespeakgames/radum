@@ -5,7 +5,7 @@
  **/
 define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',  
 		'app/state-machine', 'app/piece', 'app/touch-prompt', 'app/score-horizon', 
-		'app/tutorial', 'app/physics', 'app/menu-bar', 'app/audio'], 
+		'app/tutorial', 'app/physics', 'app/menu-bar/html', 'app/audio'], 
 		function(E, Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, 
 			ScoreHorizon, Tutorial, Physics, MenuBar, Audio) {
 
@@ -488,6 +488,9 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 	if (_stateMachine.is('PAUSED')) {
 			 	_prompt.do(delta);
 			}
+
+			// Advance the menu bar
+			MenuBar.do(delta);
 		 },
 
 		 drawFrame: function() {
@@ -534,6 +537,9 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 	if (_stateMachine.is('PAUSED') && !Tutorial.isActive()) {
 			 	_prompt.draw();
 			}
+
+			// Draw the menu bar
+			MenuBar.draw();
 		 },
 
 		 onActivate: function(tutorial) {
@@ -579,7 +585,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 		 onInputStart: function(coords, e) {
 
 		 	// Pass the event on to the menu bar, if necessary
-		 	if (e && MenuBar.handleEvent(e)) { return; }
+		 	if (e && MenuBar.handleEvent(coords, e)) { return; }
 
 		 	if (_submitTimeout) {
 		 		clearTimeout(_submitTimeout);

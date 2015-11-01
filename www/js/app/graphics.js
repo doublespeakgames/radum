@@ -19,6 +19,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	, 	_theme = ThemeStore.getTheme()
 	, 	_globalAlpha = 1
 	, 	_suppressResize = false
+	,	_scaleDisabled = false
 	;
 
 	function _init(options) {
@@ -171,8 +172,9 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	}
 
 	function _drawText(text, x, y, fontSize, colour, borderColour, align, fromBottom, alpha) {
-		var point = _scaler.scalePoint({x: x, y: y}, fromBottom)
-		,	bPoint = _scaler.scalePoint({x: x + 2, y: y + 2}, fromBottom)
+		var point = _scaleDisabled ? {x: x, y: y} : _scaler.scalePoint({x: x, y: y}, fromBottom)
+		,	bPoint = _scaleDisabled ? {x: x + 2, y: y + 2} : _scaler.scalePoint({x: x + 2, y: y + 2}, fromBottom)
+		,	fontSize = _scaleDisabled ? fontSize : _scaler.scaleValue(fontSize)
 		;
 
 		alpha = alpha == null ? 1 : alpha;
@@ -182,7 +184,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 		// General text rules
 		_canvas.textAlign = align || 'center';
 		_canvas.textBaseline = 'middle';		
-		_canvas.font = _scaler.scaleValue(fontSize) + 'px montserratregular';
+		_canvas.font = fontSize + 'px montserratregular';
 		if (borderColour) {
 			_canvas.fillStyle = _colour(borderColour);
 			_canvas.fillText(text, bPoint.x, bPoint.y);
@@ -198,13 +200,14 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	}
 
 	function _drawStretchedCircle(x, y, radius, stretchWidth, colour, alpha) {
-		var point = _scaler.scalePoint({x: x, y: y})
+		var point = _scaleDisabled ? {x: x, y: y} :  _scaler.scalePoint({x: x, y: y})
+		,	radius = _scaleDisabled ? radius : _scaler.scaleValue(radius)
+		,	stretchWidth = _scaleDisabled ? stretchWidth / 2 : _scaler.scaleValue(stretchWidth / 2)
 		,   oY = radius * 0.1
 		,	oX = radius * 4.0 / 3.0
 		;
 
 		alpha = alpha == null ? 1 : alpha;
-		stretchWidth = _scaler.scaleValue(stretchWidth / 2);
 
 		_canvas.globalAlpha = alpha * this._globalAlpha;
 
@@ -279,17 +282,21 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	}
 
 	function _drawRect(x, y, width, height, colour, fillColour, borderWidth, opacity, fromBottom) {
-		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
+		var point = _scaleDisabled ? {x: x, y: y} : _scaler.scalePoint({x: x, y: y}, fromBottom);
+
+		width = _scaleDisabled ? width : _scaler.scaleValue(width);
+		height = _scaleDisabled ? height : _scaler.scaleValue(height);
+		borderWidth = borderWidth || 2;
+		borderWidth = _scaleDisabled ? borderWidth : _scaler.scaleValue(borderWidth);
 
 		colour = colour || 'negative';
-		borderWidth = borderWidth || 2;
 		opacity = opacity == null ? 1 : opacity;
 		_canvas.globalAlpha = this._globalAlpha * opacity;
 
 		if (fillColour) {
 			_canvas.beginPath();
 			_canvas.fillStyle = _colour(fillColour);
-			_canvas.fillRect(point.x, point.y, _scaler.scaleValue(width), _scaler.scaleValue(height));
+			_canvas.fillRect(point.x, point.y, width, height);
 		}
 
 		_canvas.globalAlpha = this._globalAlpha;
@@ -297,8 +304,8 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 		if (colour !== 'transparent') {
 			_canvas.beginPath();
 			_canvas.strokeStyle = _colour(colour);
-			_canvas.lineWidth = _scaler.scaleValue(borderWidth);
-			_canvas.rect(point.x, point.y, _scaler.scaleValue(width), _scaler.scaleValue(height));
+			_canvas.lineWidth = borderWidth;
+			_canvas.rect(point.x, point.y, width, height);
 			_canvas.stroke();
 		}
 	}
@@ -382,6 +389,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 		colour: _colour,
 		stretchedCircle: _drawStretchedCircle,
 		changeTheme: _changeTheme,
-		suppressResize: _doSuppressResize
+		suppressResize: _doSuppressResize,
+		disableScaling: function(disabled) { _scaleDisabled = disabled; }
 	};
 });

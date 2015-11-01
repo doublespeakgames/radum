@@ -107,6 +107,10 @@ define(['app/scalers/scaler'], function(Scaler){
 
 		getCorner: function() {
 			return this.scalePoint({ x: require('app/graphics').width(), y: 0 }, true);
+		},
+
+		logicalBottom: function() {
+			return require('app/graphics').height() + (_verticalPad / this._scale);
 		}
 	});
 });
