@@ -19,7 +19,6 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	, 	_theme = ThemeStore.getTheme()
 	, 	_globalAlpha = 1
 	, 	_suppressResize = false
-	,	_scaleDisabled = false
 	;
 
 	function _init(options) {
@@ -172,9 +171,9 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	}
 
 	function _drawText(text, x, y, fontSize, colour, borderColour, align, fromBottom, alpha) {
-		var point = _scaleDisabled ? {x: x, y: y} : _scaler.scalePoint({x: x, y: y}, fromBottom)
-		,	bPoint = _scaleDisabled ? {x: x + 2, y: y + 2} : _scaler.scalePoint({x: x + 2, y: y + 2}, fromBottom)
-		,	fontSize = _scaleDisabled ? fontSize : _scaler.scaleValue(fontSize)
+		var point = _scaler.scalePoint({x: x, y: y}, fromBottom)
+		,	bPoint = _scaler.scalePoint({x: x + 2, y: y + 2}, fromBottom)
+		,	fontSize = _scaler.scaleValue(fontSize)
 		;
 
 		alpha = alpha == null ? 1 : alpha;
@@ -199,10 +198,10 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 		document.body.style.background = colour ? _colour(colour) : 'transparent';
 	}
 
-	function _drawStretchedCircle(x, y, radius, stretchWidth, colour, alpha) {
-		var point = _scaleDisabled ? {x: x, y: y} :  _scaler.scalePoint({x: x, y: y})
-		,	radius = _scaleDisabled ? radius : _scaler.scaleValue(radius)
-		,	stretchWidth = _scaleDisabled ? stretchWidth / 2 : _scaler.scaleValue(stretchWidth / 2)
+	function _drawStretchedCircle(x, y, radius, stretchWidth, colour, alpha, fromBottom) {
+		var point = _scaler.scalePoint({x: x, y: y}, fromBottom)
+		,	radius = _scaler.scaleValue(radius)
+		,	stretchWidth = _scaler.scaleValue(stretchWidth / 2)
 		,   oY = radius * 0.1
 		,	oX = radius * 4.0 / 3.0
 		;
@@ -282,12 +281,12 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 	}
 
 	function _drawRect(x, y, width, height, colour, fillColour, borderWidth, opacity, fromBottom) {
-		var point = _scaleDisabled ? {x: x, y: y} : _scaler.scalePoint({x: x, y: y}, fromBottom);
+		var point = _scaler.scalePoint({x: x, y: y}, fromBottom);
 
-		width = _scaleDisabled ? width : _scaler.scaleValue(width);
-		height = _scaleDisabled ? height : _scaler.scaleValue(height);
+		width = _scaler.scaleValue(width);
+		height = _scaler.scaleValue(height);
 		borderWidth = borderWidth || 2;
-		borderWidth = _scaleDisabled ? borderWidth : _scaler.scaleValue(borderWidth);
+		borderWidth = _scaler.scaleValue(borderWidth);
 
 		colour = colour || 'negative';
 		opacity = opacity == null ? 1 : opacity;
@@ -389,7 +388,6 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 		colour: _colour,
 		stretchedCircle: _drawStretchedCircle,
 		changeTheme: _changeTheme,
-		suppressResize: _doSuppressResize,
-		disableScaling: function(disabled) { _scaleDisabled = disabled; }
+		suppressResize: _doSuppressResize
 	};
 });

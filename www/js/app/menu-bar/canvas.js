@@ -9,7 +9,7 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
     , OPEN_HEIGHT = 400
     , BORDER_WIDTH = 4
     , DEBUG = false
-    , MENU_TOP = 80
+    , MENU_TOP = 120
     , MENU_LINEHEIGHT = 90
     , MENU_FONTSIZE = 30
     , MENU_ITEMS = {
@@ -58,48 +58,43 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
 
     function _burger() {
         return {
-            x: Graphics.getScaler().scaleValue(Graphics.width()) - CLOSED_HEIGHT,
-            y: 0,
+            x: Graphics.width() - CLOSED_HEIGHT,
+            y: _open ? OPEN_HEIGHT : CLOSED_HEIGHT,
             width: CLOSED_HEIGHT,
             height: CLOSED_HEIGHT
         };
     };
 
     function _coordsInMenu(coords) {
-        var scale = Graphics.getScaler()._scale;
-
-        coords = { x: coords.x, y: coords.y };
-        coords.y -= Graphics.getScaler().logicalBottom();
-        coords.y += (_open ? OPEN_HEIGHT : CLOSED_HEIGHT) / scale;
-        coords.y *= scale;
-
-        return {
-            x: coords.x * scale,
-            y: coords.y
-        };
+        return Graphics.getScaler().scalePoint(coords);
     }
 
-    function _drawBurger(offset) {
+    function _drawBurger() {
         var burger = _burger();
 
         for (var i = 0; i < 3; i++) {
             Graphics.stretchedCircle(
                 burger.x + 20, 
-                offset.y + burger.y + 12 + (8 * i), 
+                burger.y - 12 - (8 * i), 
                 2, 
                 20, 
                 _open ? 'negative' : 'menu', 
-                1
+                1,
+                true
             );
         }
 
         if (DEBUG) {
             Graphics.rect(
                 burger.x,
-                burger.y + offset.y, 
+                burger.y, 
                 burger.width, 
                 burger.height, 
-                _open ? 'negative' : 'menu'
+                _open ? 'negative' : 'menu',
+                null,
+                null,
+                1,
+                true
             );
         }
     }
@@ -109,79 +104,85 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
         var scaler = Graphics.getScaler()
         ,   offset = scaler.scalePoint({ 
                 x: 0, 
-                y: 0
+                y: _open ? OPEN_HEIGHT : CLOSED_HEIGHT
         }, true);
 
-        offset.y -= _open ? OPEN_HEIGHT : CLOSED_HEIGHT;
-
-        Graphics.disableScaling(true);
-
         Graphics.rect(
-            offset.x - BORDER_WIDTH,
-            offset.y,
-            scaler.scaleValue(Graphics.width()) + (BORDER_WIDTH * 2),
+            -BORDER_WIDTH,
+            _open ? OPEN_HEIGHT : CLOSED_HEIGHT,
+            Graphics.width() + (BORDER_WIDTH * 2),
             (_open ? OPEN_HEIGHT : CLOSED_HEIGHT) + BORDER_WIDTH,
             _open ? 'negative' : 'menu',
             _open ? 'menu' : 'negative',
-            BORDER_WIDTH
+            BORDER_WIDTH,
+            1,
+            true
         );
 
-        _drawBurger(offset);
+        _drawBurger();
+
+        if (!_open) { return; }
 
         Object.keys(MENU_ITEMS).forEach(function(key) {
             var box = MENU_ITEMS[key];
             Graphics.text(
                 box.text, 
-                scaler.scaleValue(box.width) / 2,
-                box.y + offset.y + 20,
+                box.width / 2,
+                box.y - 20,
                 MENU_FONTSIZE, 
                 'negative',
                 null, 
                 'center', 
-                false, 
+                true, 
                 1
             );
 
             if (DEBUG) {
                 Graphics.rect(
-                    box.x + offset.x, 
-                    box.y + offset.y, 
-                    scaler.scaleValue(box.width), 
+                    box.x, 
+                    box.y, 
+                    box.width, 
                     box.height, 
-                    _open ? 'negative' : 'menu'
+                    _open ? 'negative' : 'menu',
+                    null,
+                    null,
+                    1,
+                    true
                 );
             }
         });
-
-        Graphics.disableScaling(false);
     };
 
     function _handleEvent(coords, e) {
-        var handled = false;
 
         coords = _coordsInMenu(coords);
-        console.log(coords);
-        console.log(_burger());
 
         if (_inBox(coords, _burger())){
             _toggleMenu();
             return true;
         }
 
+        if (!_open) { return false; }
+
         Object.keys(MENU_ITEMS).forEach(function(key) {
             var box = MENU_ITEMS[key];
             if (_inBox(coords, box)) {
-                handled = true;
                 box.action();
             }
         });
 
-        return handled || (_open && coords.y > 0);
+        return true;
     }
 
     function _inBox(coords, box) {
-        return coords.x > box.x && coords.x < box.x + box.width &&
-               coords.y > box.y && coords.y < box.y + box.height;
+        var scaler = Graphics.getScaler()
+        ,   boxCorner = scaler.scalePoint(box, true)
+        ,   boxWidth = scaler.scaleValue(box.width)
+        ,   boxHeight = scaler.scaleValue(box.height)
+        ;
+
+        return coords.x > boxCorner.x && coords.x < boxCorner.x + boxWidth &&
+               coords.y > boxCorner.y && coords.y < boxCorner.y + boxHeight;
     }
 
     return {
