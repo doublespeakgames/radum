@@ -42,7 +42,7 @@ define(['app/graphics', 'app/util', 'app/tween'],
 				null,
 				null,
 				this._fromBottom,
-				this._fromBottom
+				this._fromBottom && require('app/engine').CANVAS_MODE
 			);
 			Graphics.circle(
 				this._coords.x, 
@@ -55,7 +55,7 @@ define(['app/graphics', 'app/util', 'app/tween'],
 				null,
 				null,
 				this._fromBottom,
-				this._fromBottom
+				this._fromBottom && require('app/engine').CANVAS_MODE
 			);
 		}
 	};

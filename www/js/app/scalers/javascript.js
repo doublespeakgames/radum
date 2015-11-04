@@ -88,7 +88,7 @@ define(['app/scalers/scaler'], function(Scaler){
 			if (fixed) {
 				return {
 					x: this.scaleValue(point.x),
-					y: _scaledHeight - point.y
+					y: _scaledHeight - this.scaleValue(point.y)
 				};
 			}
 

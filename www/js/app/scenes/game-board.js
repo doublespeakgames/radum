@@ -54,7 +54,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 	var _activePiece = null
 	, _playedPieces = []
 	, _moveTransition = 0
-	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 120}, 'menu', true)
+	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'menu', true)
 	, _activePlayer = 1
 	, _scoreHorizons = []
 	, _scores = [0, 0]

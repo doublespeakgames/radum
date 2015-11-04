@@ -8,7 +8,7 @@ define(['app/scenes/scene', 'app/graphics',
 		function(Scene, Graphics, TouchPrompt, Audio) {
 
 	var _frameText
-	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 120}, 'negative', true);
+	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'negative', true);
 
 	function _setMode(mode) {
 		var background;
