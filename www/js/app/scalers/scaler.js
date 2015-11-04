@@ -21,7 +21,16 @@ define(['app/util'], function(Util) {
 		scalePoint: function(point) { return point; },
 		scaledWidth: function() {},
 		scaledHeight: function() {},
-		getCorner: function() { return { x: 0, y: 0 }; }
+		getCorner: function() { return { x: 0, y: 0 }; },
+		suppressScaling: function(suppress) {
+			if (suppress) {
+				this._savedScale = this._scale;
+				this._scale = 1;
+			} else if (this._savedScale) {
+				this._scale = this._savedScale;
+				this._savedScale = null;
+			}
+		}
 	};
 
 	return Scaler;

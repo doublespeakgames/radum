@@ -10,7 +10,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 	var CROSSFADE_TIME = 300
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
 	, BOARD_RADIUS = 200
-	, CANVAS_BG = false
+	, CANVAS_BG = true
 	, DEBUG = true // TODO: SET THIS TO FALSE BEFORE DEPLOYING
 
 	var _activeScene

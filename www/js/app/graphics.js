@@ -388,6 +388,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 		colour: _colour,
 		stretchedCircle: _drawStretchedCircle,
 		changeTheme: _changeTheme,
-		suppressResize: _doSuppressResize
+		suppressResize: _doSuppressResize,
+		suppressScaling: function(suppress) { _getScaler().suppressScaling(suppress); }
 	};
 });

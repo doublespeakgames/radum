@@ -3,13 +3,15 @@
  *  in-game options menu, built in canvas
  *  (c) doublespeak games 2015  
  **/
-define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Graphics) {
+define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'app/tween'], 
+    function(E, Util, Graphics, TweenManager, Tween) {
 
     var CLOSED_HEIGHT = 40
     , OPEN_HEIGHT = 400
+    , TOGGLE_DURATION = 300
     , BORDER_WIDTH = 4
     , DEBUG = false
-    , MENU_TOP = 120
+    , MENU_TOP = 110
     , MENU_LINEHEIGHT = 90
     , MENU_FONTSIZE = 30
     , MENU_ITEMS = {
@@ -46,20 +48,31 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
         }
     };
 
-    var _open = false;
+    var _state = { open: false, openDegree: 0 }
+    ,   _tweens = new TweenManager()
+    ;
 
     function _toggleMenu() {
         E.fire('toggleMenu', {
-            opening: !_open
+            opening: !_state.open
         });
+
+        _tweens.add(new Tween({
+            target: _state,
+            property: 'openDegree',
+            duration: TOGGLE_DURATION,
+            start: _state.open ? 1 : 0,
+            end: _state.open ? 0 : 1,
+            stepping: Tween.EaseOut()
+        }).start());
         
-        _open = !_open;
+        _state.open = !_state.open;
     };
 
     function _burger() {
         return {
             x: Graphics.width() - CLOSED_HEIGHT,
-            y: _open ? OPEN_HEIGHT : CLOSED_HEIGHT,
+            y: _verticalOffset(),
             width: CLOSED_HEIGHT,
             height: CLOSED_HEIGHT
         };
@@ -69,8 +82,14 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
         return Graphics.getScaler().scalePoint(coords);
     }
 
+    function _verticalOffset() {
+        return CLOSED_HEIGHT + ((OPEN_HEIGHT - CLOSED_HEIGHT) * _state.openDegree);
+    }
+
     function _drawBurger() {
-        var burger = _burger();
+        var burger = _burger()
+        ,   cTransition = Math.round(_state.openDegree * 100)
+        ;
 
         for (var i = 0; i < 3; i++) {
             Graphics.stretchedCircle(
@@ -78,42 +97,44 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
                 burger.y - 12 - (8 * i), 
                 2, 
                 20, 
-                _open ? 'negative' : 'menu', 
+                'menu->negative;' + cTransition, 
                 1,
                 true
             );
         }
 
         if (DEBUG) {
+            var hitbox = _hitBox(burger)
+            ,   oldScale = Graphics.getScaler()._scale
+            ;
+            Graphics.suppressScaling(true);
             Graphics.rect(
-                burger.x,
-                burger.y, 
-                burger.width, 
-                burger.height, 
-                _open ? 'negative' : 'menu',
+                hitbox.x,
+                hitbox.y, 
+                hitbox.width, 
+                hitbox.height, 
+                'menu->negative;' + cTransition,
                 null,
                 null,
-                1,
-                true
+                _state.openDegree
             );
+            Graphics.suppressScaling(false);
         }
     }
 
     function _draw() {
 
-        var scaler = Graphics.getScaler()
-        ,   offset = scaler.scalePoint({ 
-                x: 0, 
-                y: _open ? OPEN_HEIGHT : CLOSED_HEIGHT
-        }, true);
+        var offset = _verticalOffset()
+        ,   cTransition = Math.round(_state.openDegree * 100)
+        ;
 
         Graphics.rect(
             -BORDER_WIDTH,
-            _open ? OPEN_HEIGHT : CLOSED_HEIGHT,
+            offset,
             Graphics.width() + (BORDER_WIDTH * 2),
-            (_open ? OPEN_HEIGHT : CLOSED_HEIGHT) + BORDER_WIDTH,
-            _open ? 'negative' : 'menu',
-            _open ? 'menu' : 'negative',
+            offset + BORDER_WIDTH,
+            'menu->negative;' + cTransition,
+            'negative->menu;' + cTransition,
             BORDER_WIDTH,
             1,
             true
@@ -121,34 +142,37 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
 
         _drawBurger();
 
-        if (!_open) { return; }
-
         Object.keys(MENU_ITEMS).forEach(function(key) {
             var box = MENU_ITEMS[key];
             Graphics.text(
                 box.text, 
                 box.width / 2,
-                box.y - 20,
+                offset - box.y,
                 MENU_FONTSIZE, 
                 'negative',
                 null, 
                 'center', 
                 true, 
-                1
+                _state.openDegree
             );
 
             if (DEBUG) {
+                var hitbox = _hitBox({
+                    x: box.x,
+                    y: offset - box.y + 20,
+                    width: box.width,
+                    height: box.height
+                });
+
+                Graphics.suppressScaling(true);
                 Graphics.rect(
-                    box.x, 
-                    box.y, 
-                    box.width, 
-                    box.height, 
-                    _open ? 'negative' : 'menu',
-                    null,
-                    null,
-                    1,
-                    true
+                    hitbox.x, 
+                    hitbox.y, 
+                    hitbox.width, 
+                    hitbox.height, 
+                    'negative'
                 );
+                Graphics.suppressScaling(false);
             }
         });
     };
@@ -162,11 +186,17 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
             return true;
         }
 
-        if (!_open) { return false; }
+        if (!_state.open) { return false; }
 
         Object.keys(MENU_ITEMS).forEach(function(key) {
             var box = MENU_ITEMS[key];
-            if (_inBox(coords, box)) {
+            if (_inBox(coords, { 
+                    x: box.x, 
+                    y: _verticalOffset() - box.y + 20,
+                    width: box.width,
+                    height: box.height
+                 })) {
+
                 box.action();
             }
         });
@@ -174,19 +204,25 @@ define(['app/event-manager', 'app/util', 'app/graphics'], function(E, Util, Grap
         return true;
     }
 
-    function _inBox(coords, box) {
+    function _hitBox(box) {
         var scaler = Graphics.getScaler()
         ,   boxCorner = scaler.scalePoint(box, true)
         ,   boxWidth = scaler.scaleValue(box.width)
         ,   boxHeight = scaler.scaleValue(box.height)
         ;
 
-        return coords.x > boxCorner.x && coords.x < boxCorner.x + boxWidth &&
-               coords.y > boxCorner.y && coords.y < boxCorner.y + boxHeight;
+        return Object.assign({ width: boxWidth, height: boxHeight }, boxCorner);
+    }
+
+    function _inBox(coords, box) {
+        var hitbox = _hitBox(box);
+
+        return coords.x > hitbox.x && coords.x < hitbox.x + hitbox.width &&
+               coords.y > hitbox.y && coords.y < hitbox.y + hitbox.height;
     }
 
     return {
-        do: function(delta) { /* TODO */ },
+        do: function(delta) { _tweens.run(delta); },
         draw: _draw,
         init: function() { /* Nothing */ },
         isLoaded: function() { return true; },

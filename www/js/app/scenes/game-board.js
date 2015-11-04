@@ -5,7 +5,7 @@
  **/
 define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',  
 		'app/state-machine', 'app/piece', 'app/touch-prompt', 'app/score-horizon', 
-		'app/tutorial', 'app/physics', 'app/menu-bar/html', 'app/audio'], 
+		'app/tutorial', 'app/physics', 'app/menu-bar/canvas', 'app/audio'], 
 		function(E, Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, 
 			ScoreHorizon, Tutorial, Physics, MenuBar, Audio) {
 
