@@ -3,7 +3,7 @@
  *  abstraction for playing platform-agnostic audio
  *  (c) doublespeak games 2015  
  **/
-define(['app/audio-providers/html-audio', 'app/promise'], function(AudioProvider, Promise) {
+define(['app/audio-providers/cocoon', 'app/promise'], function(AudioProvider, Promise) {
     
     var _silent = false;
     var _theme = 'theme';

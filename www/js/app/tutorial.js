@@ -12,7 +12,7 @@ define(['app/graphics', 'app/touch-prompt'], function(Graphics, TouchPrompt) {
 	var _stages
 	, _currentStage = 0
 	, _transition = 1
-	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 30}, 'negative', true)
+	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 40}, 'negative', true)
 	, _lastStage
 	;
 

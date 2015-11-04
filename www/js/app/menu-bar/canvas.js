@@ -50,6 +50,7 @@ define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'a
 
     var _state = { open: false, openDegree: 0 }
     ,   _tweens = new TweenManager()
+    ,   _active = false
     ;
 
     function _toggleMenu() {
@@ -128,6 +129,8 @@ define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'a
         ,   cTransition = Math.round(_state.openDegree * 100)
         ;
 
+        if (!_active) { return; }
+
         Graphics.rect(
             -BORDER_WIDTH,
             offset,
@@ -179,6 +182,8 @@ define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'a
 
     function _handleEvent(coords, e) {
 
+        if (!_active) { return false;}
+
         coords = _coordsInMenu(coords);
 
         if (_inBox(coords, _burger())){
@@ -211,7 +216,7 @@ define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'a
         ,   boxHeight = scaler.scaleValue(box.height)
         ;
 
-        return Object.assign({ width: boxWidth, height: boxHeight }, boxCorner);
+        return Util.merge({ width: boxWidth, height: boxHeight }, boxCorner);
     }
 
     function _inBox(coords, box) {
@@ -226,7 +231,7 @@ define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'a
         draw: _draw,
         init: function() { /* Nothing */ },
         isLoaded: function() { return true; },
-        toggle: function() { /* Nothing */ },
+        toggle: function(active) { _active = active; },
         handleEvent: _handleEvent
     };
 });

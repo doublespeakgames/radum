@@ -5,7 +5,7 @@
  **/
 define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',  
 		'app/state-machine', 'app/piece', 'app/touch-prompt', 'app/score-horizon', 
-		'app/tutorial', 'app/physics', 'app/menu-bar/canvas', 'app/audio'], 
+		'app/tutorial', 'app/physics', 'app/menu-bar/html', 'app/audio'], 
 		function(E, Util, Scene, Graphics, StateMachine, Piece, TouchPrompt, 
 			ScoreHorizon, Tutorial, Physics, MenuBar, Audio) {
 
@@ -54,7 +54,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 	var _activePiece = null
 	, _playedPieces = []
 	, _moveTransition = 0
-	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 90}, 'menu', true)
+	, _prompt = new TouchPrompt({x: Graphics.width() / 2, y: 120}, 'menu', true)
 	, _activePlayer = 1
 	, _scoreHorizons = []
 	, _scores = [0, 0]
@@ -544,7 +544,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 
 		 onActivate: function(tutorial) {
 		 	var engine = require('app/engine');
-		 	_toggleMenu(true);
+		 	_toggleMenu(!tutorial);
 
 		 	if (_stateMachine.can('START')) {
 		 		_resetGame();
