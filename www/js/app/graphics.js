@@ -324,6 +324,33 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 		_canvas.drawImage(img, point.x - (img.width / 2), point.y - (img.height / 2));
 	}
 
+	function _drawPaths(start, points, pos, colour, fromBottom) {
+		pos = _scaler.scalePoint(pos, fromBottom);
+		_canvas.save();
+		_canvas.translate(pos.x, pos.y);
+		_canvas.strokeStyle = _colour(colour);
+		_canvas.lineCap = 'butt';
+		_canvas.lineJoin = 'miter';
+		_canvas.miterLimit = 4;
+		_canvas.save();
+		_canvas.fillStyle = _colour(colour);
+		_canvas.lineWidth = 2;
+		_canvas.lineJoin = "miter";
+		_canvas.miterLimit = 10;
+		_canvas.beginPath();
+
+		_canvas.moveTo.apply(_canvas, start.map(_scaler.scaleValue.bind(_scaler)));
+		points.forEach(function(path) {
+			_canvas.bezierCurveTo.apply(_canvas, path.map(_scaler.scaleValue.bind(_scaler)));
+		});
+
+		_canvas.closePath();
+		_canvas.fill();
+		_canvas.stroke();
+		_canvas.restore();
+		_canvas.restore();
+	}
+
 	function _setAlpha(alpha) {
 		this._globalAlpha = alpha;
 		_canvas.globalAlpha = alpha;
@@ -384,6 +411,7 @@ define(['app/util', 'app/theme-store', 'app/scaler-store', 'app/tween', 'app/pro
 		circle: _drawCircle,
 		rect: _drawRect,
 		svg: _drawSvg,
+		paths: _drawPaths,
 		toggleMenu: _toggleMenu,
 		colour: _colour,
 		stretchedCircle: _drawStretchedCircle,
