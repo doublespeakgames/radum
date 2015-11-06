@@ -14,6 +14,12 @@ define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'a
     , MENU_TOP = 110
     , MENU_LINEHEIGHT = 90
     , MENU_FONTSIZE = 30
+    , LOGO_BOX = {
+        x: 5,
+        y: 0,
+        width: 40,
+        height: 40
+    }
     , MENU_ITEMS = {
         mainMenu: {
             x: 0,
@@ -105,9 +111,42 @@ define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'a
         }
 
         if (DEBUG) {
-            var hitbox = _hitBox(burger)
-            ,   oldScale = Graphics.getScaler()._scale
-            ;
+            var hitbox = _hitBox(burger);
+            Graphics.suppressScaling(true);
+            Graphics.rect(
+                hitbox.x,
+                hitbox.y, 
+                hitbox.width, 
+                hitbox.height, 
+                'menu->negative;' + cTransition,
+                null,
+                null,
+                _state.openDegree
+            );
+            Graphics.suppressScaling(false);
+        }
+    }
+
+    function _drawLogo() {
+        var cTransition = Math.round(_state.openDegree * 100)
+        ,   offset = _verticalOffset()
+        ;
+
+        Graphics.paths([18.024533, 28.5722], [
+            [20.556898,26.3292,23.089212000000003,24.0861,25.621526000000003,21.843],
+            [30.529339000000004,21.843,35.437151,21.843,40.344964000000004,21.843],
+            [40.344964000000004,15.029399999999999,40.344964000000004,8.2158,40.344964000000004,1.4022000000000006],
+            [27.368308000000006,1.4022000000000006,14.391652000000004,1.4022000000000006,1.4149964000000068,1.4022000000000006],
+            [1.4149964000000068,8.215800000000002,1.4149964000000068,15.0294,1.4149964000000068,21.843],
+            [4.706786900000006,21.843,7.998577500000007,21.843,11.290368000000006,21.843],
+            [10.647057000000006,24.086100000000002,10.003746000000007,26.3291,9.360407600000006,28.5722],
+            [11.892772000000006,26.3292,14.425086000000006,24.0861,16.957400000000007,21.843],
+            [17.956466000000006,21.843,18.955531000000008,21.843,19.954597000000007,21.843],
+            [19.311252000000007,24.086100000000002,18.667906000000006,26.3291,18.024533000000005,28.5722]
+        ], {x: 5, y: offset - 5}, 'menu->negative;' + cTransition, true);
+
+        if (DEBUG) {
+            var hitbox = _hitBox(Object.assign({}, LOGO_BOX, {y: offset - LOGO_BOX.y}));
             Graphics.suppressScaling(true);
             Graphics.rect(
                 hitbox.x,
@@ -192,6 +231,18 @@ define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'a
             return true;
         }
 
+        if (_inBox(coords, Object.assign({}, LOGO_BOX, 
+                {y: _verticalOffset() - LOGO_BOX.y}))) {
+            
+            if (typeof Cocoon !== 'undefined') {
+                Cocoon.App.openURL('http://www.doublespeakgames.com');
+            } else {
+                window.open('http://www.doublespeakgames.com', '_blank');
+            }
+
+            return true;
+        }
+
         if (!_state.open) { return false; }
 
         Object.keys(MENU_ITEMS).forEach(function(key) {
@@ -225,21 +276,6 @@ define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'a
 
         return coords.x > hitbox.x && coords.x < hitbox.x + hitbox.width &&
                coords.y > hitbox.y && coords.y < hitbox.y + hitbox.height;
-    }
-
-    function _drawLogo() {
-        Graphics.paths([18.024533, 28.5722], [
-            [20.556898,26.3292,23.089212000000003,24.0861,25.621526000000003,21.843],
-            [30.529339000000004,21.843,35.437151,21.843,40.344964000000004,21.843],
-            [40.344964000000004,15.029399999999999,40.344964000000004,8.2158,40.344964000000004,1.4022000000000006],
-            [27.368308000000006,1.4022000000000006,14.391652000000004,1.4022000000000006,1.4149964000000068,1.4022000000000006],
-            [1.4149964000000068,8.215800000000002,1.4149964000000068,15.0294,1.4149964000000068,21.843],
-            [4.706786900000006,21.843,7.998577500000007,21.843,11.290368000000006,21.843],
-            [10.647057000000006,24.086100000000002,10.003746000000007,26.3291,9.360407600000006,28.5722],
-            [11.892772000000006,26.3292,14.425086000000006,24.0861,16.957400000000007,21.843],
-            [17.956466000000006,21.843,18.955531000000008,21.843,19.954597000000007,21.843],
-            [19.311252000000007,24.086100000000002,18.667906000000006,26.3291,18.024533000000005,28.5722]
-        ], {x: 5, y: _verticalOffset() - 5}, 'menu->negative;' + Math.round(_state.openDegree * 100), true);
     }
 
     return {
