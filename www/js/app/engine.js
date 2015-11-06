@@ -4,12 +4,14 @@
  *	(c) doublespeak games 2015	
  **/
 define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 
-		'app/ai/weighted', 'app/tutorial', 'app/tournament', 'app/audio'], 
-		function(Util, EM, Graphics, SceneStore, Bot, Tutorial, Tournament, Audio) {
+		'app/ai/weighted', 'app/tutorial', 'app/tournament', 'app/audio', 'app/promise'], 
+		function(Util, EM, Graphics, SceneStore, Bot, Tutorial, Tournament, 
+		Audio, Promise) {
 	
 	var CROSSFADE_TIME = 300
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
 	, BOARD_RADIUS = 200
+	, CANVAS_MODE = false
 	, DEBUG = true // TODO: SET THIS TO FALSE BEFORE DEPLOYING
 
 	var _activeScene
@@ -174,10 +176,11 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 			;
 
 			Util.requestFrame(gameLoop);
-			Graphics.clear();
+			!CANVAS_MODE && Graphics.clear();
 			
 			if (_lastScene) {
 				Graphics.setAlpha(1 - _sceneCrossfade);
+				CANVAS_MODE && Graphics.clear(_lastScene.background);
 				_lastScene.doFrame(delta);
 				_lastScene.drawFrame();
 			}
@@ -186,6 +189,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 			if (!Tutorial.isActive() || !Tutorial.isBlocking()) {
 				_activeScene.doFrame(delta);
 			}
+			CANVAS_MODE && Graphics.clear(_activeScene.background);
 			_activeScene.drawFrame();
 
 			if (Tutorial.isActive()) {
@@ -231,6 +235,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 		setBot: _setBot,
 		getAI: _getAI,
 		BOARD_CENTER: BOARD_CENTER,
-		BOARD_RADIUS: BOARD_RADIUS
+		BOARD_RADIUS: BOARD_RADIUS,
+		CANVAS_MODE: CANVAS_MODE
 	};
 });

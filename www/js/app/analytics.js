@@ -6,11 +6,16 @@
 define(['google-analytics', 'app/event-manager', 'app/promise'], 
 	function(ga, E, Promise) {
 
+	var DEBUG = true;
+
 	var _initialized = false;
 
 	function _trackEvent(type, desc, val) {
 		if (_initialized) {
 			ga('send', 'event', type, desc, val);
+			if (DEBUG) {
+				console.log('Tracked: ' + type + ', ' + desc + ', ' + val);
+			}
 		}
 	}
 
@@ -42,8 +47,16 @@ define(['google-analytics', 'app/event-manager', 'app/promise'],
 		});
 		E.on('quitToMain', _trackEvent.bind(null, 'Menu', 'Quit'));
 		E.on('changeTheme', _trackEvent.bind(null, 'Menu', 'ChangeTheme'));
-		E.on('playPiece', _trackEvent.bind(null, 'Game', 'PiecePlayed'));
+		E.on('playPiece', function(e) {
+			_trackEvent('Game', 'PiecePlayed', e.playerNumber);
+		});
 		E.on('logoPressed', _trackEvent.bind(null, 'Menu', 'logoPressed'));
+		E.on('nag', function(e) {
+			_trackEvent('Marketing', 'Nag', e.manual);
+		});
+		E.on('storeClicked', function(e) {
+			_trackEvent('Marketing', 'Click', e.store);
+		});
 
 		return Promise.resolve(true);
 	}

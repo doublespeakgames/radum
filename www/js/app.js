@@ -3,6 +3,9 @@ requirejs.config({
 	shim: {
 		"google-analytics": {
 			exports: "ga"
+		},
+		"cocoon-js": {
+			exports: "Cocoon"
 		}
 	},
 	paths: {

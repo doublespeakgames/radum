@@ -162,5 +162,10 @@ define(['app/util', 'app/piece'], function(Util, Piece) {
 		play: _playPiece
 	};
 
+	// Polyfill Math.log10 because IE is a piece of shit
+	Math.log10 = Math.log10 || function(x) {
+		return Math.log(x) / Math.LN10;
+	};
+
 	return WeightedAI;
 });
