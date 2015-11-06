@@ -146,7 +146,13 @@ define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'a
         ], {x: 5, y: offset - 5}, 'menu->negative;' + cTransition, true);
 
         if (DEBUG) {
-            var hitbox = _hitBox(Object.assign({}, LOGO_BOX, {y: offset - LOGO_BOX.y}));
+            var hitbox = _hitBox({
+               x: LOGO_BOX.x,
+               y: offset - LOGO_BOX.y,
+               width: LOGO_BOX.width,
+               height: LOGO_BOX.height
+            });
+
             Graphics.suppressScaling(true);
             Graphics.rect(
                 hitbox.x,
@@ -231,14 +237,16 @@ define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'a
             return true;
         }
 
-        if (_inBox(coords, Object.assign({}, LOGO_BOX, 
-                {y: _verticalOffset() - LOGO_BOX.y}))) {
+        if (_inBox(coords, {
+               x: LOGO_BOX.x,
+               y: _verticalOffset() - LOGO_BOX.y,
+               width: LOGO_BOX.width,
+               height: LOGO_BOX.height
+            })) {
             
-            if (typeof Cocoon !== 'undefined') {
+            require(['cocoon-js'], function(Cocoon) {
                 Cocoon.App.openURL('http://www.doublespeakgames.com');
-            } else {
-                window.open('http://www.doublespeakgames.com', '_blank');
-            }
+            });
 
             return true;
         }
