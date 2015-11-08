@@ -9,15 +9,19 @@ define(['app/scalers/scaler'], function(Scaler){
     ,   _horizontalPad = 0
     ,   _scaledHeight
     ,   _scaledWidth
+    ,   _visualScale = 1
     ; 
 
     return new Scaler({
         scaleCoords: function(coords) {
             var G = require('app/graphics');
 
+            // Scale
+            coords.x /= _visualScale;
+            coords.y /= _visualScale;
+
             coords.y -= _verticalPad / 2;
 
-            // Scale
             coords.x /= this._scale;
             coords.y /= this._scale;
 
@@ -25,9 +29,11 @@ define(['app/scalers/scaler'], function(Scaler){
         },
 
         scaleCanvas: function(canvas) {
-            var G = require('app/graphics');
-
-            var aspectRatio = G.realHeight() / G.realWidth();
+            var G = require('app/graphics')
+            ,   rWidth = G.realWidth()
+            ,   rHeight = G.realHeight()
+            ,   aspectRatio = rHeight / rWidth
+            ;
 
             _scaledHeight = Math.round(G.height() * this._scale);
             _scaledWidth = Math.round(G.width() * this._scale);
@@ -38,11 +44,12 @@ define(['app/scalers/scaler'], function(Scaler){
                 _scaledHeight += _verticalPad;
             }
 
+            _visualScale = rWidth / _scaledWidth;
+
             // Size and position the canvas
             canvas.width = _scaledWidth;
             canvas.height = _scaledHeight;
-
-            console.log('CANVAS SIZE: ' + canvas.width + ', ' + canvas.height);
+            canvas.style.width = rWidth + 'px';
         },
 
         scaleValue: function(value) { 
@@ -75,9 +82,7 @@ define(['app/scalers/scaler'], function(Scaler){
         },
 
         setScale: function(scale, pixelRatio) {
-            // Let CocoonJS handle the scaling, but make sure we're
-            // accounting for pixel density.
-            this._scale = pixelRatio;
+            this._scale = pixelRatio * (pixelRatio <= 2 ? 2 : 1);
         },
 
         logicalBottom: function() {
