@@ -11,7 +11,7 @@ define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'a
     , TOGGLE_DURATION = 300
     , BORDER_WIDTH = 4
     , DEBUG = false
-    , MENU_TOP = 110
+    , MENU_TOP = 160
     , MENU_LINEHEIGHT = 90
     , MENU_FONTSIZE = 30
     , LOGO_BOX = {
@@ -36,21 +36,6 @@ define(['app/event-manager', 'app/util', 'app/graphics', 'app/tween-manager', 'a
             height: 40,
             text: 'change theme',
             action: function() { E.fire('changeTheme'); Graphics.changeTheme(); Graphics.setBackground('negative'); }
-        },
-        getApp: {
-            x: 0,
-            y: MENU_TOP + (2 * MENU_LINEHEIGHT),
-            width: Graphics.width(),
-            height: 40,
-            text: 'get the app',
-            action: function() {  
-                var e = require('app/engine'); 
-                _toggleMenu(); 
-                e.changeScene('nag', {
-                    callback: e.changeScene.bind(null, 'main-menu'),
-                    manual: true
-                }); 
-            }
         }
     };
 
