@@ -158,6 +158,9 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
         onInputStart: function(coords) {
 
             _hitBoxes.forEach(function(box) {
+                if (box.enabled && !box.enabled()) {
+                    return;
+                }
                 if (coords.x > box.x && coords.x < box.x + box.width &&
                     coords.y > box.y && coords.y < box.y + box.height) {
                     box.onTrigger();
@@ -184,7 +187,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/audio', 'app/tween',
         },
 
         onKeyDown: function(keyCode) {
-            var c = String.fromCharCode(keyCode).trim();
+            var c = String.fromCharCode(keyCode).trim().toUpperCase();
 
             if (!_getInputButton() || !_canAdd()) {
                 return;

@@ -4,14 +4,15 @@
  *	(c) doublespeak games 2015	
  **/
 define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store', 
-		'app/ai/weighted', 'app/tutorial', 'app/tournament', 'app/audio', 'app/promise'], 
+		'app/ai/weighted', 'app/tutorial', 'app/tournament', 'app/audio', 
+		'app/promise', 'cocoon-js'], 
 		function(Util, EM, Graphics, SceneStore, Bot, Tutorial, Tournament, 
-		Audio, Promise) {
+		Audio, Promise, Cocoon) {
 	
 	var CROSSFADE_TIME = 300
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
 	, BOARD_RADIUS = 200
-	, CANVAS_MODE = false
+	, CANVAS_MODE = true
 	, DEBUG = true // TODO: SET THIS TO FALSE BEFORE DEPLOYING
 
 	var _activeScene
@@ -124,37 +125,24 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 		_activeScene.onInputMove(Graphics.getScaler().scaleCoords({x: e.clientX, y: e.clientY}), e);
 	}, 10);
 
-	function _handleKeyDown(e) {
-		e = e || window.event;
-		e.preventDefault();
-
-		/** 
-		 * Note: This does not work in Chrome on Android due to a horrible bug
-		 * https://code.google.com/p/chromium/issues/detail?id=118639
-		 **/
-		_activeScene.onKeyDown && _activeScene.onKeyDown(e.keyCode);
-
-		if (DEBUG) {
-			console.log('KEYDOWN: ' + e.keyCode);
-		}
-
-		return false;
-	}
-
 	function _toggleKeyboard(open) {
-		if (_keyTarget) {
-			Graphics.suppressResize(false);
-			document.body.removeChild(_keyTarget);
-			_keyTarget.blur();
-			_keyTarget = null;
-		}
 
 		if (open) {
-			Graphics.suppressResize(true);
-			_keyTarget = document.createElement('input');
-			_keyTarget.className = 'keyboard_target';
-			document.body.appendChild(_keyTarget);
-			_keyTarget.focus();
+			Cocoon.Dialog.showKeyboard({
+				type: Cocoon.Dialog.keyboardType.TEXT
+			}, {
+			   insertText: function(inserted) {
+					_activeScene.onKeyDown && _activeScene.onKeyDown(inserted.charCodeAt(0));
+				},
+				deleteBackward: function() {
+					_activeScene.onKeyDown && _activeScene.onKeyDown(8);
+			   },
+				done: function() {
+					_activeScene.onKeyDown && _activeScene.onKeyDown(13);
+				}
+			});
+		} else {
+			Cocoon.Dialog.dismissKeyboard();
 		}
 	}
 
@@ -220,7 +208,6 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 		document.body.addEventListener('mouseup', _handleInputStop);
 		document.body.addEventListener('touchmove', _handleInputMove);
 		document.body.addEventListener('mousemove', _handleInputMove);
-		document.body.addEventListener('keydown', _handleKeyDown);
 
 		// Start the main menu
 		_changeScene('main-menu');
