@@ -6,7 +6,7 @@
 define(['google-analytics', 'app/event-manager', 'app/promise'], 
 	function(ga, E, Promise) {
 
-	var DEBUG = true;
+	var DEBUG = false;
 
 	var _initialized = false;
 

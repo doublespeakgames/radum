@@ -8,7 +8,7 @@
 
  	var TURNS = 6 // Matches what's in game-board
  	, SCORE_DEADZONE = 5 // Matches what's in game-board
- 	, DEBUG = true // TODO: DISABLE BEFORE DEPLOYING
+ 	, DEBUG = false
  	;
 
  	function Game(player1, player2) {
