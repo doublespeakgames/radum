@@ -4,7 +4,8 @@
  *	(c) doublespeak games 2015	
  **/
 define(function() {
-	
+
+	// Tan background, red/blue pieces
 	var themes = [{
 		primary1: '#962d3e',
 		secondary1: '#edbdc4',
@@ -14,6 +15,7 @@ define(function() {
 		negative: '#f2ebc7',
 		menu: '#343642'
 	},{
+		// My favourite space one
 		primary1: '#fc4349',
 		secondary1: '#fda1a4',
 		primary2: '#6dbcdb',
@@ -22,6 +24,7 @@ define(function() {
 		negative: '#2c3e50',
 		menu: '#ffffff'
 	},{
+		// Pea soup with ham
 		primary1: '#c9d787',
 		secondary1: '#e4ebc3',
 		primary2: '#ffc0a9',
@@ -30,22 +33,7 @@ define(function() {
 		negative: '#7d8a2e',
 		menu: '#ffffff'
 	},{
-		primary1: '#ff358b',
-		secondary1: '#f6a9ca',
-		primary2: '#01b0f0',
-		secondary2: '#98e1fc',
-		background:  '#3e3e3e',
-		negative: '#aeee00',
-		menu: '#000000'
-	},{
-		primary1: '#74a588',
-		secondary1: '#b9d2c3',
-		primary2: '#dc9c76',
-		secondary2: '#edcdba',
-		background:  '#42282f',
-		negative: '#d6ccad',
-		menu: '#d6655a'
-	},{
+		// Hot-dog stand
 		primary1: '#45b29d',
 		secondary1: '#a2d8ce',
 		primary2: '#e27a3f',
@@ -54,6 +42,7 @@ define(function() {
 		negative: '#efc94c',
 		menu: '#df5a49'
 	},{
+		// Grey/blue and pink
 		primary1: '#c0ca55',
 		secondary1: '#dfe4aa',
 		primary2: '#ad5472',
@@ -61,30 +50,6 @@ define(function() {
 		background:  '#f07c6c',
 		negative: '#56626b',
 		menu: '#6c9380'
-	},{
-		primary1: '#fff68f',
-		secondary1: '#fffac7',
-		primary2: '#a2fbb9',
-		secondary2: '#d0fddc',
-		background:  '#78c0f9',
-		negative: '#fe86a4',
-		menu: '#ffffff'
-	},{
-		primary1: '#fff0a5',
-		secondary1: '#fff7d2',
-		primary2: '#ffb03b',
-		secondary2: '#ffd79d',
-		background:  '#468966',
-		negative: '#8e2800',
-		menu: '#d77555'
-	},{
-		primary1: '#e6d6af',
-		secondary1: '#f2ead7',
-		primary2: '#7ea784',
-		secondary2: '#bed3c1',
-		background:  '#046380',
-		negative: '#002f2f',
-		menu: '#efecca'
 	}];
 
 	function _randomIndex() {

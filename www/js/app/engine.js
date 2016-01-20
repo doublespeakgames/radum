@@ -11,7 +11,7 @@ define(['app/util', 'app/event-manager', 'app/graphics', 'app/scene-store',
 	, BOARD_CENTER = {x: Graphics.width() / 2, y: Graphics.height() / 2}
 	, BOARD_RADIUS = 200
 	, CANVAS_MODE = false
-	, DEBUG = true // TODO: SET THIS TO FALSE BEFORE DEPLOYING
+	, DEBUG = false
 
 	var _activeScene
 	, _lastFrame = Util.time()
