@@ -40,7 +40,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/touch-prompt', 'app/audio',
         width: LINKS_SIZE,
         height: LINKS_SIZE,
         onTrigger: function() { 
-            console.log('DROID'); 
+            window.open('https://play.google.com/store/apps/details?id=com.doublespeakgames.radum');
             E.fire('storeClicked', { store: 'android' });
         }
     }];
