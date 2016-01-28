@@ -31,7 +31,7 @@ define(['app/scenes/scene', 'app/graphics', 'app/touch-prompt', 'app/audio',
         width: LINKS_SIZE,
         height: LINKS_SIZE,
         onTrigger: function() { 
-            console.log('APPLE'); 
+            window.open('https://itunes.apple.com/us/app/radum/id1050503471?ls=1&mt=8');
             E.fire('storeClicked', { store: 'apple' });
         }
     },{
