@@ -58,7 +58,7 @@ define(['app/promise'], function(Promise) {
         source.connect(_context.destination);
 
         // play the file
-        source.start();
+        source.start(0);
 
         document.body.removeEventListener('touchend', _makeItWorkOnIPhone);
     }
@@ -130,7 +130,7 @@ define(['app/promise'], function(Promise) {
                 throw "Attempting to play unloaded file " + fileName;
             }
 
-            _createSoundSource(_audioBuffers[fileName]).start();
+            _createSoundSource(_audioBuffers[fileName]).start(0);
         },
 
         startMusic: function(offset) {
