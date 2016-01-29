@@ -17,6 +17,8 @@ html {
 body {
 	margin: 0;
 	overflow: hidden;
+    position: relative;
+    height: 100%;
 	font-family: 'montserratregular';
     -webkit-transition: background 300ms linear;
     -moz-transition: background 300ms linear;
