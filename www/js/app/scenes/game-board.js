@@ -16,7 +16,7 @@ define(['app/event-manager', 'app/util', 'app/scenes/scene', 'app/graphics',
 	, SCORE_DEADZONE = 5
 	, DEBUG_AI = false
 	, TOUCH = 'ontouchstart' in document.documentElement
-	, SUBMIT_TIMEOUT = 300
+	, SUBMIT_TIMEOUT = 500
 	;
 
 	var _stateMachine = new StateMachine({

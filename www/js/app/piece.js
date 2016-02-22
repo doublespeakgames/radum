@@ -15,7 +15,7 @@ define(['app/graphics', 'app/util', 'app/touch-prompt', 'app/tween',
 	, BORDER_WIDTH = 4
 	, FONT_SIZE = 36
 	, MAX_LEVEL = 3
-	, HOT_ZONE = 1
+	, HOT_ZONE = 2
 	;
 
 	function Piece(coords, type, player) {
