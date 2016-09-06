@@ -1,6 +1,8 @@
 # Radüm
 An abstract strategy game for two.
 
+http://radum.doublespeakgames.com
+
 ## Setup
 Clone the repository. Radüm should be runnable without building from `www/index.html`.
 Build the web-app with `ant build`. The built version should be runnable from `build/index.html`.
